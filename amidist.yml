@@ -1,0 +1,56 @@
+---
+data:
+  environments:
+  - ci:
+      accountId: 385838
+      getCredsUsing: iamRole
+      iamRoleName: test-iam-role
+  - develop:
+      id: 123457
+      getCredsUsing: awsProfile
+      awsProfileName: test-profile
+  - sandbox:
+      id: 786456
+      getCredsUsing: envVars
+  - nonProd:
+      id: 435325
+
+resources:
+- copyAMI:
+    source:
+      environment: ci
+      region: us-west-2
+      amiFilters:
+        name:
+        id:
+        tags:
+          home: {{ env "HOME" | default "default value" }}
+    target:
+      regions:
+      - us-west-1
+      - us-west-2
+      addExtraTags: {}
+
+- shareAMI:
+    source:
+      environment: ci
+      region: us-west-2
+      amiFilters:
+        name:
+        id:
+        tags:
+          home: {{ env "HOME" | default "default value" }}
+    target:
+      environmentRegionMap:
+      - develop:
+          regions:
+          - us-east-1
+          - us-east-2
+          extraTags: {}
+      - sandbox:
+          regions:
+          - ap-south-west-1
+          extraTags: {}
+      commonRegions:
+      - us-west-1
+      - us-west-2
