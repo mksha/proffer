@@ -35,7 +35,7 @@ var wg sync.WaitGroup
 // 	return fmt.Sprintf("AmiDoesNotExist: AMI does not exist in region %s with filters %v ", *a.Region, a.Filters)
 // }
 
-func isError(err error) (bool, error){
+func isError(err error) (bool, error) {
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
@@ -50,14 +50,14 @@ func isError(err error) (bool, error){
 	return false, nil
 }
 
-func isAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error){
+func isAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
 	svc := ec2.New(sess)
 	input := &ec2.DescribeImagesInput{
 		Filters: filters,
 	}
 
 	result, err := svc.DescribeImages(input)
-	if ok, err:= isError(err); ok {
+	if ok, err := isError(err); ok {
 		return false, err
 	}
 
@@ -69,7 +69,7 @@ func isAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error){
 }
 
 func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, error) {
-	if ok, err := isAmiExist(sess,filters) ; !ok {
+	if ok, err := isAmiExist(sess, filters); !ok {
 		return nil, err
 	}
 
@@ -79,7 +79,7 @@ func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 	}
 
 	result, err := svc.DescribeImages(input)
-	if ok, err:= isError(err); ok {
+	if ok, err := isError(err); ok {
 		return nil, err
 	}
 
@@ -89,16 +89,15 @@ func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 
 func copyImage(sess *session.Session, sai SrcAmiInfo) {
 	defer wg.Done()
-	filters :=
-		[]*ec2.Filter{
-			{
-				Name: aws.String("name"),
-				Values: []*string{
-					sai.Image.Name,
-				},
-			},
-		}
 
+	filters := []*ec2.Filter{
+		{
+			Name: aws.String("name"),
+			Values: []*string{
+				sai.Image.Name,
+			},
+		},
+	}
 	ok, err := isAmiExist(sess, filters)
 	if ok {
 		log.Printf(" AMI %s Already Exist In Region %s", *sai.Image.Name, *sess.Config.Region)
@@ -108,9 +107,9 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 			log.Fatalln(err)
 		}
 	}
-	
-	log.Printf("Start Copying AMI In Region %s ...", *sess.Config.Region)
-	
+
+	log.Printf(" Start Copying AMI In Region %s ...", *sess.Config.Region)
+
 	svc := ec2.New(sess)
 	input := &ec2.CopyImageInput{
 		Description:   sai.Image.Description,
@@ -120,20 +119,17 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 	}
 
 	result, err := svc.CopyImage(input)
-	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			default:
-				log.Fatalln(aerr.Error())
-			}
-		} else {
-			log.Fatalln(err.Error())
-		}
-		// return result, err
+
+	if ok, err := isError(err); ok {
+		log.Fatalln(err)
 	}
-	
-	fmt.Println(result)
-	// return result, nil
+
+	err = svc.WaitUntilImageAvailable(&ec2.DescribeImagesInput{ImageIds: []*string{result.ImageId}})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Printf(" Copied AMI In Region: %s , New AMI Id Is : %s ", sess.Config.Region, &result.ImageId)
 }
 
 func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {

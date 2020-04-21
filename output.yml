@@ -1,47 +1,47 @@
 ---
 data:
   environments:
-  - ci:
+    ci:
       accountId: 385838
       getCredsUsing: iamRole
       iamRoleName: test-iam-role
-  - develop:
-      id: 123457
+    develop:
+      accountId: 123457
       getCredsUsing: awsProfile
       awsProfileName: test-profile
-  - sandbox:
-      id: 786456
+    sandbox:
+      accountId: 786456
       getCredsUsing: envVars
-  - nonProd:
-      id: 435325
+    nonProd:
+      accountId: 435325
 
 resources:
-- copyAMI:
+- type: aws-copyami
+  config:
     source:
       environment: ci
       region: us-west-2
       amiFilters:
-        name:
-        id:
-        tags:
-          home: /Users/mohitkumarsharma
+        id: ami-123434
+        name: my-default-ami-name
     target:
       regions:
       - us-west-1
       - us-west-2
-      addExtraTags: {}
+      addExtraTags:
+        Purpose: testing
+        Department: DevOps
 
-- shareAMI:
+- type: aws-shareami
+  config:
     source:
       environment: ci
       region: us-west-2
       amiFilters:
-        name:
-        id:
-        tags:
-          home: /Users/mohitkumarsharma
+        name: my-ami-new-one
+        id: ami-12131313
     target:
-      environmentRegionMap:
+      environmentRegionMapping:
       - develop:
           regions:
           - us-east-1
@@ -50,7 +50,9 @@ resources:
       - sandbox:
           regions:
           - ap-south-west-1
-          extraTags: {}
+          extraTags:
+            home: /Users/mohitkumarsharma
       commonRegions:
       - us-west-1
       - us-west-2
+      
