@@ -15,7 +15,6 @@ func executeResources(dsc string) {
 	c := prepareDataStore(dsc)
 	resources := command.Resources
 	for _, rawResource := range c.RawResources {
-		fmt.Println(rawResource.Prepare(rawResource.Config))
 		resource, ok := resources[rawResource.Type]
 		if !ok {
 			log.Fatalf(" InvalidResource: Resource %s Not Found", rawResource.Type)
