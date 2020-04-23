@@ -4,8 +4,8 @@ import "fmt"
 
 
 type Resourcer interface{
-	Prepare(map[string]interface{}) string
-	Run() string
+	Prepare(map[string]interface{}) error
+	Run() error
 }
 
 type MapOfResource map[string]func() (Resourcer, error)

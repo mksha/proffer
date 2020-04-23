@@ -2,18 +2,19 @@ package shareami
 
 import (
 	"fmt"
+	"log"
 
-	"example.com/amidist/config"
+	"github.com/mitchellh/mapstructure"
 )
 
-type AmiFilters map[string]struct {
+type AmiFilters struct {
 	ID   string `yaml:"id"`
 	Name string `yaml:"name"`
 }
 
-type EnvRegionMap map[string]struct {
-	Regions      []string          `yaml:"regions"`
-	AddExtraTags map[string]string `yaml:"extraTags"`
+type EnvironmentInfo struct {
+	Regions   []string          `yaml:"regions"`
+	ExtraTags map[string]string `yaml:"extraTags"`
 }
 
 type Source struct {
@@ -23,8 +24,8 @@ type Source struct {
 }
 
 type Target struct {
-	EnvRegionMapList []EnvRegionMap `yaml:"environmentRegionMapping"`
-	CommonRegions    []string       `yaml:"commonRegions"`
+	EnvironmentRegionMapping map[string]EnvironmentInfo `yaml:"environmentRegionMapping"`
+	CommonRegions            []string                   `yaml:"commonRegions"`
 }
 
 type Config struct {
@@ -33,18 +34,25 @@ type Config struct {
 }
 
 type Resource struct {
-	config Config
+	Config Config
 }
 
-func (r Resource) Prepare(rawConfig map[string]interface{}) string {
-	fmt.Println("I am in side of prepare")
-	fmt.Println(r)
+func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
+	log.Println(" ************************ Preparing Resource **************************** ")
+
 	var c Config
-	config.Decode(rawConfig, c, "aws-shareami")
-	fmt.Println(c)
-	return fmt.Sprintf("Hi from Prepare of type %T\n", r)
+
+	if err := mapstructure.Decode(rawConfig, &c); err != nil {
+		return err
+	}
+
+	r.Config = c
+
+	return nil
 }
 
-func (r Resource) Run() string {
-	return fmt.Sprintf("Hi from Run of type %T\n", r)
+func (r *Resource) Run() error {
+	fmt.Println(r.Config)
+
+	return nil
 }

@@ -42,12 +42,12 @@ resources:
         id: ami-12131313
     target:
       environmentRegionMapping:
-      - develop:
+        develop:
           regions:
           - us-east-1
           - us-east-2
           extraTags: {}
-      - sandbox:
+        sandbox:
           regions:
           - ap-south-west-1
           extraTags:
@@ -55,4 +55,3 @@ resources:
       commonRegions:
       - us-west-1
       - us-west-2
-      

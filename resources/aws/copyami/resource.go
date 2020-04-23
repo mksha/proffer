@@ -1,9 +1,8 @@
 package copyami
 
-// import "example.com/amidist/components"
-
 import (
 	"fmt"
+	"log"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -30,33 +29,25 @@ type Config struct {
 }
 
 type Resource struct {
-	config Config `yaml:"config"`
+	Config Config `yaml:"config"`
 }
 
-func (r Resource) Prepare(rawConfig map[string]interface{}) string {
-	fmt.Println("Raw config ", rawConfig)
+func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
+	log.Println(" ************************ Preparing Resource **************************** ")
+
 	var c Config
-	var md mapstructure.Metadata
 
-	config := &mapstructure.DecoderConfig{
-		Metadata: &md,
-		Result:   &c,
+	if err := mapstructure.Decode(rawConfig, &c); err != nil {
+		return err
 	}
 
-	decoder, err := mapstructure.NewDecoder(config)
-	if err != nil {
-		panic(err)
-	}
+	r.Config = c
 
-	if err := decoder.Decode(rawConfig); err != nil {
-		panic(err)
-	}
-	fmt.Println("I am in side of prepare")
-	fmt.Println(c)
-
-	return fmt.Sprintf("Hi from Prepare of type %T\n", r)
+	return nil
 }
 
-func (r Resource) Run() string {
-	return fmt.Sprintf("Hi from Run of type %T\n", r)
+func (r *Resource) Run() error {
+	fmt.Println(r.Config)
+
+	return nil
 }
