@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"sync"
 
-	"example.com/amidist/resources/aws/common"
+	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -137,7 +137,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
 	log.Println(" ******************** Start: Copy AMI Operation ************************************")
 
-	sess := common.GetAwsSessWithDefaultCreds()
+	sess := awscommon.GetAwsSessWithDefaultCreds()
 	sess.Config.Region = srcAmiInfo.Region
 	images, err := getAmiInfo(sess, srcAmiInfo.Filters)
 

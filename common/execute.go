@@ -1,20 +1,19 @@
-package main
+package common
 
 import (
 	"fmt"
 	"log"
 
-	"example.com/amidist/command"
-	"example.com/amidist/parser"
+	"example.com/proffer/command"
+	"example.com/proffer/parser"
 )
 
-func execute(dsc string) {
-	executeResources(dsc)
-}
+func ExecuteResources(dsc string) {
+	c, err := ParseConfig(dsc)
+	if err != nil {
+		fmt.Println(" Unable to parse configuration file")
+	}
 
-func executeResources(dsc string) {
-	c := prepareDataStore(dsc)
-	// fmt.Println(c.Data)
 	resources := command.Resources
 	for _, rawResource := range c.RawResources {
 		resource, ok := resources[rawResource.Type]
@@ -34,13 +33,21 @@ func executeResources(dsc string) {
 	}
 }
 
-func prepareDataStore(dsc string) parser.Config {
+func ParseConfig(dsc string) (parser.Config, error) {
 	log.Println(" ****************** Start: Template Parsing *********************")
+	var config parser.Config
 
-	parsedTemplateFileName := parser.ParseTemplate(dsc)
-	config := parser.UnmarshalYaml(parsedTemplateFileName)
+	parsedTemplateFileName, err := parser.ParseTemplate(dsc)
+	if err != nil {
+		return config, err
+	}
+
+	config, err = parser.UnmarshalYaml(parsedTemplateFileName)
+	if err != nil {
+		return config, err
+	}
 
 	log.Println(" ****************** End: Template Parsing *********************")
 
-	return config
+	return config, nil
 }

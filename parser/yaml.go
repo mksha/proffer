@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"example.com/amidist/components"
+	"example.com/proffer/components"
 	"gopkg.in/yaml.v3"
 )
 
@@ -32,17 +32,17 @@ type Config struct {
 	Resources    components.MapOfResource `yaml:"-"`
 }
 
-func UnmarshalYaml(filePath string) Config {
+func UnmarshalYaml(filePath string) (Config, error) {
 	var c Config
 
 	fileInfo, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
-		log.Fatalln(err)
+		return c, err
 	}
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatalln(err)
+		return c, err
 	}
 	defer file.Close()
 
@@ -51,13 +51,13 @@ func UnmarshalYaml(filePath string) Config {
 	data := make([]byte, fileInfo.Size())
 
 	if _, err := file.Read(data); err != nil {
-		log.Fatal(err)
+		return c, err
 	}
 
 	err = yaml.Unmarshal(data, &c)
 	if err != nil {
-		log.Fatalf("cannot unmarshal data: %v", err)
+		return c, err
 	}
 
-	return c
+	return c, nil
 }

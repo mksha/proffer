@@ -18,18 +18,20 @@ func setDefaultValue(givenValue, currentValue string) string {
 	return currentValue
 }
 
-func ParseTemplate(dsc string) string {
+func ParseTemplate(dsc string) (string, error) {
 	var (
 		fm = template.FuncMap{
 			"env":     getEnv,
 			"default": setDefaultValue,
 		}
+		// Create output file for storing parsed template content
+		parsedTemplateFileName = "output.yml"
 	)
 
 	fileInfo, err := os.Stat(dsc)
 
 	if os.IsNotExist(err) {
-		log.Fatalln(err)
+		return "", err
 	}
 
 	log.Println(" DSC Found At :-> ", dsc)
@@ -37,20 +39,18 @@ func ParseTemplate(dsc string) string {
 	dscName := fileInfo.Name()
 	// Create template object for given dsc
 	tmplPtr := template.Must(template.New(dscName).Funcs(fm).ParseFiles(dsc))
-	// Create output file for storing parsed template content
-	parsedTemplateFileName := "output.yml"
 
 	file, err := os.Create(parsedTemplateFileName)
 	if err != nil {
-		log.Fatalln(err)
+		return "", err
 	}
 	defer file.Close()
 
 	// Parse given dsc template
 	err = tmplPtr.Execute(file, nil)
 	if err != nil {
-		log.Fatalln(err)
+		return parsedTemplateFileName, err
 	}
 
-	return parsedTemplateFileName
+	return parsedTemplateFileName, nil
 }
