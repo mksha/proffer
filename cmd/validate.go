@@ -16,11 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 
-	"example.com/proffer/common"
+	"example.com/proffer/parser"
 	"github.com/spf13/cobra"
 )
 
@@ -47,8 +46,6 @@ func init() {
 }
 
 func validateConfig(cmd *cobra.Command, args []string) {
-	fmt.Println("validate called")
-
 	if len(args) == 0 {
 		log.Fatalln(" Proffer Configuration file missing: Pls pass proffer config file to apply")
 	}
@@ -58,7 +55,23 @@ func validateConfig(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if _, err := common.ParseConfig(cfgFileAbsPath); err != nil {
+	if _, err := parseConfig(cfgFileAbsPath); err != nil {
 		log.Fatalf(" InvalidConfig: Unable to parse configuration file %s \n", cfgFileAbsPath)
 	}
+}
+
+func parseConfig(dsc string) (parser.Config, error) {
+	var config parser.Config
+
+	parsedTemplateFileName, err := parser.ParseTemplate(dsc)
+	if err != nil {
+		return config, err
+	}
+
+	config, err = parser.UnmarshalYaml(parsedTemplateFileName)
+	if err != nil {
+		return config, err
+	}
+
+	return config, nil
 }

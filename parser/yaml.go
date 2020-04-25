@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"log"
 	"os"
 
 	"example.com/proffer/components"
@@ -46,7 +45,7 @@ func UnmarshalYaml(filePath string) (Config, error) {
 	}
 	defer file.Close()
 
-	log.Println(" YAML file found :-> ", filePath)
+	logger.Print(" YAML file found :-> ", filePath)
 
 	data := make([]byte, fileInfo.Size())
 

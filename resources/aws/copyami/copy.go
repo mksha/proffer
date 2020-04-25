@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sync"
 
+	"example.com/proffer/common"
 	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -65,7 +66,7 @@ func isAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
 	images := result.Images
 
 	if len(images) == 0 {
-		return false, fmt.Errorf(" AMIDoesNotExist: No AMI Matched With Given Filters")
+		return false, fmt.Errorf("AMIDoesNotExist: No AMI Matched With Given Filters")
 	}
 	return true, nil
 }
@@ -102,7 +103,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 	}
 	ok, err := isAmiExist(sess, filters)
 	if ok {
-		log.Printf(" AMI %s Already Exist In Region %s", *sai.Image.Name, *sess.Config.Region)
+		logger.Printf("AMI %s Already Exist In Region %s", common.YellowBold(*sai.Image.Name), common.YellowBold(*sess.Config.Region))
 		return
 	} else {
 		if err != nil {
@@ -110,7 +111,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 		}
 	}
 
-	log.Printf(" Start Copying AMI In Region %s ...", *sess.Config.Region)
+	logger.Printf("Start Copying AMI In Region %s ...", *sess.Config.Region)
 
 	svc := ec2.New(sess)
 	input := &ec2.CopyImageInput{
@@ -131,11 +132,11 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 		log.Fatalln(err)
 	}
 
-	log.Printf(" Copied AMI In Region: %s , New AMI Id Is : %s ", sess.Config.Region, &result.ImageId)
+	logger.Printf("Copied AMI In Region: %s , New AMI Id Is : %s ", common.YellowBold(*sess.Config.Region), common.YellowBold(*result.ImageId))
+
 }
 
 func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
-	log.Println(" ******************** Start: Copy AMI Operation ************************************")
 
 	sess := awscommon.GetAwsSessWithDefaultCreds()
 	sess.Config.Region = srcAmiInfo.Region
@@ -151,8 +152,8 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
 		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo)
 	}
 
-	fmt.Println("GoRutines:", runtime.NumGoroutine())
+	logger.Print("GoRutines:", runtime.NumGoroutine())
 	wg.Wait()
-	fmt.Println("GoRutines:", runtime.NumGoroutine())
-	defer log.Println(" ******************** END: Copy AMI Operation **************************************")
+	logger.Print("GoRutines:", runtime.NumGoroutine())
+
 }
