@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	// "fmt"
@@ -18,7 +18,7 @@ func createSession(sessOpts session.Options) (sessPtr *session.Session) {
 	return
 }
 
-func getAwsSessWithProfile(profile, region string) (sessPtr *session.Session) {
+func GetAwsSessWithProfile(profile, region string) (sessPtr *session.Session) {
 	sessOpts := session.Options{
 		// Specify profile to load for the session's config
 		Profile: profile,
@@ -33,7 +33,7 @@ func getAwsSessWithProfile(profile, region string) (sessPtr *session.Session) {
 	return
 }
 
-func getAwsSessWithDefaultCreds() (sessPtr *session.Session) {
+func GetAwsSessWithDefaultCreds() (sessPtr *session.Session) {
 	creds := credentials.NewEnvCredentials()
 
 	if _, err := creds.Get(); err != nil {

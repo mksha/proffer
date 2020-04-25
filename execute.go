@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"example.com/amidist/command"
@@ -12,12 +13,15 @@ func execute(dsc string) {
 
 func executeResources(dsc string) {
 	c := prepareDataStore(dsc)
+	// fmt.Println(c.Data)
 	resources := command.Resources
 	for _, rawResource := range c.RawResources {
 		resource, ok := resources[rawResource.Type]
 		if !ok {
 			log.Fatalf(" InvalidResource: Resource %s Not Found", rawResource.Type)
 		}
+
+		fmt.Printf(" ******************** Executing Resource : %s ************************* \n", rawResource.Name)
 
 		if err := resource.Prepare(rawResource.Config); err != nil {
 			log.Fatalln(err)

@@ -4,18 +4,20 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/mitchellh/mapstructure"
 )
 
-type AmiFilters struct {
-	ID   string `yaml:"id"`
-	Name string `yaml:"name"`
-}
+// type AmiFilter struct {
+// 	ID   *string `yaml:"id"`
+// 	Name *string `yaml:"name"`
+// }
 
 type Source struct {
-	Environment string     `yaml:"environment"`
-	Region      string     `yaml:"region"`
-	AmiFilters  AmiFilters `yaml:"amiFilters"`
+	Environment string              `yaml:"environment"`
+	Region      *string             `yaml:"region"`
+	AmiFilters  map[*string]*string `yaml:"amiFilters"`
 }
 
 type Target struct {
@@ -49,5 +51,27 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 func (r *Resource) Run() error {
 	fmt.Println(r.Config)
 
+	source := r.Config.Source
+	var amiFilters []*ec2.Filter
+
+	for filterName, filterValue := range source.AmiFilters {
+		f := &ec2.Filter{
+			Name:   filterName,
+			Values: []*string{filterValue},
+		}
+		amiFilters = append(amiFilters, f)
+	}
+
+	srcAmiInfo := SrcAmiInfo{
+		Region:  source.Region,
+		Filters: amiFilters,
+	}
+
+	targetInfo := TargetInfo{
+		Regions: []*string{
+			aws.String("ap-southeast-1"),
+		},
+	}
+	copyAmi(srcAmiInfo, targetInfo)
 	return nil
 }

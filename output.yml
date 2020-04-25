@@ -14,16 +14,21 @@ data:
       getCredsUsing: envVars
     nonProd:
       accountId: 435325
+  commonRegions: &commonRegions
+  - us-west-1
+  - us-west-2
 
 resources:
-- type: aws-copyami
+- name: Copy AMI To Commercial Account Regions
+  type: aws-copyami
   config:
     source:
       environment: ci
       region: us-west-2
       amiFilters:
-        id: ami-123434
-        name: my-default-ami-name
+        image-id: ami-01b55974057720a43
+        name: ubuntu-1804-cis-level1-shared-09-12-19
+        tag:Purpose: Testing
     target:
       regions:
       - us-west-1
@@ -32,7 +37,8 @@ resources:
         Purpose: testing
         Department: DevOps
 
-- type: aws-shareami
+- name: Share AMI With Other Account
+  type: aws-shareami
   config:
     source:
       environment: ci
@@ -52,6 +58,5 @@ resources:
           - ap-south-west-1
           extraTags:
             home: /Users/mohitkumarsharma
-      commonRegions:
-      - us-west-1
-      - us-west-2
+      commonRegions: *commonRegions
+

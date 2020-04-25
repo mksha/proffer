@@ -21,6 +21,7 @@ type Data struct {
 }
 
 type Resource struct {
+	Name   string                 `yaml:"name"`
 	Type   string                 `yaml:"type"`
 	Config map[string]interface{} `yaml:"config"`
 }

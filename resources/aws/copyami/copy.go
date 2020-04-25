@@ -1,4 +1,4 @@
-package main
+package copyami
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sync"
 
+	"example.com/amidist/resources/aws/common"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -62,8 +63,9 @@ func isAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
 	}
 
 	images := result.Images
+
 	if len(images) == 0 {
-		return false, nil
+		return false, fmt.Errorf(" AMIDoesNotExist: No AMI Matched With Given Filters")
 	}
 	return true, nil
 }
@@ -135,9 +137,10 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
 	log.Println(" ******************** Start: Copy AMI Operation ************************************")
 
-	sess := getAwsSessWithDefaultCreds()
+	sess := common.GetAwsSessWithDefaultCreds()
 	sess.Config.Region = srcAmiInfo.Region
 	images, err := getAmiInfo(sess, srcAmiInfo.Filters)
+
 	if err != nil {
 		log.Fatalln(err)
 	}
