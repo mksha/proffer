@@ -20,6 +20,7 @@ import (
 	"log"
 	"path/filepath"
 
+	"example.com/proffer/command"
 	"example.com/proffer/common"
 	"github.com/spf13/cobra"
 )
@@ -47,7 +48,6 @@ func init() {
 	// applyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 func applyConfig(cmd *cobra.Command, args []string) {
-	fmt.Println("apply called")
 	if len(args) == 0 {
 		log.Fatalln(" Proffer Configuration file missing: Pls pass proffer config file to apply")
 	}
@@ -57,5 +57,31 @@ func applyConfig(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	common.ExecuteResources(cfgFileAbsPath)
+	executeResources(cfgFileAbsPath)
+}
+
+func executeResources(dsc string) {
+
+	c, err := parseConfig(dsc)
+	if err != nil {
+		fmt.Println(" Unable to parse configuration file")
+	}
+
+	resources := command.Resources
+	for _, rawResource := range c.RawResources {
+		resource, ok := resources[rawResource.Type]
+		if !ok {
+			log.Fatalf(" InvalidResource: Resource %s Not Found", rawResource.Type)
+		}
+
+		fmt.Printf("\n%s ******************** %s ********************* \n", common.GreenBold(rawResource.Type+" |"), common.GrayBold(rawResource.Name))
+
+		if err := resource.Prepare(rawResource.Config); err != nil {
+			log.Fatalln(err)
+		}
+
+		if err := resource.Run(); err != nil {
+			log.Fatalln(err)
+		}
+	}
 }

@@ -1,10 +1,15 @@
 package shareami
 
 import (
-	"fmt"
 	"log"
+	"os"
 
+	"example.com/proffer/common"
 	"github.com/mitchellh/mapstructure"
+)
+
+var (
+	logger = log.New(os.Stdout, common.GreenBold("aws-shareami | "), log.Lmsgprefix)
 )
 
 type AmiFilters struct {
@@ -38,8 +43,6 @@ type Resource struct {
 }
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
-	log.Println(" ************************ Preparing Resource **************************** ")
-
 	var c Config
 
 	if err := mapstructure.Decode(rawConfig, &c); err != nil {
@@ -52,7 +55,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 }
 
 func (r *Resource) Run() error {
-	fmt.Println(r.Config)
+	logger.Println(r.Config)
 
 	return nil
 }

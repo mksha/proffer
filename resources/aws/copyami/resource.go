@@ -1,18 +1,17 @@
 package copyami
 
 import (
-	"fmt"
 	"log"
+	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
+	"example.com/proffer/common"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/mitchellh/mapstructure"
 )
 
-// type AmiFilter struct {
-// 	ID   *string `yaml:"id"`
-// 	Name *string `yaml:"name"`
-// }
+var (
+	logger = log.New(os.Stdout, common.GreenBold("aws-copyami | "), log.Lmsgprefix)
+)
 
 type Source struct {
 	Environment string              `yaml:"environment"`
@@ -21,7 +20,7 @@ type Source struct {
 }
 
 type Target struct {
-	Regions      []string          `yaml:"regions"`
+	Regions      []*string         `yaml:"regions"`
 	AddExtraTags map[string]string `yaml:"addExtraTags"`
 }
 
@@ -35,7 +34,6 @@ type Resource struct {
 }
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
-	log.Println(" ************************ Preparing Resource **************************** ")
 
 	var c Config
 
@@ -49,9 +47,9 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 }
 
 func (r *Resource) Run() error {
-	fmt.Println(r.Config)
 
 	source := r.Config.Source
+	target := r.Config.Target
 	var amiFilters []*ec2.Filter
 
 	for filterName, filterValue := range source.AmiFilters {
@@ -68,10 +66,10 @@ func (r *Resource) Run() error {
 	}
 
 	targetInfo := TargetInfo{
-		Regions: []*string{
-			aws.String("ap-southeast-1"),
-		},
+		Regions: target.Regions,
 	}
+
 	copyAmi(srcAmiInfo, targetInfo)
+
 	return nil
 }
