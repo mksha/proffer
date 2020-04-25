@@ -29,6 +29,7 @@ resources:
         image-id: ami-01b55974057720a43
         name: ubuntu-1804-cis-level1-shared-09-12-19
         tag:Purpose: Testing
+        tag:Department: DevOps
     target:
       regions:
       - us-west-1

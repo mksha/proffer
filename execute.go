@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"example.com/amidist/command"
+	"example.com/amidist/parser"
 )
 
 func execute(dsc string) {
@@ -33,11 +34,11 @@ func executeResources(dsc string) {
 	}
 }
 
-func prepareDataStore(dsc string) config {
+func prepareDataStore(dsc string) parser.Config {
 	log.Println(" ****************** Start: Template Parsing *********************")
 
-	parsedTemplateFileName := parseTemplate(dsc)
-	config := unmarshalYaml(parsedTemplateFileName)
+	parsedTemplateFileName := parser.ParseTemplate(dsc)
+	config := parser.UnmarshalYaml(parsedTemplateFileName)
 
 	log.Println(" ****************** End: Template Parsing *********************")
 
