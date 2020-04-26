@@ -10,7 +10,9 @@ import (
 )
 
 var (
-	logger = log.New(os.Stdout, common.GreenBold("aws-copyami | "), log.Lmsgprefix)
+	infoLog  = log.New(os.Stdout, common.GreenBold("aws-copyami | "), log.Lmsgprefix)
+	errorLog = log.New(os.Stdout, common.RedBold("aws-copyami | "), log.Llongfile)
+	errorMsg = log.New(os.Stdout, common.RedBold("aws-copyami | "), log.Lmsgprefix)
 )
 
 type Source struct {

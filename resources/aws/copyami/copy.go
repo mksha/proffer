@@ -2,8 +2,7 @@ package copyami
 
 import (
 	"fmt"
-	"log"
-	"runtime"
+	"os"
 	"sync"
 
 	"example.com/proffer/common"
@@ -28,13 +27,14 @@ type TargetInfo struct {
 var wg sync.WaitGroup
 
 // type AmiDoesNotExist struct {
-// 	Filters []*ec2.Filter
-// 	Region  *string
+// 	Filters    []*ec2.Filter
+// 	Region     *string
 // 	StatusCode string
 // }
 
 // func (a AmiDoesNotExist) Error() string {
-// 	return fmt.Sprintf("AmiDoesNotExist: AMI does not exist in region %s with filters %v ", *a.Region, a.Filters)
+// 	a.StatusCode = "AmiDoesNotExist"
+// 	return fmt.Sprintf("%s: AMI does not exist in region %s with filters %v ", a.StatusCode, *a.Region, a.Filters)
 // }
 
 func isError(err error) (bool, error) {
@@ -66,14 +66,17 @@ func isAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
 	images := result.Images
 
 	if len(images) == 0 {
-		return false, fmt.Errorf("AMIDoesNotExist: No AMI Matched With Given Filters")
+		return false, nil
 	}
 	return true, nil
 }
 
 func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, error) {
 	if ok, err := isAmiExist(sess, filters); !ok {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %s ", common.YellowBold(*sess.Config.Region), filters)
 	}
 
 	svc := ec2.New(sess)
@@ -90,9 +93,8 @@ func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 	return images, nil
 }
 
-func copyImage(sess *session.Session, sai SrcAmiInfo) {
+func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 	defer wg.Done()
-
 	filters := []*ec2.Filter{
 		{
 			Name: aws.String("name"),
@@ -103,15 +105,16 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 	}
 	ok, err := isAmiExist(sess, filters)
 	if ok {
-		logger.Printf("AMI %s Already Exist In Region %s", common.YellowBold(*sai.Image.Name), common.YellowBold(*sess.Config.Region))
+		infoLog.Printf("AMI %s Already Exist In Region %s", common.YellowBold(*sai.Image.Name), common.YellowBold(*sess.Config.Region))
 		return
 	} else {
 		if err != nil {
-			log.Fatalln(err)
+			errMap[*sess.Config.Region] = err
+			return
 		}
 	}
 
-	logger.Printf("Start Copying AMI In Region %s ...", *sess.Config.Region)
+	infoLog.Printf("Started Copying AMI In Region: %s ...", common.YellowBold(*sess.Config.Region))
 
 	svc := ec2.New(sess)
 	input := &ec2.CopyImageInput{
@@ -124,15 +127,17 @@ func copyImage(sess *session.Session, sai SrcAmiInfo) {
 	result, err := svc.CopyImage(input)
 
 	if ok, err := isError(err); ok {
-		log.Fatalln(err)
+		errMap[*sess.Config.Region] = err
+		return
 	}
 
 	err = svc.WaitUntilImageAvailable(&ec2.DescribeImagesInput{ImageIds: []*string{result.ImageId}})
 	if err != nil {
-		log.Fatalln(err)
+		errMap[*sess.Config.Region] = err
+		return
 	}
 
-	logger.Printf("Copied AMI In Region: %s , New AMI Id Is : %s ", common.YellowBold(*sess.Config.Region), common.YellowBold(*result.ImageId))
+	infoLog.Printf("Copied AMI In Region: %s , New AMI Id Is: %s", common.YellowBold(*sess.Config.Region), common.YellowBold(*result.ImageId))
 
 }
 
@@ -143,17 +148,26 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
 	images, err := getAmiInfo(sess, srcAmiInfo.Filters)
 
 	if err != nil {
-		log.Fatalln(err)
+		errorLog.Fatalln(err)
 	}
 
 	srcAmiInfo.Image = images[0]
-	wg.Add(len(targetInfo.Regions))
+	errMap := map[string]error{}
+
 	for _, targetRegion := range targetInfo.Regions {
-		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo)
+		wg.Add(1)
+		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, errMap)
 	}
 
-	logger.Print("GoRutines:", runtime.NumGoroutine())
 	wg.Wait()
-	logger.Print("GoRutines:", runtime.NumGoroutine())
+
+	if len(errMap) != 0 {
+		errorMsg.Println(common.RedBold("AMI Copy Operation Failed For following Regions:"))
+		for region, err := range errMap {
+			errorMsg.Printf("%s:\n", common.YellowBold(region))
+			errorMsg.Printf("\tReason: [%s] ", err)
+		}
+		os.Exit(1)
+	}
 
 }
