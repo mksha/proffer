@@ -8,6 +8,11 @@ func Bold(message string) string {
 	return fmt.Sprintf("\x1b[1m%s\x1b[21m", message)
 }
 
+// White returns a white string
+func White(message string) string {
+	return fmt.Sprintf("\x1b[37m%s\x1b[0m", message)
+}
+
 // Blue returns a blue string
 func Blue(message string) string {
 	return fmt.Sprintf("\x1b[34m%s\x1b[0m", message)
@@ -71,4 +76,9 @@ func GrayBold(message string) string {
 // MagentaBold returns a magenta Bold string
 func MagentaBold(message string) string {
 	return fmt.Sprintf("\x1b[35m%s\x1b[0m", Bold(message))
+}
+
+// WhiteBold returns a white Bold string
+func WhiteBold(message string) string {
+	return fmt.Sprintf("\x1b[37m%s\x1b[0m", Bold(message))
 }
