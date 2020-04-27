@@ -76,7 +76,7 @@ func getColoredMsg(msg string, codeList ...int) string {
 
 func getFormattedMsg(format string, a ...interface{}) string {
 	if len(a) == 0 {
-		return fmt.Sprintf(format)
+		return format
 	}
 
 	return fmt.Sprintf(format, a...)
