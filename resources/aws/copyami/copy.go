@@ -76,7 +76,7 @@ func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %s ", common.Warning(*sess.Config.Region), filters)
+		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %s ", common.Warn(*sess.Config.Region), filters)
 	}
 
 	svc := ec2.New(sess)
@@ -105,7 +105,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 	}
 	ok, err := isAmiExist(sess, filters)
 	if ok {
-		infoLog.Printf("AMI %s Already Exist In Region %s", common.Warning(*sai.Image.Name), common.Warning(*sess.Config.Region))
+		infoLog.Printf("AMI %s Already Exist In Region %s", common.Warn(*sai.Image.Name), common.Warn(*sess.Config.Region))
 		return
 	} else {
 		if err != nil {
@@ -114,7 +114,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 		}
 	}
 
-	infoLog.Printf("Started Copying AMI In Region: %s ...", common.Warning(*sess.Config.Region))
+	infoLog.Printf("Started Copying AMI In Region: %s ...", common.Warn(*sess.Config.Region))
 
 	svc := ec2.New(sess)
 	input := &ec2.CopyImageInput{
@@ -137,7 +137,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 		return
 	}
 
-	infoLog.Printf("Copied AMI In Region: %s , New AMI Id Is: %s", common.Warning(*sess.Config.Region), common.Warning(*result.ImageId))
+	infoLog.Printf("Copied AMI In Region: %s , New AMI Id Is: %s", common.Warn(*sess.Config.Region), common.Warn(*result.ImageId))
 
 }
 
@@ -164,7 +164,7 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
 	if len(errMap) != 0 {
 		errorMsg.Println(common.Error("AMI Copy Operation Failed For following Regions:"))
 		for region, err := range errMap {
-			errorMsg.Printf("%s:\n", common.Warning(region))
+			errorMsg.Printf("%s:\n", common.Warn(region))
 			errorMsg.Printf("\tReason: [%s] ", err)
 		}
 		os.Exit(1)

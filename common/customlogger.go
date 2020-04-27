@@ -88,7 +88,7 @@ func Error(format string, a ...interface{}) string {
 }
 
 // Warning is used to print a warning message in yellow color
-func Warning(format string, a ...interface{}) string {
+func Warn(format string, a ...interface{}) string {
 	return getColoredMsg(getFormattedMsg(format, a...), Bold, FgYellow)
 }
 
