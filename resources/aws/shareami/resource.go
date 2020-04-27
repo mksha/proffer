@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	logger = log.New(os.Stdout, common.GreenBold("aws-shareami | "), log.Lmsgprefix)
+	logger = log.New(os.Stdout, common.Success("aws-shareami | "), log.Lmsgprefix)
 )
 
 type AmiFilters struct {

@@ -74,7 +74,7 @@ func executeResources(dsc string) {
 			log.Fatalf(" InvalidResource: Resource %s Not Found", rawResource.Type)
 		}
 
-		fmt.Printf("\n%s ******************** %s ********************* \n", common.GreenBold(rawResource.Type+" |"), common.GrayBold(rawResource.Name))
+		fmt.Printf("\n%s ******************** %s ********************* \n", common.Success(rawResource.Type+" |"), common.Info(rawResource.Name))
 
 		if err := resource.Prepare(rawResource.Config); err != nil {
 			log.Fatalln(err)

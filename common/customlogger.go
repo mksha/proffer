@@ -4,81 +4,101 @@ import (
 	"fmt"
 )
 
-func Bold(message string) string {
-	return fmt.Sprintf("\x1b[1m%s\x1b[21m", message)
+// Base Style
+const (
+	Reset = iota
+	Bold
+	Faint
+	Italic
+	Underline
+	BlinkSlow
+	BlinkRapid
+	ReverseVideo
+	Concealed
+	CrossedOut
+)
+
+// Foreground text colors
+const (
+	FgBlack = iota + 30
+	FgRed
+	FgGreen
+	FgYellow
+	FgBlue
+	FgMagenta
+	FgCyan
+	FgWhite
+)
+
+// Foreground Hi-Intensity text colors
+const (
+	FgHiBlack = iota + 90
+	FgHiRed
+	FgHiGreen
+	FgHiYellow
+	FgHiBlue
+	FgHiMagenta
+	FgHiCyan
+	FgHiWhite
+)
+
+// Background text colors
+const (
+	BgBlack = iota + 40
+	BgRed
+	BgGreen
+	BgYellow
+	BgBlue
+	BgMagenta
+	BgCyan
+	BgWhite
+)
+
+// Background Hi-Intensity text colors
+const (
+	BgHiBlack = iota + 100
+	BgHiRed
+	BgHiGreen
+	BgHiYellow
+	BgHiBlue
+	BgHiMagenta
+	BgHiCyan
+	BgHiWhite
+)
+
+func getColoredMsg(msg string, codeList ...int) string {
+	for _, code := range codeList {
+		msg = fmt.Sprintf("\x1b[%dm%s\x1b[0m", code, msg)
+	}
+
+	return msg
 }
 
-// White returns a white string
-func White(message string) string {
-	return fmt.Sprintf("\x1b[37m%s\x1b[0m", message)
+func getFormattedMsg(format string, a ...interface{}) string {
+	if len(a) == 0 {
+		return fmt.Sprintf(format)
+	}
+
+	return fmt.Sprintf(format, a...)
 }
 
-// Blue returns a blue string
-func Blue(message string) string {
-	return fmt.Sprintf("\x1b[34m%s\x1b[0m", message)
+// Error is used to print info in red color
+func Error(format string, a ...interface{}) string {
+	return getColoredMsg(getFormattedMsg(format, a...), Bold, FgRed)
 }
 
-// Red returns a red string
-func Red(message string) string {
-	return fmt.Sprintf("\x1b[31m%s\x1b[0m", message)
+// Warning is used to print a warning message in yellow color
+func Warning(format string, a ...interface{}) string {
+	return getColoredMsg(getFormattedMsg(format, a...), Bold, FgYellow)
 }
 
-// Green returns a green string
-func Green(message string) string {
-	return fmt.Sprintf("\x1b[32m%s\x1b[0m", message)
+// Success is used to print a success message in green color
+
+func Success(format string, a ...interface{}) string {
+	return getColoredMsg(getFormattedMsg(format, a...), Bold, FgGreen)
 }
 
-// Yellow returns a yellow string
-func Yellow(message string) string {
-	return fmt.Sprintf("\x1b[33m%s\x1b[0m", message)
-}
-
-// Gray returns a gray string
-func Gray(message string) string {
-	return fmt.Sprintf("\x1b[37m%s\x1b[0m", message)
-}
-
-// Magenta returns a magenta string
-func Magenta(message string) string {
-	return fmt.Sprintf("\x1b[35m%s\x1b[0m", message)
-}
-
-// CyanBold returns a cyan Bold string
-func CyanBold(message string) string {
-	return fmt.Sprintf("\x1b[36m%s\x1b[0m", Bold(message))
-}
-
-// BlueBold returns a blue Bold string
-func BlueBold(message string) string {
-	return fmt.Sprintf("\x1b[34m%s\x1b[0m", Bold(message))
-}
-
-// RedBold returns a red Bold string
-func RedBold(message string) string {
-	return fmt.Sprintf("\x1b[31m%s\x1b[0m", Bold(message))
-}
-
-// GreenBold returns a green Bold string
-func GreenBold(message string) string {
-	return fmt.Sprintf("\x1b[32m%s\x1b[0m", Bold(message))
-}
-
-// YellowBold returns a yellow Bold string
-func YellowBold(message string) string {
-	return fmt.Sprintf("\x1b[33m%s\x1b[0m", Bold(message))
-}
-
-// GrayBold returns a gray Bold string
-func GrayBold(message string) string {
-	return fmt.Sprintf("\x1b[37m%s\x1b[0m", Bold(message))
-}
-
-// MagentaBold returns a magenta Bold string
-func MagentaBold(message string) string {
-	return fmt.Sprintf("\x1b[35m%s\x1b[0m", Bold(message))
-}
-
-// WhiteBold returns a white Bold string
-func WhiteBold(message string) string {
-	return fmt.Sprintf("\x1b[37m%s\x1b[0m", Bold(message))
+// Info is used to print info message in blue color
+func Info(format string, a ...interface{}) string {
+	return getColoredMsg(getFormattedMsg(format, a...), Bold, FgBlue)
 }

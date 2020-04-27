@@ -13,7 +13,7 @@ func getEnv(name string) string {
 }
 
 var (
-	logger = log.New(os.Stdout, common.GreenBold("config-parser | "), log.Lmsgprefix)
+	logger = log.New(os.Stdout, common.Success("config-parser | "), log.Lmsgprefix)
 )
 
 func setDefaultValue(givenValue, currentValue string) string {
