@@ -2,7 +2,7 @@ package common
 
 import (
 	// "fmt"
-	"log"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	// "github.com/aws/aws-sdk-go/aws/awserr"
@@ -33,15 +33,15 @@ func GetAwsSessWithProfile(profile, region string) (sessPtr *session.Session) {
 	return
 }
 
-func GetAwsSessWithDefaultCreds() (sessPtr *session.Session) {
+func GetAwsSessWithDefaultCreds() (sessPtr *session.Session, err error) {
 	creds := credentials.NewEnvCredentials()
 
 	if _, err := creds.Get(); err != nil {
-		log.Fatalln(" AWSEnvVarsDoesNotExist: Failed To Retrive Credentials From Env Vars")
+		return nil, fmt.Errorf("AWSEnvVarsDoesNotExist: Failed To Retrive Credentials From Env Vars")
 	}
 
 	if ok := creds.IsExpired(); ok {
-		log.Fatalln(" AWS Environment Credentials have Expired")
+		return nil, fmt.Errorf("AWS Environment Credentials have Expired")
 	}
 
 	sessPtr = createSession(session.Options{})

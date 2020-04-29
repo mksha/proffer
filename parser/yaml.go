@@ -45,7 +45,7 @@ func UnmarshalYaml(filePath string) (Config, error) {
 	}
 	defer file.Close()
 
-	logger.Print(" YAML file found :-> ", filePath)
+	clogger.Debug(" YAML file found :-> ", filePath)
 
 	data := make([]byte, fileInfo.Size())
 

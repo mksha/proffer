@@ -17,14 +17,20 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
+	clog "example.com/proffer/common/clogger"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	debug   bool
+	clogger = clog.New(os.Stdout, "apply | ", log.Lmsgprefix)
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -48,13 +54,14 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initConfig, setLogLevel)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.proffer)")
+	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Set debug flag to get detailed logging")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -84,5 +91,14 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+}
+
+func setLogLevel() {
+	// Default level is info, unless debug flag is present
+	clog.SetGlobalLogLevel(clog.INFO)
+	if debug {
+		clog.SetGlobalLogLevel(clog.DEBUG)
+
 	}
 }

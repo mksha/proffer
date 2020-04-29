@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 
 	"example.com/proffer/command"
-	"example.com/proffer/common"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +48,7 @@ func init() {
 }
 func applyConfig(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
-		log.Fatalln(" Proffer Configuration file missing: Pls pass proffer config file to apply")
+		log.Fatalln("Proffer Configuration file missing: Pls pass proffer config file to apply")
 	}
 
 	cfgFileAbsPath, err := filepath.Abs(args[0])
@@ -64,7 +63,7 @@ func executeResources(dsc string) {
 
 	c, err := parseConfig(dsc)
 	if err != nil {
-		fmt.Println(" Unable to parse configuration file")
+		fmt.Println("Unable to parse configuration file")
 	}
 
 	resources := command.Resources
@@ -73,8 +72,8 @@ func executeResources(dsc string) {
 		if !ok {
 			log.Fatalf(" InvalidResource: Resource %s Not Found", rawResource.Type)
 		}
-
-		fmt.Printf("\n%s ******************** %s ********************* \n", common.Success(rawResource.Type+" |"), common.Info(rawResource.Name))
+		clogger.SetPrefix(rawResource.Type + " | ")
+		clogger.Infof("******************** %s ********************* ", rawResource.Name)
 
 		if err := resource.Prepare(rawResource.Config); err != nil {
 			log.Fatalln(err)
