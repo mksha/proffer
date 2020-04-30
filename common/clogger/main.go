@@ -12,7 +12,7 @@ var (
 )
 
 type CLogger struct {
-	Logger *log.Logger
+	Logger    *log.Logger
 }
 
 // Log level
@@ -87,6 +87,10 @@ const (
 	BgHiWhite
 )
 
+const (
+	callDepth = 2
+)
+
 func New(out io.Writer, prefix string, flag int) *CLogger {
 	return &CLogger{Logger: log.New(out, getColoredMsg(prefix, FgCyan), flag)}
 }
@@ -102,26 +106,16 @@ func getColoredMsg(msg string, codeList ...int) string {
 	return msg
 }
 
-func getFormattedMsg(format string, a ...interface{}) string {
-	if len(a) == 0 {
-		return format
-	}
-
-	return fmt.Sprintf(format, a...)
-}
-
-func getMsg(a ...interface{}) string {
-	return fmt.Sprint(a...)
-}
-
 func (cl *CLogger) SetPrefix(prefix string) {
 	cl.Logger.SetPrefix(getColoredMsg(prefix, FgCyan))
 }
 
+
 // Error is used to print info in red color
 func (cl *CLogger) Error(a ...interface{}) {
 	if LogLevel <= ERROR {
-		if err := cl.Logger.Output(2, getColoredMsg(getMsg(a...), Bold, FgRed)); err != nil {
+		msg := fmt.Sprint(a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, FgRed)); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -130,7 +124,8 @@ func (cl *CLogger) Error(a ...interface{}) {
 // Errorf is used to print info in red color
 func (cl *CLogger) Errorf(format string, a ...interface{}) {
 	if LogLevel <= ERROR {
-		if err := cl.Logger.Output(2, getColoredMsg(getFormattedMsg(format, a...), Bold, FgRed)); err != nil {
+		msg := fmt.Sprintf(format, a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, FgRed)); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -139,7 +134,8 @@ func (cl *CLogger) Errorf(format string, a ...interface{}) {
 // Warn is used to print a formatted warning message in yellow color
 func (cl *CLogger) Warn(a ...interface{}) {
 	if LogLevel <= WARN {
-		if err := cl.Logger.Output(2, getColoredMsg(getMsg(a...), Bold, FgYellow)); err != nil {
+		msg := fmt.Sprint(a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgYellow)); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -148,27 +144,35 @@ func (cl *CLogger) Warn(a ...interface{}) {
 // Warn is used to print a warning message in yellow color
 func (cl *CLogger) Warnf(format string, a ...interface{}) {
 	if LogLevel <= WARN {
-		if err := cl.Logger.Output(2, getColoredMsg(getFormattedMsg(format, a...), Bold, FgYellow)); err != nil {
+		msg := fmt.Sprintf(format, a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgYellow)); err != nil {
 			log.Fatalln(err)
 		}
 	}
 }
 
 // Success is used to print a success message in green color
-func Success(msg string) {
-	fmt.Println(getColoredMsg(msg, Bold, FgGreen))
+func (cl *CLogger) Success(a ...interface{}) {
+	msg := fmt.Sprint(a...)
+	if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgHiGreen)); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // Successf is used to print a success message in green color
-func Successf(format string, a ...interface{}) {
-	fmt.Println(getColoredMsg(getFormattedMsg(format, a...), Bold, FgGreen))
+func (cl *CLogger) Successf(format string, a ...interface{}) {
+	msg := fmt.Sprintf(format, a...)
+	if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgHiGreen)); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // Info is used to print info message in blue color
 
 func (cl *CLogger) Info(a ...interface{}) {
 	if LogLevel <= INFO {
-		if err := cl.Logger.Output(2, getColoredMsg(getMsg(a...), FgGreen)); err != nil {
+		msg := fmt.Sprint(a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, FgGreen)); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -177,7 +181,8 @@ func (cl *CLogger) Info(a ...interface{}) {
 // Infof is used to print formatted info message in blue color
 func (cl *CLogger) Infof(format string, a ...interface{}) {
 	if LogLevel <= INFO {
-		if err := cl.Logger.Output(2, getColoredMsg(getFormattedMsg(format, a...), FgGreen)); err != nil {
+		msg := fmt.Sprintf(format, a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, FgGreen)); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -186,7 +191,8 @@ func (cl *CLogger) Infof(format string, a ...interface{}) {
 // Debug is used to print debug message in green color
 func (cl *CLogger) Debug(a ...interface{}) {
 	if LogLevel <= DEBUG {
-		if err := cl.Logger.Output(2, getColoredMsg(getMsg(a...), Bold, FgGreen)); err != nil {
+		msg := fmt.Sprint(a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, FgHiGreen)); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -195,28 +201,57 @@ func (cl *CLogger) Debug(a ...interface{}) {
 // Debugf is used to print formatted debug message in green color
 func (cl *CLogger) Debugf(format string, a ...interface{}) {
 	if LogLevel <= DEBUG {
-		if err := cl.Logger.Output(2, getColoredMsg(getFormattedMsg(format, a...), Bold, FgGreen)); err != nil {
+		msg := fmt.Sprintf(format, a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, FgHiGreen)); err != nil {
 			log.Fatalln(err)
 		}
 	}
 }
 
-// Fatal is used to print debug message in green color
-func (cl *CLogger) Fatal(a ...interface{}) {
-	if LogLevel <= FATAL {
-		if err := cl.Logger.Output(2, getColoredMsg(getMsg(a...), Bold, FgHiRed)); err != nil {
+// Panic is used to print panic message in green color
+func (cl *CLogger) Panic(a ...interface{}) {
+	if LogLevel <= PANIC {
+		msg := fmt.Sprint(a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgRed)); err != nil {
 			log.Fatalln(err)
 		}
+
+		panic(msg)
+	}
+}
+
+// Panicf is used to print formatted panic message in green color
+func (cl *CLogger) Panicf(format string, a ...interface{}) {
+	if LogLevel <= PANIC {
+		msg := fmt.Sprintf(format, a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgRed)); err != nil {
+			log.Fatalln(err)
+		}
+
+		panic(msg)
+	}
+}
+
+// Fatalf is used to print formatted fatal message in green color
+func (cl *CLogger) Fatal(a ...interface{}) {
+	if LogLevel <= FATAL {
+		msg := fmt.Sprint(a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgHiRed)); err != nil {
+			log.Fatalln(err)
+		}
+
 		os.Exit(1)
 	}
 }
 
-// Fatalf is used to print formatted debug message in green color
+// Fatalf is used to print formatted fatal message in green color
 func (cl *CLogger) Fatalf(format string, a ...interface{}) {
-	if LogLevel <= DEBUG {
-		if err := cl.Logger.Output(2, getColoredMsg(getFormattedMsg(format, a...), Bold, FgHiRed)); err != nil {
+	if LogLevel <= FATAL {
+		msg := fmt.Sprintf(format, a...)
+		if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgHiRed)); err != nil {
 			log.Fatalln(err)
 		}
+
 		os.Exit(1)
 	}
 }

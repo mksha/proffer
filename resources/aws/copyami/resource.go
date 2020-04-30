@@ -76,7 +76,9 @@ func (r *Resource) Run() error {
 		Regions: target.Regions,
 	}
 
-	copyAmi(srcAmiInfo, targetInfo)
+	if err := copyAmi(srcAmiInfo, targetInfo); err != nil {
+		return err
+	}
 
 	return nil
 }

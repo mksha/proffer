@@ -2,7 +2,6 @@ package copyami
 
 import (
 	"fmt"
-	"os"
 	"sync"
 
 	awscommon "example.com/proffer/resources/aws/common"
@@ -140,18 +139,18 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 
 }
 
-func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
+func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	sess, err := awscommon.GetAwsSessWithDefaultCreds()
 	if err != nil {
-		clogger.Fatal(err)
+		return err
 	}
 
 	sess.Config.Region = srcAmiInfo.Region
 	images, err := getAmiInfo(sess, srcAmiInfo.Filters)
 
 	if err != nil {
-		clogger.Fatal(err)
+		return err
 	}
 
 	srcAmiInfo.Image = images[0]
@@ -170,7 +169,9 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
 			clogger.Errorf("%s:\n", region)
 			clogger.Errorf("\tReason: [%s] ", err)
 		}
-		os.Exit(1)
+
+		return fmt.Errorf("Failed")
 	}
 
+	return nil
 }

@@ -23,13 +23,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// validateCmd represents the validate command
-var validateCmd = &cobra.Command{
-	Use:   "validate",
-	Short: "Validate proffer configuration file.",
-	Long:  `Validate command is used to validate the proffer configuration file.`,
-	Run:   validateConfig,
-}
+
+var (
+	// validateCmd represents the validate command
+	validateCmd = &cobra.Command{
+		Use:   "validate",
+		Short: "Validate proffer configuration file.",
+		Long:  `Validate command is used to validate the proffer configuration file.`,
+		Run:   validateConfig,
+	}
+	// clogger = clog.New(os.Stdout, "config-validation | ", log.Lmsgprefix)
+)
+
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
@@ -46,8 +51,10 @@ func init() {
 }
 
 func validateConfig(cmd *cobra.Command, args []string) {
+	clogger.SetPrefix("validate | ")
+
 	if len(args) == 0 {
-		log.Fatalln(" Proffer Configuration file missing: Pls pass proffer config file to apply")
+		clogger.Fatal("Proffer template file is missing: Pls pass proffer template file to apply")
 	}
 
 	cfgFileAbsPath, err := filepath.Abs(args[0])
@@ -56,8 +63,10 @@ func validateConfig(cmd *cobra.Command, args []string) {
 	}
 
 	if _, err := parseConfig(cfgFileAbsPath); err != nil {
-		log.Fatalf(" InvalidConfig: Unable to parse configuration file %s \n", cfgFileAbsPath)
+		clogger.Fatalf("InvalidTemplate: Unable to parse proffer template file %s\n", cfgFileAbsPath)
 	}
+
+	clogger.Success("Template is valid")
 }
 
 func parseConfig(dsc string) (parser.Config, error) {

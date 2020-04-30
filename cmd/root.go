@@ -29,7 +29,7 @@ import (
 var (
 	cfgFile string
 	debug   bool
-	clogger = clog.New(os.Stdout, "apply | ", log.Lmsgprefix)
+	clogger = clog.New(os.Stdout, "", log.Lmsgprefix)
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -101,4 +101,6 @@ func setLogLevel() {
 		clog.SetGlobalLogLevel(clog.DEBUG)
 
 	}
+
+	clogger.SetPrefix("apply | ")
 }

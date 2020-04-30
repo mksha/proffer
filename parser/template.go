@@ -33,7 +33,7 @@ func ParseTemplate(dsc string) (string, error) {
 		return "", err
 	}
 
-	clogger.Debug(" DSC Found At :-> ", dsc)
+	clogger.Debug("Template Found At :-> ", dsc)
 
 	dscName := fileInfo.Name()
 	// Create template object for given dsc

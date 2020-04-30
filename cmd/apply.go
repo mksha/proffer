@@ -70,17 +70,22 @@ func executeResources(dsc string) {
 	for _, rawResource := range c.RawResources {
 		resource, ok := resources[rawResource.Type]
 		if !ok {
-			log.Fatalf(" InvalidResource: Resource %s Not Found", rawResource.Type)
+			log.Fatalf("InvalidResource: Resource %s Not Found", rawResource.Type)
 		}
 		clogger.SetPrefix(rawResource.Type + " | ")
-		clogger.Infof("******************** %s ********************* ", rawResource.Name)
+		clogger.Successf("Resource : %s  Status: Started", rawResource.Name)
 
 		if err := resource.Prepare(rawResource.Config); err != nil {
-			log.Fatalln(err)
+			clogger.Error(err)
+			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
 		}
 
 		if err := resource.Run(); err != nil {
-			log.Fatalln(err)
+			clogger.Error(err)
+			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
 		}
+
+		clogger.Successf("Resource : %s  Status: Succeeded", rawResource.Name)
+		fmt.Println("")
 	}
 }
