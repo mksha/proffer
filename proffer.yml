@@ -38,7 +38,7 @@ resources:
         Purpose: testing
         Department: DevOps
 
-- name: Share AMI With Other Account
+- name: Share AMI With Other Accounts
   type: aws-shareami
   config:
     source:

@@ -1,20 +1,13 @@
 package parser
 
 import (
-	"log"
 	"os"
 	"text/template"
-
-	"example.com/proffer/common"
 )
 
 func getEnv(name string) string {
 	return os.Getenv(name)
 }
-
-var (
-	logger = log.New(os.Stdout, common.GreenBold("config-parser | "), log.Lmsgprefix)
-)
 
 func setDefaultValue(givenValue, currentValue string) string {
 	if currentValue == "" {
@@ -40,7 +33,7 @@ func ParseTemplate(dsc string) (string, error) {
 		return "", err
 	}
 
-	logger.Print(" DSC Found At :-> ", dsc)
+	clogger.Debug("Template Found At :-> ", dsc)
 
 	dscName := fileInfo.Name()
 	// Create template object for given dsc

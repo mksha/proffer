@@ -2,10 +2,8 @@ package copyami
 
 import (
 	"fmt"
-	"os"
 	"sync"
 
-	"example.com/proffer/common"
 	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -76,7 +74,7 @@ func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %s ", common.YellowBold(*sess.Config.Region), filters)
+		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %s ", *sess.Config.Region, filters)
 	}
 
 	svc := ec2.New(sess)
@@ -105,7 +103,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 	}
 	ok, err := isAmiExist(sess, filters)
 	if ok {
-		infoLog.Printf("AMI %s Already Exist In Region %s", common.YellowBold(*sai.Image.Name), common.YellowBold(*sess.Config.Region))
+		clogger.Warnf("AMI %s Already Exist In Region %s", *sai.Image.Name, *sess.Config.Region)
 		return
 	} else {
 		if err != nil {
@@ -114,7 +112,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 		}
 	}
 
-	infoLog.Printf("Started Copying AMI In Region: %s ...", common.YellowBold(*sess.Config.Region))
+	clogger.Infof("Started Copying AMI In Region: %s ...", *sess.Config.Region)
 
 	svc := ec2.New(sess)
 	input := &ec2.CopyImageInput{
@@ -137,18 +135,22 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 		return
 	}
 
-	infoLog.Printf("Copied AMI In Region: %s , New AMI Id Is: %s", common.YellowBold(*sess.Config.Region), common.YellowBold(*result.ImageId))
+	clogger.Infof("Copied AMI In Region: %s , New AMI Id Is: %s", *sess.Config.Region, *result.ImageId)
 
 }
 
-func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
+func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
-	sess := awscommon.GetAwsSessWithDefaultCreds()
+	sess, err := awscommon.GetAwsSessWithDefaultCreds()
+	if err != nil {
+		return err
+	}
+
 	sess.Config.Region = srcAmiInfo.Region
 	images, err := getAmiInfo(sess, srcAmiInfo.Filters)
 
 	if err != nil {
-		errorLog.Fatalln(err)
+		return err
 	}
 
 	srcAmiInfo.Image = images[0]
@@ -162,12 +164,14 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) {
 	wg.Wait()
 
 	if len(errMap) != 0 {
-		errorMsg.Println(common.RedBold("AMI Copy Operation Failed For following Regions:"))
+		clogger.Error("AMI Copy Operation Failed For following Regions:")
 		for region, err := range errMap {
-			errorMsg.Printf("%s:\n", common.YellowBold(region))
-			errorMsg.Printf("\tReason: [%s] ", err)
+			clogger.Errorf("%s:\n", region)
+			clogger.Errorf("\tReason: [%s] ", err)
 		}
-		os.Exit(1)
+
+		return fmt.Errorf("Failed")
 	}
 
+	return nil
 }

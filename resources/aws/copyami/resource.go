@@ -4,15 +4,13 @@ import (
 	"log"
 	"os"
 
-	"example.com/proffer/common"
+	clog "example.com/proffer/common/clogger"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/mitchellh/mapstructure"
 )
 
 var (
-	infoLog  = log.New(os.Stdout, common.GreenBold("aws-copyami | "), log.Lmsgprefix)
-	errorLog = log.New(os.Stdout, common.RedBold("aws-copyami | "), log.Llongfile)
-	errorMsg = log.New(os.Stdout, common.RedBold("aws-copyami | "), log.Lmsgprefix)
+	clogger = clog.New(os.Stdout, "aws-copyami | ", log.Lmsgprefix)
 )
 
 type Source struct {
@@ -71,7 +69,9 @@ func (r *Resource) Run() error {
 		Regions: target.Regions,
 	}
 
-	copyAmi(srcAmiInfo, targetInfo)
+	if err := copyAmi(srcAmiInfo, targetInfo); err != nil {
+		return err
+	}
 
 	return nil
 }

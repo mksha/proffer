@@ -4,12 +4,12 @@ import (
 	"log"
 	"os"
 
-	"example.com/proffer/common"
+	clog "example.com/proffer/common/clogger"
 	"github.com/mitchellh/mapstructure"
 )
 
 var (
-	logger = log.New(os.Stdout, common.GreenBold("aws-shareami | "), log.Lmsgprefix)
+	clogger = clog.New(os.Stdout, "aws-shareami | ", log.Lmsgprefix)
 )
 
 type AmiFilters struct {
@@ -55,7 +55,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 }
 
 func (r *Resource) Run() error {
-	logger.Println(r.Config)
+	clogger.Info(r.Config)
 
 	return nil
 }
