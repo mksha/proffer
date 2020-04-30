@@ -9,7 +9,6 @@ import (
 )
 
 var (
-	// logger  = log.New(os.Stdout, common.Success("aws-shareami | "), log.Lmsgprefix)
 	clogger = clog.New(os.Stdout, "aws-shareami | ", log.Lmsgprefix)
 )
 

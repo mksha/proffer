@@ -9,14 +9,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-const (
-	LogPrefix = "aws-copyami | "
-)
-
 var (
-	// infoLog  = log.New(os.Stdout, common.Success("aws-copyami | "), log.Lmsgprefix)
-	// errorLog = log.New(os.Stdout, common.Error("aws-copyami | "), log.Llongfile)
-	// errorMsg = log.New(os.Stdout, common.Error("aws-copyami | "), log.Lmsgprefix)
 	clogger = clog.New(os.Stdout, "aws-copyami | ", log.Lmsgprefix)
 )
 
