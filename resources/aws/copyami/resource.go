@@ -20,8 +20,9 @@ type Source struct {
 }
 
 type Target struct {
-	Regions      []*string         `yaml:"regions"`
-	AddExtraTags map[*string]*string `yaml:"addExtraTags"`
+	Regions               []*string           `yaml:"regions"`
+	CopyTagsAcrossRegions bool                `yaml:"copyTagsAcrossRegions"`
+	AddExtraTags          map[*string]*string `yaml:"addExtraTags"`
 }
 
 type Config struct {
@@ -66,8 +67,9 @@ func (r *Resource) Run() error {
 	}
 
 	targetInfo := TargetInfo{
-		Regions: target.Regions,
-		ExtraTags: formEc2Tags(target.AddExtraTags),
+		Regions:  target.Regions,
+		CopyTags: target.CopyTagsAcrossRegions,
+		Tags:     formEc2Tags(target.AddExtraTags),
 	}
 
 	if err := copyAmi(srcAmiInfo, targetInfo); err != nil {

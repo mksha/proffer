@@ -19,7 +19,8 @@ type SrcAmiInfo struct {
 
 type TargetInfo struct {
 	Regions  []*string
-	ExtraTags []*ec2.Tag
+	CopyTags bool
+	Tags []*ec2.Tag
 }
 
 var wg sync.WaitGroup
@@ -118,7 +119,7 @@ func formEc2Tags(tags map[*string]*string) []*ec2.Tag {
 }
 
 
-func copyImage(sess *session.Session, sai SrcAmiInfo, extraTags []*ec2.Tag, errMap map[string]error) {
+func copyImage(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
 	defer wg.Done()
 	filters := []*ec2.Filter{
 		{
@@ -164,7 +165,10 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, extraTags []*ec2.Tag, errM
 
 	clogger.Infof("Copied AMI In Region: %s , New AMI Id Is: %s", *sess.Config.Region, *result.ImageId)
 
-	tags := append(sai.Image.Tags,extraTags...)
+	if len(tags) == 0 {
+		clogger.Debug("No Tags To Add Or Create")
+		return
+	}
 
 	clogger.Debugf("Adding Following Tags to AMI %s",*result.ImageId)
 	clogger.Debug(tags)
@@ -174,7 +178,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, extraTags []*ec2.Tag, errM
 		return
 	}
 
-	clogger.Infof("Tags Have Added To AMI : %s , In Region: %s", *result.ImageId, *sess.Config.Region)
+	clogger.Infof("Tags Have Copied/Added To AMI : %s , In Region: %s", *result.ImageId, *sess.Config.Region)
 }
 
 func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
@@ -194,9 +198,13 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 	srcAmiInfo.Image = images[0]
 	errMap := map[string]error{}
 
+	if targetInfo.CopyTags {
+		targetInfo.Tags = append(targetInfo.Tags, srcAmiInfo.Image.Tags...)
+	}
+
 	for _, targetRegion := range targetInfo.Regions {
 		wg.Add(1)
-		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, targetInfo.ExtraTags, errMap)
+		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, targetInfo.Tags, errMap)
 	}
 
 	wg.Wait()
