@@ -32,11 +32,12 @@ resources:
         tag:Department: DevOps
     target:
       regions:
-      - us-west-1
-      - us-west-2
+      - ap-northeast-1
+      - ap-northeast-2
+      copyTagsAcrossRegions: true
       addExtraTags:
-        Purpose: testing
-        Department: DevOps
+        CreatedBy: local-testing-tool
+        Type: testing
 
 - name: Share AMI With Other Accounts
   type: aws-shareami
