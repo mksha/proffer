@@ -34,9 +34,10 @@ resources:
       regions:
       - us-west-1
       - us-west-2
+      - ap-northeast-2
       addExtraTags:
-        Purpose: testing
-        Department: DevOps
+        CreatedBy: local-testing-tool
+        Type: testing
 
 - name: Share AMI With Other Accounts
   type: aws-shareami

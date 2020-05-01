@@ -21,7 +21,7 @@ type Source struct {
 
 type Target struct {
 	Regions      []*string         `yaml:"regions"`
-	AddExtraTags map[string]string `yaml:"addExtraTags"`
+	AddExtraTags map[*string]*string `yaml:"addExtraTags"`
 }
 
 type Config struct {
@@ -67,6 +67,7 @@ func (r *Resource) Run() error {
 
 	targetInfo := TargetInfo{
 		Regions: target.Regions,
+		ExtraTags: formEc2Tags(target.AddExtraTags),
 	}
 
 	if err := copyAmi(srcAmiInfo, targetInfo); err != nil {

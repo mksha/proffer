@@ -19,7 +19,7 @@ type SrcAmiInfo struct {
 
 type TargetInfo struct {
 	Regions  []*string
-	Accounts []*string
+	ExtraTags []*ec2.Tag
 }
 
 var wg sync.WaitGroup
@@ -91,7 +91,34 @@ func getAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 	return images, nil
 }
 
-func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
+func createEc2Tags(sess *session.Session, resources []*string, tags []*ec2.Tag) error {
+	svc := ec2.New(sess)
+	input := &ec2.CreateTagsInput{
+		Resources: resources,
+		Tags: tags,
+	}
+
+	_, err := svc.CreateTags(input)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+func formEc2Tags(tags map[*string]*string) []*ec2.Tag {
+	ec2Tags := make([]*ec2.Tag, len(tags))
+
+	for key, value := range tags {
+		ec2Tags = append(ec2Tags, &ec2.Tag{Key:key,Value:value})
+	}
+
+	return ec2Tags
+}
+
+
+func copyImage(sess *session.Session, sai SrcAmiInfo, extraTags []*ec2.Tag, errMap map[string]error) {
 	defer wg.Done()
 	filters := []*ec2.Filter{
 		{
@@ -137,6 +164,17 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, errMap map[string]error) {
 
 	clogger.Infof("Copied AMI In Region: %s , New AMI Id Is: %s", *sess.Config.Region, *result.ImageId)
 
+	tags := append(sai.Image.Tags,extraTags...)
+
+	clogger.Debugf("Adding Following Tags to AMI %s",*result.ImageId)
+	clogger.Debug(tags)
+
+	if err := createEc2Tags(sess, []*string{result.ImageId}, tags); err != nil {
+		errMap[*sess.Config.Region] = err
+		return
+	}
+
+	clogger.Infof("Tags Have Added To AMI : %s , In Region: %s", *result.ImageId, *sess.Config.Region)
 }
 
 func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
@@ -158,7 +196,7 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	for _, targetRegion := range targetInfo.Regions {
 		wg.Add(1)
-		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, errMap)
+		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, targetInfo.ExtraTags, errMap)
 	}
 
 	wg.Wait()
