@@ -13,7 +13,7 @@ type MapOfResource map[string]func() (Resourcer, error)
 func (mor MapOfResource) getResource(name string) (Resourcer, error){
 	r, ok := mor[name]
 	if !ok {
-		return nil, fmt.Errorf(" InvalidResourceTYpe: Resource type %s not found", name)
+		return nil, fmt.Errorf("InvalidResourceTYpe: Resource type %s not found", name)
 	}
 
 	return r()

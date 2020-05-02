@@ -7,18 +7,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Env struct {
-	AccountID     int    `yaml:"accountId"`
-	GetCredsUsing string `yaml:"getCredsUsing"`
-	IamRoleName   string `yaml:"iamRoleName"`
-}
-
-type Environments map[string]*Env
-
-type Data struct {
-	Environments Environments `yaml:"environments"`
-}
-
 type Resource struct {
 	Name   string                 `yaml:"name"`
 	Type   string                 `yaml:"type"`
@@ -26,7 +14,7 @@ type Resource struct {
 }
 
 type Config struct {
-	Data         Data                     `yaml:"data"`
+	Variables    map[string]string        `yaml:"variables"`
 	RawResources []Resource               `yaml:"resources"`
 	Resources    components.MapOfResource `yaml:"-"`
 }
