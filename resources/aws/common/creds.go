@@ -3,12 +3,20 @@ package common
 import (
 	// "fmt"
 	"fmt"
+	"log"
+	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
-	// "github.com/aws/aws-sdk-go/aws/awserr"
+	clog "example.com/proffer/common/clogger"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	// "github.com/aws/aws-sdk-go/aws/credentials"
+	// "github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
+	// "github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
-	// "github.com/aws/aws-sdk-go/service/sts"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/service/sts"
+)
+
+var (
+	clogger = clog.New(os.Stdout, "common | ", log.Lmsgprefix)
 )
 
 // createSession is used to create aws session with given configuration.
@@ -18,50 +26,80 @@ func createSession(sessOpts session.Options) (sessPtr *session.Session) {
 	return
 }
 
-func GetAwsSessWithProfile(profile, region string) (sessPtr *session.Session) {
-	sessOpts := session.Options{
-		// Specify profile to load for the session's config
-		Profile: profile,
-		// Provide SDK Config options, such as Region.
-		Config: aws.Config{
-			Region: aws.String(region),
-		},
-		// Force enable Shared Config support
-		SharedConfigState: session.SharedConfigEnable,
+func GetAwsSessWithProfile(profile string) (*session.Session, error) {
+	sessPtr := createSession(session.Options{Profile: profile})
+
+	if _, err := sessPtr.Config.Credentials.Get(); err != nil {
+		return nil, fmt.Errorf("AWSProfileDoesNotExist: Failed To Retrieve Credentials From AWS Profile")
 	}
-	sessPtr = createSession(sessOpts)
-	return
+
+	if ok := IsCredsExpired(sessPtr); ok {
+		return nil, fmt.Errorf("AwsProfileCredsExpired: Provided AWS Profile's Credentials Have Expired")
+	}
+
+	return sessPtr, nil
 }
 
-func GetAwsSessWithDefaultCreds() (sessPtr *session.Session, err error) {
-	creds := credentials.NewEnvCredentials()
+func GetAwsSessWithDefaultCreds() (*session.Session, error) {
+	sessPtr := createSession(session.Options{SharedConfigState: session.SharedConfigEnable})
 
-	if _, err := creds.Get(); err != nil {
-		return nil, fmt.Errorf("AWSEnvVarsDoesNotExist: Failed To Retrive Credentials From Env Vars")
+	if _, err := sessPtr.Config.Credentials.Get(); err != nil {
+		return nil, fmt.Errorf("AWSEnvVarsDoesNotExist: Failed To Retrieve Credentials From Env Vars")
 	}
 
-	if ok := creds.IsExpired(); ok {
-		return nil, fmt.Errorf("AWS Environment Credentials have Expired")
+	if ok := IsCredsExpired(sessPtr); ok {
+		return nil, fmt.Errorf("AwsEnvVarsCredsExpired: Provided AWS Environment Credentials Have Expired")
 	}
 
-	sessPtr = createSession(session.Options{})
-	return
+	return sessPtr, nil
 }
 
-// func validateCreds(sess *session.Session) error {
-// 	svc := sts.New(sess)
-// 	input := &sts.GetCallerIdentityInput{}
-// 	_, err := svc.GetCallerIdentity(input)
+func IsCredsExpired(sessPtr *session.Session) bool {
+	svc := sts.New(sessPtr)
+	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
-// 	if err != nil {
-// 		if aerr, ok := err.(awserr.Error); ok {
-// 			if aerr.Code() == "ExpiredToken" {
-// 				return fmt.Errorf("%s: %s", aerr.Code(), aerr.Message())
-// 			}
-// 		}
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			if aerr.Code() == "ExpiredToken" {
+				return true
+			}
+		}
 
-// 		return err
-// 	}
+		clogger.Fatal(err)
+	}
 
-// 	return nil
-// }
+	clogger.Debugf("Found Non-Expired Credentials For AWS Account: %s", *result.Account)
+
+	return false
+}
+
+func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, error) {
+	svc := sts.New(sessPtr)
+	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func GetAwsSession(credProviderInfo map[string]string) (*session.Session, error) {
+	switch credProviderInfo["getCredsUsing"] {
+	case "profile":
+		clogger.Debugf("Getting Creds Using AWS Profile: %s", credProviderInfo["profile"])
+		return GetAwsSessWithProfile(credProviderInfo["profile"])
+	case "roleArn":
+		clogger.Debugf("Getting Creds By Assuming AWS IAM Role: %s", credProviderInfo["roleArn"])
+		return GetAwsSessWithDefaultCreds()
+	default:
+		credLoadOrder := `
+	 * Environment Variables
+	 * Shared Credentials file
+	 * Shared Configuration file
+	 * EC2 Instance Metadata (credentials only)`
+		clogger.Debugf("Will Attempt To Load Creds Using One Of the Providers Found In Following Order: %s", credLoadOrder)
+
+		return GetAwsSessWithDefaultCreds()
+	}
+}

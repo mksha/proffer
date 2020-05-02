@@ -1,29 +1,17 @@
 ---
-data:
-  environments:
-    ci:
-      accountId: 385838
-      getCredsUsing: iamRole
-      iamRoleName: test-iam-role
-    develop:
-      accountId: 123457
-      getCredsUsing: awsProfile
-      awsProfileName: test-profile
-    sandbox:
-      accountId: 786456
-      getCredsUsing: envVars
-    nonProd:
-      accountId: 435325
-  commonRegions: &commonRegions
-  - us-west-1
-  - us-west-2
+variables:
+  ci: 385838
+  develop: 2322424
+  sandbox: 121241
+  non-prod: 3276587
 
 resources:
 - name: Copy AMI To Commercial Account Regions
   type: aws-copyami
   config:
     source:
-      environment: ci
+      # profile: default
+      # roleArn: test
       region: us-west-2
       amiFilters:
         image-id: ami-01b55974057720a43
@@ -43,22 +31,34 @@ resources:
   type: aws-shareami
   config:
     source:
-      environment: ci
       region: us-west-2
       amiFilters:
         name: my-ami-new-one
         id: ami-12131313
+        tag:Purpose: Testing
+        tag:Department: DevOps
     target:
-      environmentRegionMapping:
-        develop:
+      accountRegionMappingList:
+        - accountId: 12
+          roleArn: 121:113:x:x
           regions:
-          - us-east-1
-          - us-east-2
+            - us-east-1
+            - us-east-2
           extraTags: {}
-        sandbox:
+        - accountId: 12
+          profile: test-pro
           regions:
-          - ap-south-west-1
-          extraTags:
+            - us-east-1
+            - us-east-2
+          extraTags: {}
+        - accountId: 12
+          regions:
+            - ap-south-west-1
+          copyTagsAcrossAccounts: true
+          addExtraTags:
             home: {{ env "HOME" | default "default value" }}
-      commonRegions: *commonRegions
+      copyTagsAcrossAccounts: true
+      commonRegions:
+      - us-west-1
+      - us-west-2
 

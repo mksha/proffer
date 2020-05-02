@@ -12,25 +12,26 @@ var (
 	clogger = clog.New(os.Stdout, "aws-shareami | ", log.Lmsgprefix)
 )
 
-type AmiFilters struct {
-	ID   string `yaml:"id"`
-	Name string `yaml:"name"`
-}
-
-type EnvironmentInfo struct {
-	Regions   []string          `yaml:"regions"`
-	ExtraTags map[string]string `yaml:"extraTags"`
-}
-
 type Source struct {
-	Environment string     `yaml:"environment"`
-	Region      string     `yaml:"region"`
-	AmiFilters  AmiFilters `yaml:"amiFilters"`
+	Profile    string              `yaml:"profile"`
+	RoleArn    string              `yaml:"roleArn"`
+	Region     string              `yaml:"region"`
+	AmiFilters map[*string]*string `yaml:"amiFilters"`
+}
+
+type AccountRegionMapping struct {
+	AccountID              int                 `yaml:"accountId"`
+	Profile                string              `yaml:"profile"`
+	RoleArn                string              `yaml:"roleArn"`
+	Regions                []*string           `yaml:"regions"`
+	AddExtraTags           map[*string]*string `yaml:"addExtraTags"`
+	CopyTagsAcrossAccounts bool                `yaml:"copyTagsAcrossAccounts"`
 }
 
 type Target struct {
-	EnvironmentRegionMapping map[string]EnvironmentInfo `yaml:"environmentRegionMapping"`
-	CommonRegions            []string                   `yaml:"commonRegions"`
+	AccountRegionMappingList []AccountRegionMapping `yaml:"accountRegionMapping"`
+	CopyTagsAcrossAccounts   bool                   `yaml:"copyTagsAcrossAccounts"`
+	CommonRegions            []*string              `yaml:"commonRegions"`
 }
 
 type Config struct {
