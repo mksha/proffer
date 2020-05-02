@@ -13,8 +13,8 @@ var (
 )
 
 type Source struct {
-	Profile    string              `yaml:"profile"`
-	RoleArn    string              `yaml:"roleArn"`
+	Profile    *string             `yaml:"profile"`
+	RoleArn    *string             `yaml:"roleArn"`
 	Region     string              `yaml:"region"`
 	AmiFilters map[*string]*string `yaml:"amiFilters"`
 }
