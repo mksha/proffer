@@ -3,21 +3,17 @@ package shareami
 import (
 	"log"
 	"os"
+	"fmt"
 
 	clog "example.com/proffer/common/clogger"
 	"github.com/mitchellh/mapstructure"
+	awscommon "example.com/proffer/resources/aws/common"
 )
 
 var (
 	clogger = clog.New(os.Stdout, "aws-shareami | ", log.Lmsgprefix)
 )
 
-type Source struct {
-	Profile    *string             `yaml:"profile"`
-	RoleArn    *string             `yaml:"roleArn"`
-	Region     string              `yaml:"region"`
-	AmiFilters map[*string]*string `yaml:"amiFilters"`
-}
 
 type AccountRegionMapping struct {
 	AccountID              int                 `yaml:"accountId"`
@@ -35,12 +31,12 @@ type Target struct {
 }
 
 type Config struct {
-	Source Source `yaml:"source"`
+	Source awscommon.RawSrcAmiInfo `yaml:"source"`
 	Target Target `yaml:"target"`
 }
 
 type Resource struct {
-	Config Config
+	Config Config `yaml:"config"`
 }
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
@@ -56,7 +52,16 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 }
 
 func (r *Resource) Run() error {
-	clogger.Info(r.Config)
+	source := r.Config.Source
+	target := r.Config.Target
+	
+	fmt.Println(source)
+	fmt.Println(target)
+
+
+	if err := shareAmi(); err != nil {
+		return err
+	}
 
 	return nil
 }

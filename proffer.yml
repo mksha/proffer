@@ -31,22 +31,25 @@ resources:
   type: aws-shareami
   config:
     source:
-      region: us-west-2
+      profile: demo-2
+      region: us-east-1
       amiFilters:
-        name: my-ami-new-one
-        id: ami-12131313
+        name: test-image
+        # id: ami-12131313
         tag:Purpose: Testing
         tag:Department: DevOps
     target:
       accountRegionMappingList:
-        - accountId: 12
-          roleArn: 121:113:x:x
+        - accountId: 591616226324
+          profile: demo-1
           regions:
             - us-east-1
             - us-east-2
-          extraTags: {}
-        - accountId: 12
-          profile: test-pro
+          extraTags:
+            CreatedBy: SharedByDemo1
+            Type: AMITesting
+        - accountId: 698203116079
+          profile: demo-2
           regions:
             - us-east-1
             - us-east-2
