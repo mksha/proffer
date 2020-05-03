@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	// "time"
 
 	clog "example.com/proffer/common/clogger"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	// "github.com/aws/aws-sdk-go/aws/credentials"
 	// "github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
 	// "github.com/aws/aws-sdk-go/aws/ec2metadata"
@@ -26,15 +29,46 @@ func createSession(sessOpts session.Options) (sessPtr *session.Session) {
 	return
 }
 
+func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
+	sessPtr, err := GetAwsSessWithDefaultCreds()
+
+	if err != nil {
+		return nil, err
+	}
+
+	callerAccountInfo, err := GetAccountInfo(sessPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	clogger.Debugf("Will Assume IAM Role Using Creds Of Identity: %s", *callerAccountInfo.Arn)
+
+	creds := stscreds.NewCredentials(sessPtr, roleArn)
+	config := aws.Config{Credentials: creds}
+	newSessPtr := createSession(session.Options{Config: config})
+
+	if _, err := newSessPtr.Config.Credentials.Get(); err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			return nil, fmt.Errorf("%s: %s", aerr.Code(), aerr.Message())
+		}
+	}
+
+	if ok := IsCredsExpired(newSessPtr); ok {
+		return nil, fmt.Errorf("AwsAssumeRoleCredsExpired: Provided AWS Assume Role's Credentials Have Expired")
+	}
+
+	return newSessPtr, nil
+}
+
 func GetAwsSessWithProfile(profile string) (*session.Session, error) {
 	sessPtr := createSession(session.Options{Profile: profile})
 
 	if _, err := sessPtr.Config.Credentials.Get(); err != nil {
-		return nil, fmt.Errorf("AWSProfileDoesNotExist: Failed To Retrieve Credentials From AWS Profile")
+		return nil, fmt.Errorf("AWSProfileDoesNotExist: Failed To Retrieve Credentials From AWS Profile %s", profile)
 	}
 
 	if ok := IsCredsExpired(sessPtr); ok {
-		return nil, fmt.Errorf("AwsProfileCredsExpired: Provided AWS Profile's Credentials Have Expired")
+		return nil, fmt.Errorf("AwsProfileCredsExpired: %s AWS Profile's Credentials Have Expired", profile)
 	}
 
 	return sessPtr, nil
@@ -44,11 +78,11 @@ func GetAwsSessWithDefaultCreds() (*session.Session, error) {
 	sessPtr := createSession(session.Options{SharedConfigState: session.SharedConfigEnable})
 
 	if _, err := sessPtr.Config.Credentials.Get(); err != nil {
-		return nil, fmt.Errorf("AWSEnvVarsDoesNotExist: Failed To Retrieve Credentials From Env Vars")
+		return nil, fmt.Errorf("NoDefaultCredProviderExist: No Default Credential Provider Exists")
 	}
 
 	if ok := IsCredsExpired(sessPtr); ok {
-		return nil, fmt.Errorf("AwsEnvVarsCredsExpired: Provided AWS Environment Credentials Have Expired")
+		return nil, fmt.Errorf("CredsExpired: Default AWS Provider's Credentials Have Expired")
 	}
 
 	return sessPtr, nil
@@ -56,8 +90,7 @@ func GetAwsSessWithDefaultCreds() (*session.Session, error) {
 
 func IsCredsExpired(sessPtr *session.Session) bool {
 	svc := sts.New(sessPtr)
-	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-
+	_, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			if aerr.Code() == "ExpiredToken" {
@@ -67,8 +100,6 @@ func IsCredsExpired(sessPtr *session.Session) bool {
 
 		clogger.Fatal(err)
 	}
-
-	clogger.Debugf("Found Non-Expired Credentials For AWS Account: %s", *result.Account)
 
 	return false
 }
@@ -87,11 +118,11 @@ func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, err
 func GetAwsSession(credProviderInfo map[string]string) (*session.Session, error) {
 	switch credProviderInfo["getCredsUsing"] {
 	case "profile":
-		clogger.Debugf("Getting Creds Using AWS Profile: %s", credProviderInfo["profile"])
+		clogger.Debugf("Will Get Creds Using AWS Profile: %s", credProviderInfo["profile"])
 		return GetAwsSessWithProfile(credProviderInfo["profile"])
 	case "roleArn":
-		clogger.Debugf("Getting Creds By Assuming AWS IAM Role: %s", credProviderInfo["roleArn"])
-		return GetAwsSessWithDefaultCreds()
+		clogger.Debugf("Will Get Creds By Assuming AWS IAM Role: %s", credProviderInfo["roleArn"])
+		return GetAwsSessWithAssumeRole(credProviderInfo["roleArn"])
 	default:
 		credLoadOrder := `
 	 * Environment Variables
