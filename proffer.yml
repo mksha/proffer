@@ -6,26 +6,26 @@ variables:
   non-prod: 3276587
 
 resources:
-- name: Copy AMI To Commercial Account Regions
-  type: aws-copyami
-  config:
-    source:
-      profile: demo-2
-      # roleArn: arn:aws:iam::698203116079:role/test-tool-functionality
-      region: us-east-1
-      amiFilters:
-        # image-id: ami-01b55974057720a43
-        name: test-image
-        tag:Purpose: Testing
-        tag:Department: DevOps
-    target:
-      regions:
-      - ap-northeast-1
-      - ap-northeast-2
-      copyTagsAcrossRegions: true
-      addExtraTags:
-        CreatedBy: local-testing-tool
-        Type: testing
+# - name: Copy AMI To Commercial Account Regions
+#   type: aws-copyami
+#   config:
+#     source:
+#       profile: demo-2
+#       # roleArn: arn:aws:iam::698203116079:role/test-tool-functionality
+#       region: us-east-1
+#       amiFilters:
+#         # image-id: ami-01b55974057720a43
+#         name: test-image
+#         tag:Purpose: Testing
+#         tag:Department: DevOps
+#     target:
+#       regions:
+#       - ap-northeast-1
+#       - ap-northeast-2
+#       copyTagsAcrossRegions: true
+#       addExtraTags:
+#         CreatedBy: local-testing-tool
+#         Type: testing
 
 - name: Share AMI With Other Accounts
   type: aws-shareami
@@ -45,21 +45,21 @@ resources:
           regions:
             - us-east-1
             - us-east-2
-          extraTags:
+          copyTagsAcrossAccounts: true
+          addExtraTags:
             CreatedBy: SharedByDemo1
             Type: AMITesting
+            home: {{ env "HOME" | default "default value" }}
         - accountId: 698203116079
           profile: demo-2
           regions:
             - us-east-1
             - us-east-2
-          extraTags: {}
-        - accountId: 12
+        - accountId: 12345677
+          profile: demo-2
           regions:
-            - ap-south-west-1
-          copyTagsAcrossAccounts: true
-          addExtraTags:
-            home: {{ env "HOME" | default "default value" }}
+            - us-east-1
+            - us-east-2
       copyTagsAcrossAccounts: true
       commonRegions:
       - us-west-1

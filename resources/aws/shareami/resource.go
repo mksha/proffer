@@ -3,36 +3,47 @@ package shareami
 import (
 	"log"
 	"os"
-	"fmt"
 
 	clog "example.com/proffer/common/clogger"
-	"github.com/mitchellh/mapstructure"
 	awscommon "example.com/proffer/resources/aws/common"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/mitchellh/mapstructure"
 )
 
 var (
 	clogger = clog.New(os.Stdout, "aws-shareami | ", log.Lmsgprefix)
 )
 
-
-type AccountRegionMapping struct {
+type RawAccountRegionMapping struct {
 	AccountID              int                 `yaml:"accountId"`
-	Profile                string              `yaml:"profile"`
-	RoleArn                string              `yaml:"roleArn"`
+	Profile                *string             `yaml:"profile"`
+	RoleArn                *string             `yaml:"roleArn"`
 	Regions                []*string           `yaml:"regions"`
 	AddExtraTags           map[*string]*string `yaml:"addExtraTags"`
 	CopyTagsAcrossAccounts bool                `yaml:"copyTagsAcrossAccounts"`
 }
 
+type AccountRegionMapping struct {
+	CopyTags  bool
+	Tags      []*ec2.Tag
+	CredsInfo map[string]string
+	AccountID *string
+	Image     *ec2.Image
+	Regions   []*string
+}
+
 type Target struct {
-	AccountRegionMappingList []AccountRegionMapping `yaml:"accountRegionMapping"`
-	CopyTagsAcrossAccounts   bool                   `yaml:"copyTagsAcrossAccounts"`
-	CommonRegions            []*string              `yaml:"commonRegions"`
+	AccountRegionMappingList    []RawAccountRegionMapping `yaml:"accountRegionMappingList"`
+	CopyTagsAcrossAccounts      bool                      `yaml:"copyTagsAcrossAccounts"`
+	CommonRegions               []*string                 `yaml:"commonRegions"`
+	ModAccountRegionMappingList []AccountRegionMapping    `yaml:"-"`
 }
 
 type Config struct {
-	Source awscommon.RawSrcAmiInfo `yaml:"source"`
-	Target Target `yaml:"target"`
+	Source     awscommon.RawSrcAmiInfo `yaml:"source"`
+	Target     Target                  `yaml:"target"`
+	SrcAmiInfo awscommon.SrcAmiInfo    `yaml:"-"`
 }
 
 type Resource struct {
@@ -47,21 +58,65 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	}
 
 	r.Config = c
+	r.Config.SrcAmiInfo = awscommon.PrepareSrcAmiInfo(r.Config.Source)
+
+	r.prepareAccountRegionMappingList()
+	r.Config.Target.addCommonRegionsIfAny()
 
 	return nil
 }
 
 func (r *Resource) Run() error {
-	source := r.Config.Source
-	target := r.Config.Target
-	
-	fmt.Println(source)
-	fmt.Println(target)
 
-
-	if err := shareAmi(); err != nil {
+	if err := r.Config.apply(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r *Resource) prepareAccountRegionMappingList() {
+	accountRegionMappingList := make([]AccountRegionMapping, 0)
+
+	for _, rawAccountRegionMapping := range r.Config.Target.AccountRegionMappingList {
+		accountRegionMapping := AccountRegionMapping{
+			CopyTags:  rawAccountRegionMapping.CopyTagsAcrossAccounts,
+			Tags:      awscommon.FormEc2Tags(rawAccountRegionMapping.AddExtraTags),
+			Regions:   rawAccountRegionMapping.Regions,
+			AccountID: aws.String(string(rawAccountRegionMapping.AccountID)),
+			CredsInfo: make(map[string]string, 2),
+		}
+
+		if rawAccountRegionMapping.RoleArn != nil {
+			accountRegionMapping.CredsInfo["getCredsUsing"] = "roleArn"
+			accountRegionMapping.CredsInfo["roleArn"] = *rawAccountRegionMapping.RoleArn
+		} else if rawAccountRegionMapping.Profile != nil {
+			accountRegionMapping.CredsInfo["getCredsUsing"] = "profile"
+			accountRegionMapping.CredsInfo["profile"] = *rawAccountRegionMapping.Profile
+		}
+
+		accountRegionMappingList = append(accountRegionMappingList, accountRegionMapping)
+	}
+
+	r.Config.Target.ModAccountRegionMappingList = accountRegionMappingList
+}
+
+func (t *Target) getTargetAccounts() []*string {
+	accounts := make([]*string, 0)
+
+	for _, rawAccountRegionMapping := range t.AccountRegionMappingList {
+		accounts = append(accounts, aws.String(string(rawAccountRegionMapping.AccountID)))
+	}
+
+	return accounts
+}
+
+func (t *Target) addCommonRegionsIfAny() {
+	if t.CommonRegions == nil {
+		return
+	}
+
+	for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
+		t.ModAccountRegionMappingList[i].Regions = append(t.ModAccountRegionMappingList[i].Regions, t.CommonRegions...)
+	}
 }
