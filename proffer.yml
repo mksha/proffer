@@ -32,10 +32,8 @@ resources:
   config:
     source:
       profile: demo-2
-      region: us-east-1
       amiFilters:
         name: test-image
-        # id: ami-12131313
         tag:Purpose: Testing
         tag:Department: DevOps
     target:
@@ -43,25 +41,25 @@ resources:
         - accountId: 591616226324
           profile: demo-1
           regions:
-            - us-east-1
+            - ap-northeast-1
             - us-east-2
           copyTagsAcrossAccounts: true
           addExtraTags:
             CreatedBy: SharedByDemo1
             Type: AMITesting
             home: {{ env "HOME" | default "default value" }}
-        - accountId: 698203116079
-          profile: demo-2
-          regions:
-            - us-east-1
-            - us-east-2
-        - accountId: 12345677
-          profile: demo-2
-          regions:
-            - us-east-1
-            - us-east-2
+        # - accountId: 698203116079
+        #   profile: demo-2
+        #   regions:
+        #     - us-east-1
+        #     - us-east-2
+        # - accountId: 221266418583
+        #   profile: platform-aws
+        #   regions:
+        #     - us-east-1
+        #     - us-east-2
       copyTagsAcrossAccounts: true
       commonRegions:
-      - us-west-1
+      - us-east-1
       - us-west-2
 

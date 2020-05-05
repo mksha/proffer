@@ -3,6 +3,7 @@ package shareami
 import (
 	"log"
 	"os"
+	"strconv"
 
 	clog "example.com/proffer/common/clogger"
 	awscommon "example.com/proffer/resources/aws/common"
@@ -61,7 +62,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	r.Config.SrcAmiInfo = awscommon.PrepareSrcAmiInfo(r.Config.Source)
 
 	r.prepareAccountRegionMappingList()
-	r.Config.Target.addCommonRegionsIfAny()
+	r.Config.Target.setCommonPropertiesIfAny()
 
 	return nil
 }
@@ -83,7 +84,7 @@ func (r *Resource) prepareAccountRegionMappingList() {
 			CopyTags:  rawAccountRegionMapping.CopyTagsAcrossAccounts,
 			Tags:      awscommon.FormEc2Tags(rawAccountRegionMapping.AddExtraTags),
 			Regions:   rawAccountRegionMapping.Regions,
-			AccountID: aws.String(string(rawAccountRegionMapping.AccountID)),
+			AccountID: aws.String(strconv.Itoa(rawAccountRegionMapping.AccountID)),
 			CredsInfo: make(map[string]string, 2),
 		}
 
@@ -111,12 +112,26 @@ func (t *Target) getTargetAccounts() []*string {
 	return accounts
 }
 
-func (t *Target) addCommonRegionsIfAny() {
-	if t.CommonRegions == nil {
+func (t *Target) setCommonPropertiesIfAny() {
+	if t.CommonRegions != nil && t.CopyTagsAcrossAccounts {
+		for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
+			t.ModAccountRegionMappingList[i].Regions = append(t.ModAccountRegionMappingList[i].Regions, t.CommonRegions...)
+			t.ModAccountRegionMappingList[i].CopyTags = t.CopyTagsAcrossAccounts
+		}
 		return
 	}
 
-	for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
-		t.ModAccountRegionMappingList[i].Regions = append(t.ModAccountRegionMappingList[i].Regions, t.CommonRegions...)
+	if t.CommonRegions != nil {
+		for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
+			t.ModAccountRegionMappingList[i].Regions = append(t.ModAccountRegionMappingList[i].Regions, t.CommonRegions...)
+		}
+		return
+	}
+
+	if t.CopyTagsAcrossAccounts {
+		for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
+			t.ModAccountRegionMappingList[i].CopyTags = t.CopyTagsAcrossAccounts
+		}
+		return
 	}
 }
