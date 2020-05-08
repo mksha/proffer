@@ -12,7 +12,7 @@ var (
 )
 
 type CLogger struct {
-	Logger    *log.Logger
+	Logger *log.Logger
 }
 
 // Log level
@@ -109,7 +109,6 @@ func getColoredMsg(msg string, codeList ...int) string {
 func (cl *CLogger) SetPrefix(prefix string) {
 	cl.Logger.SetPrefix(getColoredMsg(prefix, FgCyan))
 }
-
 
 // Error is used to print info in red color
 func (cl *CLogger) Error(a ...interface{}) {

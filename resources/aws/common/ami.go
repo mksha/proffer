@@ -62,7 +62,8 @@ func GetAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %s ", *sess.Config.Region, filters)
+
+		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %v ", *sess.Config.Region, filters)
 	}
 
 	svc := ec2.New(sess)
@@ -95,7 +96,7 @@ func CreateEc2Tags(sess *session.Session, resources []*string, tags []*ec2.Tag) 
 }
 
 func FormEc2Tags(tags map[*string]*string) []*ec2.Tag {
-	ec2Tags := make([]*ec2.Tag, len(tags))
+	ec2Tags := make([]*ec2.Tag, 0)
 
 	for key, value := range tags {
 		ec2Tags = append(ec2Tags, &ec2.Tag{Key: key, Value: value})

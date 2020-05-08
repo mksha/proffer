@@ -11,13 +11,14 @@ import (
 )
 
 var wg sync.WaitGroup
+var innerWg sync.WaitGroup
 
 type (
 	RegionErrMap        map[string]error
 	AccountRegionErrMap map[string]RegionErrMap
 )
 
-func (m *AccountRegionMapping) addPermissionsforTargetAccount(sai awscommon.SrcAmiInfo, region *string, regionErrMap RegionErrMap) {
+func (m AccountRegionMapping) addPermissionsforTargetAccount(sai SrcAmiInfo, region *string, regionErrMap RegionErrMap) {
 	defer wg.Done()
 
 	// modify source image launch permission to add target account
@@ -68,9 +69,11 @@ func (m *AccountRegionMapping) addPermissionsforTargetAccount(sai awscommon.SrcA
 	clogger.Infof("Successfully Shared AMI: %s", *image.Name)
 	clogger.Infof("\t  With Account: %s", *m.AccountID)
 	clogger.Infof("\t  In Region: %s", *region)
+	clogger.Info("")
 }
 
-func (m *AccountRegionMapping) shareAmi(sai awscommon.SrcAmiInfo, accountRegionErrMap AccountRegionErrMap) {
+func (m AccountRegionMapping) shareAmi(sai SrcAmiInfo, accountRegionErrMap AccountRegionErrMap) {
+	defer innerWg.Done()
 	regionErrMap := RegionErrMap{}
 
 	for _, targetRegion := range m.Regions {
@@ -87,24 +90,28 @@ func (m *AccountRegionMapping) shareAmi(sai awscommon.SrcAmiInfo, accountRegionE
 }
 
 func (c *Config) apply() error {
-	sess, err := awscommon.GetAwsSession(c.SrcAmiInfo.CredsInfo)
-	if err != nil {
-		return err
-	}
+	// sess, err := awscommon.GetAwsSession(c.SrcAmiInfo.CredsInfo)
+	// if err != nil {
+	// 	return err
+	// }
 
-	sess.Config.Region = c.SrcAmiInfo.Region
-	accountInfo, err := awscommon.GetAccountInfo(sess)
-	if err != nil {
-		return err
-	}
+	// sess.Config.Region = c.SrcAmiInfo.Region
+	// accountInfo, err := awscommon.GetAccountInfo(sess)
+	// if err != nil {
+	// 	return err
+	// }
 
-	c.SrcAmiInfo.AccountID = accountInfo.Account
+	// c.SrcAmiInfo.AccountID = accountInfo.Account
 
 	accountRegionErrMap := AccountRegionErrMap{}
 
 	for _, AccountRegionMapping := range c.Target.ModAccountRegionMappingList {
-		AccountRegionMapping.shareAmi(c.SrcAmiInfo, accountRegionErrMap)
+		innerWg.Add(1)
+
+		go AccountRegionMapping.shareAmi(c.SrcAmiInfo, accountRegionErrMap)
 	}
+
+	innerWg.Wait()
 
 	if len(accountRegionErrMap) != 0 {
 		clogger.Error("AMI Share Operation Failed For Following Accounts:")

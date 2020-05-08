@@ -53,11 +53,11 @@ resources:
         #   regions:
         #     - us-east-1
         #     - us-east-2
-        # - accountId: 221266418583
-        #   profile: platform-aws
-        #   regions:
-        #     - us-east-1
-        #     - us-east-2
+        - accountId: 221266418583
+          profile: platform-aws
+          regions:
+            - us-west-1
+            - us-east-2
       copyTagsAcrossAccounts: true
       commonRegions:
       - us-east-1
