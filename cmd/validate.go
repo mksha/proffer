@@ -23,7 +23,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
 var (
 	// validateCmd represents the validate command
 	validateCmd = &cobra.Command{
@@ -34,7 +33,6 @@ var (
 	}
 	// clogger = clog.New(os.Stdout, "config-validation | ", log.Lmsgprefix)
 )
-
 
 func init() {
 	rootCmd.AddCommand(validateCmd)

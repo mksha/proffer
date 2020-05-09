@@ -74,6 +74,7 @@ func executeResources(dsc string) {
 		}
 		clogger.SetPrefix(rawResource.Type + " | ")
 		clogger.Successf("Resource : %s  Status: Started", rawResource.Name)
+		clogger.Info("")
 
 		if err := resource.Prepare(rawResource.Config); err != nil {
 			clogger.Error(err)

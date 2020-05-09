@@ -5,6 +5,7 @@ import (
 	"os"
 
 	clog "example.com/proffer/common/clogger"
+	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/mitchellh/mapstructure"
 )
@@ -13,11 +14,19 @@ var (
 	clogger = clog.New(os.Stdout, "aws-copyami | ", log.Lmsgprefix)
 )
 
-type Source struct {
-	Profile    *string              `yaml:"profile"`
-	RoleArn    *string              `yaml:"roleArn"`
+type RawSrcAmiInfo struct {
+	Profile    *string             `yaml:"profile"`
+	RoleArn    *string             `yaml:"roleArn"`
 	Region     *string             `yaml:"region"`
 	AmiFilters map[*string]*string `yaml:"amiFilters"`
+}
+
+type SrcAmiInfo struct {
+	CredsInfo map[string]string
+	AccountID *string
+	Region    *string
+	Filters   []*ec2.Filter
+	Image     *ec2.Image
 }
 
 type Target struct {
@@ -27,8 +36,9 @@ type Target struct {
 }
 
 type Config struct {
-	Source Source `yaml:"source"`
-	Target Target `yaml:"target"`
+	Source     RawSrcAmiInfo `yaml:"source"`
+	Target     Target        `yaml:"target"`
+	SrcAmiInfo SrcAmiInfo    `yaml:"-"`
 }
 
 type Resource struct {
@@ -36,7 +46,6 @@ type Resource struct {
 }
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
-
 	var c Config
 
 	if err := mapstructure.Decode(rawConfig, &c); err != nil {
@@ -44,17 +53,31 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	}
 
 	r.Config = c
+	r.Config.SrcAmiInfo = prepareSrcAmiInfo(r.Config.Source)
 
 	return nil
 }
 
 func (r *Resource) Run() error {
-
-	source := r.Config.Source
 	target := r.Config.Target
+
+	targetInfo := TargetInfo{
+		Regions:  target.Regions,
+		CopyTags: target.CopyTagsAcrossRegions,
+		Tags:     awscommon.FormEc2Tags(target.AddExtraTags),
+	}
+
+	if err := copyAmi(r.Config.SrcAmiInfo, targetInfo); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func prepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
 	var amiFilters []*ec2.Filter
 
-	for filterName, filterValue := range source.AmiFilters {
+	for filterName, filterValue := range rawSrcAmiInfo.AmiFilters {
 		f := &ec2.Filter{
 			Name:   filterName,
 			Values: []*string{filterValue},
@@ -63,28 +86,18 @@ func (r *Resource) Run() error {
 	}
 
 	srcAmiInfo := SrcAmiInfo{
-		Region:  source.Region,
-		Filters: amiFilters,
-		credsInfo: make(map[string]string,2),
+		Region:    rawSrcAmiInfo.Region,
+		Filters:   amiFilters,
+		CredsInfo: make(map[string]string, 2),
 	}
 
-	if source.RoleArn != nil {
-		srcAmiInfo.credsInfo["getCredsUsing"] = "roleArn"
-		srcAmiInfo.credsInfo["roleArn"] = *source.RoleArn
-	} else if source.Profile != nil {
-		srcAmiInfo.credsInfo["getCredsUsing"] = "profile"
-		srcAmiInfo.credsInfo["profile"] = *source.Profile
+	if rawSrcAmiInfo.RoleArn != nil {
+		srcAmiInfo.CredsInfo["getCredsUsing"] = "roleArn"
+		srcAmiInfo.CredsInfo["roleArn"] = *rawSrcAmiInfo.RoleArn
+	} else if rawSrcAmiInfo.Profile != nil {
+		srcAmiInfo.CredsInfo["getCredsUsing"] = "profile"
+		srcAmiInfo.CredsInfo["profile"] = *rawSrcAmiInfo.Profile
 	}
 
-	targetInfo := TargetInfo{
-		Regions:  target.Regions,
-		CopyTags: target.CopyTagsAcrossRegions,
-		Tags:     formEc2Tags(target.AddExtraTags),
-	}
-
-	if err := copyAmi(srcAmiInfo, targetInfo); err != nil {
-		return err
-	}
-
-	return nil
+	return srcAmiInfo
 }
