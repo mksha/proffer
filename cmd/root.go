@@ -101,6 +101,4 @@ func setLogLevel() {
 		clog.SetGlobalLogLevel(clog.DEBUG)
 
 	}
-
-	clogger.SetPrefix("apply | ")
 }

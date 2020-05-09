@@ -74,16 +74,17 @@ func executeResources(dsc string) {
 		}
 		clogger.SetPrefix(rawResource.Type + " | ")
 		clogger.Successf("Resource : %s  Status: Started", rawResource.Name)
+		clogger.Info("")
 
 		if err := resource.Prepare(rawResource.Config); err != nil {
 			clogger.Error(err)
 			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
 		}
 
-		// if err := resource.Run(); err != nil {
-		// 	clogger.Error(err)
-		// 	clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
-		// }
+		if err := resource.Run(); err != nil {
+			clogger.Error(err)
+			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
+		}
 
 		clogger.Successf("Resource : %s  Status: Succeeded", rawResource.Name)
 		fmt.Println("")

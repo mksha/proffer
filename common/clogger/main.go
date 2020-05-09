@@ -89,6 +89,7 @@ const (
 
 const (
 	callDepth = 2
+	escape    = "\x1b"
 )
 
 func New(out io.Writer, prefix string, flag int) *CLogger {
@@ -100,14 +101,23 @@ func SetGlobalLogLevel(level int) {
 
 func getColoredMsg(msg string, codeList ...int) string {
 	for _, code := range codeList {
-		msg = fmt.Sprintf("\x1b[%dm%s\x1b[0m", code, msg)
+		msg = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, code, msg)
 	}
 
 	return msg
 }
 
-func (cl *CLogger) SetPrefix(prefix string) {
-	cl.Logger.SetPrefix(getColoredMsg(prefix, FgCyan))
+func (cl *CLogger) SetPrefix(prefix string, code ...int) {
+	if len(code) == 0 {
+		cl.Logger.SetPrefix(getColoredMsg(prefix, FgCyan))
+		return
+	}
+
+	cl.Logger.SetPrefix(getColoredMsg(prefix, code...))
+}
+
+func (cl *CLogger) GetPrefix() string {
+	return cl.Logger.Prefix()
 }
 
 // Error is used to print info in red color
@@ -153,17 +163,25 @@ func (cl *CLogger) Warnf(format string, a ...interface{}) {
 // Success is used to print a success message in green color
 func (cl *CLogger) Success(a ...interface{}) {
 	msg := fmt.Sprint(a...)
+	oldPrefix := cl.GetPrefix()
+	cl.SetPrefix(oldPrefix, Bold)
 	if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgHiGreen)); err != nil {
 		log.Fatalln(err)
 	}
+	cl.SetPrefix(oldPrefix)
 }
 
 // Successf is used to print a success message in green color
 func (cl *CLogger) Successf(format string, a ...interface{}) {
 	msg := fmt.Sprintf(format, a...)
+	oldPrefix := cl.GetPrefix()
+	cl.SetPrefix(oldPrefix, Bold)
+
 	if err := cl.Logger.Output(callDepth, getColoredMsg(msg, Bold, FgHiGreen)); err != nil {
 		log.Fatalln(err)
 	}
+
+	cl.SetPrefix(oldPrefix)
 }
 
 // Info is used to print info message in blue color

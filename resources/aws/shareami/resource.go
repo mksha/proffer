@@ -24,23 +24,25 @@ type RawSrcAmiInfo struct {
 }
 
 type SrcAmiInfo struct {
-	CredsInfo        map[string]string
-	AccountID        *string
-	Filters          []*ec2.Filter
-	RegionAmiErrInfo []*RegionAmiErr
+	CredsInfo       map[string]string
+	AccountID       *string
+	Filters         []*ec2.Filter
+	RegionAmiErrMap RegionAmiErrMap
 }
 
 type RawAccountRegionMapping struct {
-	AccountID              int                 `yaml:"accountId"`
-	Profile                *string             `yaml:"profile"`
-	RoleArn                *string             `yaml:"roleArn"`
-	Regions                []*string           `yaml:"regions"`
-	AddExtraTags           map[*string]*string `yaml:"addExtraTags"`
-	CopyTagsAcrossAccounts bool                `yaml:"copyTagsAcrossAccounts"`
+	AccountID                 int                 `yaml:"accountId"`
+	Profile                   *string             `yaml:"profile"`
+	RoleArn                   *string             `yaml:"roleArn"`
+	Regions                   []*string           `yaml:"regions"`
+	AddExtraTags              map[*string]*string `yaml:"addExtraTags"`
+	CopyTagsAcrossAccounts    bool                `yaml:"copyTagsAcrossAccounts"`
+	AddCreateVolumePermission bool                `yaml:"addCreateVolumePermission"`
 }
 
 type AccountRegionMapping struct {
 	CopyTags  bool
+	AddCVP    bool
 	Tags      []*ec2.Tag
 	CredsInfo map[string]string
 	AccountID *string
@@ -52,6 +54,7 @@ type Target struct {
 	AccountRegionMappingList    []RawAccountRegionMapping `yaml:"accountRegionMappingList"`
 	CopyTagsAcrossAccounts      bool                      `yaml:"copyTagsAcrossAccounts"`
 	CommonRegions               []*string                 `yaml:"commonRegions"`
+	AddCreateVolumePermission   bool                      `yaml:"addCreateVolumePermission"`
 	ModAccountRegionMappingList []AccountRegionMapping    `yaml:"-"`
 }
 
@@ -65,14 +68,26 @@ type Resource struct {
 	Config Config `yaml:"config"`
 }
 
-type RegionAmiErr struct {
-	Region *string
-	Ami    *ec2.Image
-	Error  error
-}
+type (
+	AmiInfo struct {
+		Ami   *ec2.Image
+		Error error
+	}
+	RegionAmiErrMap map[*string]AmiInfo
+	Flag struct{
+		AddCVP bool
+	}
+	AccountFlagMap  map[*string]Flag
+)
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	var c Config
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Fatalln(r)
+		}
+	}()
 
 	clogger.Info("Gathering Information...")
 
@@ -86,12 +101,12 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 
 	sess, err := awscommon.GetAwsSession(r.Config.SrcAmiInfo.CredsInfo)
 	if err != nil {
-		clogger.Fatal(err)
+		return err
 	}
 
 	accountInfo, err := awscommon.GetAccountInfo(sess)
 	if err != nil {
-		clogger.Fatal(err)
+		return err
 	}
 
 	r.Config.SrcAmiInfo.AccountID = accountInfo.Account
@@ -99,18 +114,21 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	regions := r.Config.Target.getTargetRegions()
 
 	if err := r.Config.SrcAmiInfo.prepareTargetRegionAmiMapping(regions); err != nil {
-		for _, regionAmiErr := range r.Config.SrcAmiInfo.RegionAmiErrInfo {
-			if regionAmiErr.Error != nil {
-				clogger.Infof("Source AMI Not Found In Account: %s Region: %s", *r.Config.SrcAmiInfo.AccountID, *regionAmiErr.Region)
-				clogger.Error(regionAmiErr.Error)
+		for region, amiInfo := range r.Config.SrcAmiInfo.RegionAmiErrMap {
+			if amiInfo.Error != nil {
+				clogger.Infof("Source AMI Not Found In Account: %s Region: %s", *r.Config.SrcAmiInfo.AccountID, *region)
+				clogger.Error(amiInfo.Error)
 			}
 		}
 
-		return fmt.Errorf("Failed To Get Source Information")
+		return fmt.Errorf("failed: To Get Source AMI Information For Some Region(s)")
 	}
 
 	r.prepareAccountRegionMappingList()
 	r.Config.Target.setCommonPropertiesIfAny()
+
+	clogger.Info("Successfully Gathered All Info Needed For Source")
+	clogger.Info("")
 
 	return nil
 }
@@ -136,8 +154,9 @@ func prepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
 	}
 
 	srcAmiInfo := SrcAmiInfo{
-		Filters:   amiFilters,
-		CredsInfo: make(map[string]string, 2),
+		Filters:         amiFilters,
+		CredsInfo:       make(map[string]string, 2),
+		RegionAmiErrMap: make(RegionAmiErrMap, 0),
 	}
 
 	if rawSrcAmiInfo.RoleArn != nil {
@@ -178,58 +197,49 @@ func (r *Resource) prepareAccountRegionMappingList() {
 }
 
 func (t *Target) setCommonPropertiesIfAny() {
-	if t.CommonRegions != nil && t.CopyTagsAcrossAccounts {
-		for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
-			t.ModAccountRegionMappingList[i].Regions = append(t.ModAccountRegionMappingList[i].Regions, t.CommonRegions...)
-			t.ModAccountRegionMappingList[i].CopyTags = t.CopyTagsAcrossAccounts
-		}
-		return
-	}
-
-	if t.CommonRegions != nil {
-		for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
-			t.ModAccountRegionMappingList[i].Regions = append(t.ModAccountRegionMappingList[i].Regions, t.CommonRegions...)
-		}
-		return
-	}
-
 	if t.CopyTagsAcrossAccounts {
 		for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
 			t.ModAccountRegionMappingList[i].CopyTags = t.CopyTagsAcrossAccounts
 		}
-		return
+	}
+
+	if t.AddCreateVolumePermission {
+		for i := 0; i < len(t.ModAccountRegionMappingList); i++ {
+			t.ModAccountRegionMappingList[i].AddCVP = t.AddCreateVolumePermission
+		}
 	}
 }
 
 func (sai *SrcAmiInfo) prepareTargetRegionAmiMapping(regions []*string) (err error) {
-	regionAmiErrChan := make(chan RegionAmiErr)
+	regionAmiErrChan := make(chan RegionAmiErrMap)
 	defer close(regionAmiErrChan)
 
 	for _, targetRegion := range regions {
 		sai := *sai
-		go prepareRegionAmiErrInfo(sai, targetRegion, regionAmiErrChan)
+		go prepareRegionAmiErrMap(sai, targetRegion, regionAmiErrChan)
 	}
 
 	for i := 0; i < len(regions); i++ {
-		regionAmiErrInfo := <-regionAmiErrChan
-		sai.RegionAmiErrInfo = append(sai.RegionAmiErrInfo, &regionAmiErrInfo)
+		regionAmiInfo := <-regionAmiErrChan
+		for region, amiInfo := range regionAmiInfo {
+			sai.RegionAmiErrMap[region] = amiInfo
 
-		if regionAmiErrInfo.Error != nil {
-			err = regionAmiErrInfo.Error
+			if amiInfo.Error != nil {
+				err = amiInfo.Error
+			}
 		}
 	}
 
 	return
 }
 
-func prepareRegionAmiErrInfo(sai SrcAmiInfo, region *string, regionAmiErrChan chan<- RegionAmiErr) {
-	regionAmiErrInfo := RegionAmiErr{}
-	regionAmiErrInfo.Region = region
+func prepareRegionAmiErrMap(sai SrcAmiInfo, region *string, regionAmiErrChan chan<- RegionAmiErrMap) {
+	regionAmiErr := make(RegionAmiErrMap, 0)
 
 	sess, err := awscommon.GetAwsSession(sai.CredsInfo)
 	if err != nil {
-		regionAmiErrInfo.Error = err
-		regionAmiErrChan <- regionAmiErrInfo
+		regionAmiErr[region] = AmiInfo{Error: err}
+		regionAmiErrChan <- regionAmiErr
 
 		return
 	}
@@ -238,9 +248,9 @@ func prepareRegionAmiErrInfo(sai SrcAmiInfo, region *string, regionAmiErrChan ch
 	images, err := awscommon.GetAmiInfo(sess, sai.Filters)
 
 	if err != nil {
-		regionAmiErrInfo.Error = err
+		regionAmiErr[region] = AmiInfo{Error: err}
 
-		regionAmiErrChan <- regionAmiErrInfo
+		regionAmiErrChan <- regionAmiErr
 
 		return
 	}
@@ -248,8 +258,10 @@ func prepareRegionAmiErrInfo(sai SrcAmiInfo, region *string, regionAmiErrChan ch
 	image := images[0]
 
 	clogger.Infof("Source AMI: %s Found In Account: %s In Region: %s", *image.Name, *sai.AccountID, *region)
-	regionAmiErrInfo.Ami = image
-	regionAmiErrChan <- regionAmiErrInfo
+
+	regionAmiErr[region] = AmiInfo{Ami: image}
+
+	regionAmiErrChan <- regionAmiErr
 }
 
 func (t Target) getTargetRegions() []*string {
@@ -262,4 +274,15 @@ func (t Target) getTargetRegions() []*string {
 	regions = append(regions, t.CommonRegions...)
 
 	return regions
+}
+
+func (t Target) getTargetAccountFlagMap() AccountFlagMap {
+	accountFlagMap := make(AccountFlagMap, 0)
+
+	for _, accountRegionMapping := range t.ModAccountRegionMappingList {
+		account := accountRegionMapping.AccountID
+		accountFlagMap[account] = Flag{AddCVP: accountRegionMapping.AddCVP}
+	}
+
+	return accountFlagMap
 }
