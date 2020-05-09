@@ -74,10 +74,10 @@ type (
 		Error error
 	}
 	RegionAmiErrMap map[*string]AmiInfo
-	Flag struct{
+	Flag            struct {
 		AddCVP bool
 	}
-	AccountFlagMap  map[*string]Flag
+	AccountFlagMap map[*string]Flag
 )
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {

@@ -6,8 +6,8 @@ import (
 
 	clog "example.com/proffer/common/clogger"
 	awscommon "example.com/proffer/resources/aws/common"
-	"github.com/mitchellh/mapstructure"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/mitchellh/mapstructure"
 )
 
 var (
@@ -29,7 +29,6 @@ type SrcAmiInfo struct {
 	Image     *ec2.Image
 }
 
-
 type Target struct {
 	Regions               []*string           `yaml:"regions"`
 	CopyTagsAcrossRegions bool                `yaml:"copyTagsAcrossRegions"`
@@ -38,7 +37,7 @@ type Target struct {
 
 type Config struct {
 	Source     RawSrcAmiInfo `yaml:"source"`
-	Target     Target                  `yaml:"target"`
+	Target     Target        `yaml:"target"`
 	SrcAmiInfo SrcAmiInfo    `yaml:"-"`
 }
 

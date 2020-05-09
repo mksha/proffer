@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-
 type TargetInfo struct {
 	Regions  []*string
 	CopyTags bool
