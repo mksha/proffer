@@ -19,7 +19,7 @@ type TargetInfo struct {
 
 var wg sync.WaitGroup
 
-func copyImage(sess *session.Session, sai awscommon.SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
+func copyImage(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
 	defer wg.Done()
 	filters := []*ec2.Filter{
 		{
@@ -81,7 +81,7 @@ func copyImage(sess *session.Session, sai awscommon.SrcAmiInfo, tags []*ec2.Tag,
 	clogger.Infof("Tags Have Copied/Added To AMI : %s , In Region: %s", *result.ImageId, *sess.Config.Region)
 }
 
-func copyAmi(srcAmiInfo awscommon.SrcAmiInfo, targetInfo TargetInfo) error {
+func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	sess, err := awscommon.GetAwsSession(srcAmiInfo.CredsInfo)
 	if err != nil {

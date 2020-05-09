@@ -7,11 +7,28 @@ import (
 	clog "example.com/proffer/common/clogger"
 	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/mitchellh/mapstructure"
+	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
 var (
 	clogger = clog.New(os.Stdout, "aws-copyami | ", log.Lmsgprefix)
 )
+
+type RawSrcAmiInfo struct {
+	Profile    *string             `yaml:"profile"`
+	RoleArn    *string             `yaml:"roleArn"`
+	Region     *string             `yaml:"region"`
+	AmiFilters map[*string]*string `yaml:"amiFilters"`
+}
+
+type SrcAmiInfo struct {
+	CredsInfo map[string]string
+	AccountID *string
+	Region    *string
+	Filters   []*ec2.Filter
+	Image     *ec2.Image
+}
+
 
 type Target struct {
 	Regions               []*string           `yaml:"regions"`
@@ -20,9 +37,9 @@ type Target struct {
 }
 
 type Config struct {
-	Source     awscommon.RawSrcAmiInfo `yaml:"source"`
+	Source     RawSrcAmiInfo `yaml:"source"`
 	Target     Target                  `yaml:"target"`
-	SrcAmiInfo awscommon.SrcAmiInfo    `yaml:"-"`
+	SrcAmiInfo SrcAmiInfo    `yaml:"-"`
 }
 
 type Resource struct {
@@ -37,7 +54,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	}
 
 	r.Config = c
-	r.Config.SrcAmiInfo = awscommon.PrepareSrcAmiInfo(r.Config.Source)
+	r.Config.SrcAmiInfo = prepareSrcAmiInfo(r.Config.Source)
 
 	return nil
 }
@@ -56,4 +73,32 @@ func (r *Resource) Run() error {
 	}
 
 	return nil
+}
+
+func prepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
+	var amiFilters []*ec2.Filter
+
+	for filterName, filterValue := range rawSrcAmiInfo.AmiFilters {
+		f := &ec2.Filter{
+			Name:   filterName,
+			Values: []*string{filterValue},
+		}
+		amiFilters = append(amiFilters, f)
+	}
+
+	srcAmiInfo := SrcAmiInfo{
+		Region:    rawSrcAmiInfo.Region,
+		Filters:   amiFilters,
+		CredsInfo: make(map[string]string, 2),
+	}
+
+	if rawSrcAmiInfo.RoleArn != nil {
+		srcAmiInfo.CredsInfo["getCredsUsing"] = "roleArn"
+		srcAmiInfo.CredsInfo["roleArn"] = *rawSrcAmiInfo.RoleArn
+	} else if rawSrcAmiInfo.Profile != nil {
+		srcAmiInfo.CredsInfo["getCredsUsing"] = "profile"
+		srcAmiInfo.CredsInfo["profile"] = *rawSrcAmiInfo.Profile
+	}
+
+	return srcAmiInfo
 }

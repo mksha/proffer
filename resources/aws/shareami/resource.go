@@ -89,7 +89,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 		}
 	}()
 
-	clogger.Info("Gathering Information...")
+	clogger.Warn("Gathering Information...")
 
 	if err := mapstructure.Decode(rawConfig, &c); err != nil {
 		return err
@@ -127,7 +127,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	r.prepareAccountRegionMappingList()
 	r.Config.Target.setCommonPropertiesIfAny()
 
-	clogger.Info("Successfully Gathered All Info Needed For Source")
+	clogger.Success("Successfully Gathered All Info Needed For Source")
 	clogger.Info("")
 
 	return nil

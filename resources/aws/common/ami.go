@@ -8,21 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-type RawSrcAmiInfo struct {
-	Profile    *string             `yaml:"profile"`
-	RoleArn    *string             `yaml:"roleArn"`
-	Region     *string             `yaml:"region"`
-	AmiFilters map[*string]*string `yaml:"amiFilters"`
-}
-
-type SrcAmiInfo struct {
-	CredsInfo map[string]string
-	AccountID *string
-	Region    *string
-	Filters   []*ec2.Filter
-	Image     *ec2.Image
-}
-
 func IsError(err error) (bool, error) {
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
@@ -103,32 +88,4 @@ func FormEc2Tags(tags map[*string]*string) []*ec2.Tag {
 	}
 
 	return ec2Tags
-}
-
-func PrepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
-	var amiFilters []*ec2.Filter
-
-	for filterName, filterValue := range rawSrcAmiInfo.AmiFilters {
-		f := &ec2.Filter{
-			Name:   filterName,
-			Values: []*string{filterValue},
-		}
-		amiFilters = append(amiFilters, f)
-	}
-
-	srcAmiInfo := SrcAmiInfo{
-		Region:    rawSrcAmiInfo.Region,
-		Filters:   amiFilters,
-		CredsInfo: make(map[string]string, 2),
-	}
-
-	if rawSrcAmiInfo.RoleArn != nil {
-		srcAmiInfo.CredsInfo["getCredsUsing"] = "roleArn"
-		srcAmiInfo.CredsInfo["roleArn"] = *rawSrcAmiInfo.RoleArn
-	} else if rawSrcAmiInfo.Profile != nil {
-		srcAmiInfo.CredsInfo["getCredsUsing"] = "profile"
-		srcAmiInfo.CredsInfo["profile"] = *rawSrcAmiInfo.Profile
-	}
-
-	return srcAmiInfo
 }
