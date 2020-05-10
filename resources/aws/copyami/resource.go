@@ -67,7 +67,7 @@ func (r *Resource) Run() error {
 		Tags:     awscommon.FormEc2Tags(target.AddExtraTags),
 	}
 
-	if err := copyAmi(r.Config.SrcAmiInfo, targetInfo); err != nil {
+	if err := apply(r.Config.SrcAmiInfo, targetInfo); err != nil {
 		return err
 	}
 

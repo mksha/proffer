@@ -64,11 +64,11 @@ func GetAwsSessWithProfile(profile string) (*session.Session, error) {
 	sessPtr := createSession(session.Options{Profile: profile})
 
 	if _, err := sessPtr.Config.Credentials.Get(); err != nil {
-		return nil, fmt.Errorf("AWSProfileDoesNotExist: Failed To Retrieve Credentials From AWS Profile %s", profile)
+		return nil, fmt.Errorf("AWSProfileDoesNotExist: Failed To Retrieve Credentials From AWS Profile '%s'", profile)
 	}
 
 	if ok := IsCredsExpired(sessPtr); ok {
-		return nil, fmt.Errorf("AwsProfileCredsExpired: %s AWS Profile's Credentials Have Expired", profile)
+		return nil, fmt.Errorf("AwsProfileCredsExpired: AWS Profile '%s's Credentials Have Expired", profile)
 	}
 
 	return sessPtr, nil
@@ -118,10 +118,10 @@ func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, err
 func GetAwsSession(credProviderInfo map[string]string) (*session.Session, error) {
 	switch credProviderInfo["getCredsUsing"] {
 	case "profile":
-		clogger.Debugf("Will Get Creds Using AWS Profile: %s", credProviderInfo["profile"])
+		clogger.Debugf("Will Get Creds Using AWS Profile: '%s'", credProviderInfo["profile"])
 		return GetAwsSessWithProfile(credProviderInfo["profile"])
 	case "roleArn":
-		clogger.Debugf("Will Get Creds By Assuming AWS IAM Role: %s", credProviderInfo["roleArn"])
+		clogger.Debugf("Will Get Creds By Assuming AWS IAM Role: '%s'", credProviderInfo["roleArn"])
 		return GetAwsSessWithAssumeRole(credProviderInfo["roleArn"])
 	default:
 		credLoadOrder := `
