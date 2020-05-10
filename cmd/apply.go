@@ -86,6 +86,7 @@ func executeResources(dsc string) {
 			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
 		}
 
+		clogger.Info("")
 		clogger.Successf("Resource : %s  Status: Succeeded", rawResource.Name)
 		fmt.Println("")
 	}

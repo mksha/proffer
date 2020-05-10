@@ -18,17 +18,10 @@ type TargetInfo struct {
 
 var wg sync.WaitGroup
 
-func copyImage(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
+func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
 	defer wg.Done()
-	filters := []*ec2.Filter{
-		{
-			Name: aws.String("name"),
-			Values: []*string{
-				sai.Image.Name,
-			},
-		},
-	}
-	ok, err := awscommon.IsAmiExist(sess, filters)
+
+	ok, err := awscommon.IsAmiExist(sess, sai.Filters)
 	if ok {
 		clogger.Warnf("AMI %s Already Exist In Account %s In Region %s", *sai.Image.Name, *sai.AccountID, *sess.Config.Region)
 		return
@@ -69,7 +62,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap ma
 		return
 	}
 
-	clogger.Debugf("Adding Following Tags to AMI %s", *result.ImageId)
+	clogger.Debugf("Adding Following Tags to AMI: %s", *result.ImageId)
 	clogger.Debug(tags)
 
 	if err := awscommon.CreateEc2Tags(sess, []*string{result.ImageId}, tags); err != nil {
@@ -80,7 +73,7 @@ func copyImage(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap ma
 	clogger.Infof("Tags Have Copied/Added To AMI : %s , In Region: %s", *result.ImageId, *sess.Config.Region)
 }
 
-func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
+func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	sess, err := awscommon.GetAwsSession(srcAmiInfo.CredsInfo)
 	if err != nil {
@@ -109,7 +102,8 @@ func copyAmi(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	for _, targetRegion := range targetInfo.Regions {
 		wg.Add(1)
-		go copyImage(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, targetInfo.Tags, errMap)
+
+		go copyAmi(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, targetInfo.Tags, errMap)
 	}
 
 	wg.Wait()
