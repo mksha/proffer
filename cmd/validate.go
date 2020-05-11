@@ -16,9 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"log"
+	// "log"
 	"path/filepath"
 
+	"example.com/proffer/command"
 	"example.com/proffer/parser"
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,14 @@ func init() {
 }
 
 func validateConfig(cmd *cobra.Command, args []string) {
-	clogger.SetPrefix("validate | ")
+	config := getTempConfigOnValidSyntax(args)
+	validateResources(config)
+}
+
+func getTempConfigOnValidSyntax(args []string) parser.Config {
+	var config parser.Config
+
+	clogger.SetPrefix("validate-syntax | ")
 
 	if len(args) == 0 {
 		clogger.Fatal("Proffer template file is missing: Pls pass proffer template file to apply")
@@ -57,14 +65,57 @@ func validateConfig(cmd *cobra.Command, args []string) {
 
 	cfgFileAbsPath, err := filepath.Abs(args[0])
 	if err != nil {
-		log.Fatal(err)
+		clogger.Fatal(err)
 	}
 
-	if _, err := parseConfig(cfgFileAbsPath); err != nil {
-		clogger.Fatalf("InvalidTemplate: Unable to parse proffer template file %s\n", cfgFileAbsPath)
+	if config, err = parseConfig(cfgFileAbsPath); err != nil {
+		clogger.Errorf("InvalidTemplate: Unable to parse proffer template file: '%s'", cfgFileAbsPath)
+		clogger.Fatal(err)
 	}
 
-	clogger.Success("Template is valid")
+	clogger.Success("Template syntax is valid")
+
+	return config
+}
+
+func validateResources(c parser.Config) {
+	resources := command.Resources
+	clogger.SetPrefix("validate-resources | ")
+
+	// check if the resource list is empty
+	if len(c.RawResources) == 0 {
+		clogger.Fatal("NoResourceFound: Resource list is empty")
+	}
+
+	for index, rawResource := range c.RawResources {
+
+		// check if the resource name is empty
+		if rawResource.Name == "" {
+			clogger.Fatalf("Property 'name' missing for resource number: %v", index+1)
+		}
+
+		// Check if the resource type is empty
+		if rawResource.Type == "" {
+			clogger.Fatalf("Property 'type' missing for resource: %s", rawResource.Name)
+		}
+
+		// check if the given resource is valid resource type
+		resource, ok := resources[rawResource.Type]
+		if !ok {
+			clogger.Fatalf("InvalidResourceType: Resource Type '%s' Not Found", rawResource.Type)
+		}
+
+		// check if the given resource config is empty
+		if rawResource.Config == nil {
+			clogger.Fatalf("Property 'config' missing for resource: %s", rawResource.Name)
+		}
+
+		if err := resource.Validate(rawResource.Config); err != nil {
+			clogger.Error(err)
+		}
+
+		clogger.Success("Template config is valid.")
+	}
 }
 
 func parseConfig(dsc string) (parser.Config, error) {

@@ -70,7 +70,7 @@ func executeResources(dsc string) {
 	for _, rawResource := range c.RawResources {
 		resource, ok := resources[rawResource.Type]
 		if !ok {
-			log.Fatalf("InvalidResource: Resource %s Not Found", rawResource.Type)
+			clogger.Fatalf("InvalidResourceType: Resource Type '%s' Not Found", rawResource.Type)
 		}
 		clogger.SetPrefix(rawResource.Type + " | ")
 		clogger.Successf("Resource : %s  Status: Started", rawResource.Name)
