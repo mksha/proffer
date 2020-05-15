@@ -14,10 +14,10 @@ var (
 )
 
 type RawSrcAmiInfo struct {
-	Profile    *string             `yaml:"profile"`
-	RoleArn    *string             `yaml:"roleArn"`
-	Region     *string             `yaml:"region"`
-	AmiFilters map[*string]*string `yaml:"amiFilters"`
+	Profile    *string             `mapstructure:"profile" required:"false"`
+	RoleArn    *string             `mapstructure:"roleArn" required:"false"`
+	Region     *string             `mapstructure:"region" required:"true" chain:"config.source.region"`
+	AmiFilters map[*string]*string `mapstructure:"amiFilters" required:"true" chain:"config.source.amiFilters"`
 }
 
 type SrcAmiInfo struct {
@@ -29,20 +29,21 @@ type SrcAmiInfo struct {
 }
 
 type Target struct {
-	Regions               []*string           `yaml:"regions"`
-	CopyTagsAcrossRegions bool                `yaml:"copyTagsAcrossRegions"`
-	AddExtraTags          map[*string]*string `yaml:"addExtraTags"`
+	Regions               []*string           `mapstructure:"regions" required:"true" chain:"config.target.regions"`
+	CopyTagsAcrossRegions bool                `mapstructure:"copyTagsAcrossRegions"`
+	AddExtraTags          map[*string]*string `mapstructure:"addExtraTags"`
 }
 
 type Config struct {
-	Source     RawSrcAmiInfo `yaml:"source"`
-	Target     Target        `yaml:"target"`
-	SrcAmiInfo SrcAmiInfo    `yaml:"-"`
-	Other  map[string]interface{} `mapstructure:",remain"`
+	Source     RawSrcAmiInfo `mapstructure:"source" required:"true" chain:"config.source"`
+	Target     Target        `mapstructure:"target" required:"true" chain:"config.target"`
+	SrcAmiInfo SrcAmiInfo    `mapstructure:"-"`
 }
 
 type Resource struct {
-	Config Config `yaml:"config"`
+	Name   *string `required:"true"`
+	Type   *string `required:"true"`
+	Config Config  `mapstructure:"config" required:"true"`
 }
 
 func (r *Resource) Run() error {

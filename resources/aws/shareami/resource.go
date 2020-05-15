@@ -61,8 +61,11 @@ type Config struct {
 }
 
 type Resource struct {
+	Name   *string
+	Type   *string
 	Config Config `yaml:"config"`
 }
+
 
 type (
 	AmiInfo struct {
