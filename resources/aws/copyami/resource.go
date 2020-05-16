@@ -7,7 +7,6 @@ import (
 	clog "example.com/proffer/common/clogger"
 	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/mitchellh/mapstructure"
 )
 
 var (
@@ -15,11 +14,12 @@ var (
 )
 
 type RawSrcAmiInfo struct {
-	Profile    *string             `yaml:"profile"`
-	RoleArn    *string             `yaml:"roleArn"`
-	Region     *string             `yaml:"region"`
-	AmiFilters map[*string]*string `yaml:"amiFilters"`
+	Profile    *string             `mapstructure:"profile" required:"false" chain:"config.source.profile"`
+	RoleArn    *string             `mapstructure:"roleArn" required:"false" chain:"config.source.roleArn"`
+	Region     *string             `mapstructure:"region" required:"true" chain:"config.source.region"`
+	AmiFilters map[*string]*string `mapstructure:"amiFilters" required:"true" chain:"config.source.amiFilters"`
 }
+
 
 type SrcAmiInfo struct {
 	CredsInfo map[string]string
@@ -30,32 +30,21 @@ type SrcAmiInfo struct {
 }
 
 type Target struct {
-	Regions               []*string           `yaml:"regions"`
-	CopyTagsAcrossRegions bool                `yaml:"copyTagsAcrossRegions"`
-	AddExtraTags          map[*string]*string `yaml:"addExtraTags"`
+	Regions               []*string           `mapstructure:"regions" required:"true" chain:"config.target.regions"`
+	CopyTagsAcrossRegions bool                `mapstructure:"copyTagsAcrossRegions" chain:"config.target.copyTagsAcrossRegions"`
+	AddExtraTags          map[*string]*string `mapstructure:"addExtraTags" chain:"config.target.addExtraTags"`
 }
 
 type Config struct {
-	Source     RawSrcAmiInfo `yaml:"source"`
-	Target     Target        `yaml:"target"`
-	SrcAmiInfo SrcAmiInfo    `yaml:"-"`
+	Source     RawSrcAmiInfo `mapstructure:"source" required:"true" chain:"config.source"`
+	Target     Target        `mapstructure:"target" required:"true" chain:"config.target"`
+	SrcAmiInfo SrcAmiInfo    `mapstructure:"-"`
 }
 
 type Resource struct {
-	Config Config `yaml:"config"`
-}
-
-func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
-	var c Config
-
-	if err := mapstructure.Decode(rawConfig, &c); err != nil {
-		return err
-	}
-
-	r.Config = c
-	r.Config.SrcAmiInfo = prepareSrcAmiInfo(r.Config.Source)
-
-	return nil
+	Name   *string `required:"true"`
+	Type   *string `required:"true"`
+	Config Config  `mapstructure:"config" required:"true"`
 }
 
 func (r *Resource) Run() error {
@@ -72,32 +61,4 @@ func (r *Resource) Run() error {
 	}
 
 	return nil
-}
-
-func prepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
-	var amiFilters []*ec2.Filter
-
-	for filterName, filterValue := range rawSrcAmiInfo.AmiFilters {
-		f := &ec2.Filter{
-			Name:   filterName,
-			Values: []*string{filterValue},
-		}
-		amiFilters = append(amiFilters, f)
-	}
-
-	srcAmiInfo := SrcAmiInfo{
-		Region:    rawSrcAmiInfo.Region,
-		Filters:   amiFilters,
-		CredsInfo: make(map[string]string, 2),
-	}
-
-	if rawSrcAmiInfo.RoleArn != nil {
-		srcAmiInfo.CredsInfo["getCredsUsing"] = "roleArn"
-		srcAmiInfo.CredsInfo["roleArn"] = *rawSrcAmiInfo.RoleArn
-	} else if rawSrcAmiInfo.Profile != nil {
-		srcAmiInfo.CredsInfo["getCredsUsing"] = "profile"
-		srcAmiInfo.CredsInfo["profile"] = *rawSrcAmiInfo.Profile
-	}
-
-	return srcAmiInfo
 }

@@ -35,7 +35,7 @@ resources:
       profile: demo-2
       amiFilters:
         name: test-image
-        # id: ami-1213
+        # image-id: ami-1213
         tag:Purpose: Testing
         tag:Department: DevOps
     target:
@@ -58,6 +58,7 @@ resources:
         #     # - us-east-2
         - accountId: 221266418583
           profile: platform-aws
+          # roleArn: arn:aws::iam:123456789012:role/test
           regions:
             - ap-northeast-2
             # - us-east-2
