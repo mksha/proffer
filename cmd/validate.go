@@ -74,7 +74,7 @@ func getTempConfigOnValidSyntax(args []string) parser.TemplateConfig {
 		clogger.Fatal(err)
 	}
 
-	clogger.Success("Template syntax is valid")
+	clogger.Success("Template syntax is valid.")
 
 	return config
 }
@@ -82,7 +82,7 @@ func getTempConfigOnValidSyntax(args []string) parser.TemplateConfig {
 func validateResources(c parser.TemplateConfig) {
 	resources := command.Resources
 
-	clogger.SetPrefix("validate-resources | ")
+	clogger.SetPrefix("validate-config | ")
 
 	// check if the resource list is empty
 	if len(c.RawResources) == 0 {
@@ -109,15 +109,15 @@ func validateResources(c parser.TemplateConfig) {
 		// check if the given resource is valid resource type
 		resource, ok := resources[rawResource.Type]
 		if !ok {
-			clogger.Fatalf("Invalid Resource Type '%s' Found In Resource: [%s]", rawResource.Type, rawResource.Name)
+			clogger.Fatalf("Invalid resource type [%s] found in Resource: [%s]", rawResource.Type, rawResource.Name)
 		}
 
 		if err := resource.Validate(rawResource); err != nil {
 			clogger.Fatal(err)
 		}
-
-		clogger.Success("Template config is valid.")
 	}
+
+	clogger.Success("Template config is valid.")
 }
 
 func parseConfig(dsc string) (parser.TemplateConfig, error) {

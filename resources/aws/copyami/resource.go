@@ -14,11 +14,12 @@ var (
 )
 
 type RawSrcAmiInfo struct {
-	Profile    *string             `mapstructure:"profile" required:"false"`
-	RoleArn    *string             `mapstructure:"roleArn" required:"false"`
+	Profile    *string             `mapstructure:"profile" required:"false" chain:"config.source.profile"`
+	RoleArn    *string             `mapstructure:"roleArn" required:"false" chain:"config.source.roleArn"`
 	Region     *string             `mapstructure:"region" required:"true" chain:"config.source.region"`
 	AmiFilters map[*string]*string `mapstructure:"amiFilters" required:"true" chain:"config.source.amiFilters"`
 }
+
 
 type SrcAmiInfo struct {
 	CredsInfo map[string]string
@@ -30,8 +31,8 @@ type SrcAmiInfo struct {
 
 type Target struct {
 	Regions               []*string           `mapstructure:"regions" required:"true" chain:"config.target.regions"`
-	CopyTagsAcrossRegions bool                `mapstructure:"copyTagsAcrossRegions"`
-	AddExtraTags          map[*string]*string `mapstructure:"addExtraTags"`
+	CopyTagsAcrossRegions bool                `mapstructure:"copyTagsAcrossRegions" chain:"config.target.copyTagsAcrossRegions"`
+	AddExtraTags          map[*string]*string `mapstructure:"addExtraTags" chain:"config.target.addExtraTags"`
 }
 
 type Config struct {

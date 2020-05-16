@@ -8,7 +8,9 @@ import (
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	var c Config
 
-	if err := mapstructure.Decode(rawConfig, &c); err != nil {
+	var md mapstructure.Metadata
+
+	if err := mapstructure.DecodeMetadata(rawConfig, &c, &md); err != nil {
 		return err
 	}
 

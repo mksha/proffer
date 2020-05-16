@@ -13,8 +13,8 @@ var (
 )
 
 type RawSrcAmiInfo struct {
-	Profile    *string             `mapstructure:"profile" required:"false"`
-	RoleArn    *string             `mapstructure:"roleArn" required:"false"`
+	Profile    *string             `mapstructure:"profile" required:"false" chain:"config.source.profile"`
+	RoleArn    *string             `mapstructure:"roleArn" required:"false" chain:"config.source.roleArn"`
 	AmiFilters map[*string]*string `mapstructure:"amiFilters" required:"true" chain:"config.source.amiFilters"`
 }
 
@@ -27,10 +27,10 @@ type SrcAmiInfo struct {
 
 type RawAccountRegionMapping struct {
 	AccountID                 int                 `mapstructure:"accountId" required:"true" chain:"config.target.accountRegionMappingList.N.accountId"`
-	Profile                   *string             `mapstructure:"profile" required:"false"`
-	RoleArn                   *string             `mapstructure:"roleArn" required:"false"`
+	Profile                   *string             `mapstructure:"profile" required:"false" chain:"config.target.accountRegionMappingList.N.profile"`
+	RoleArn                   *string             `mapstructure:"roleArn" required:"false" chain:"config.target.accountRegionMappingList.N.roleArn"`
 	Regions                   []*string           `mapstructure:"regions" required:"true" chain:"config.target.accountRegionMappingList.N.regions"`
-	AddExtraTags              map[*string]*string `mapstructure:"addExtraTags" required:"false"`
+	AddExtraTags              map[*string]*string `mapstructure:"addExtraTags" required:"false" chain:"config.target.accountRegionMappingList.N.addExtraTags"`
 	CopyTagsAcrossAccounts    bool                `mapstructure:"copyTagsAcrossAccounts" required:"false"`
 	AddCreateVolumePermission bool                `mapstructure:"addCreateVolumePermission" required:"false"`
 }
@@ -48,7 +48,7 @@ type AccountRegionMapping struct {
 type Target struct {
 	AccountRegionMappingList    []RawAccountRegionMapping `mapstructure:"accountRegionMappingList" required:"true" chain:"config.target.accountRegionMappingList"`
 	CopyTagsAcrossAccounts      bool                      `mapstructure:"copyTagsAcrossAccounts" required:"false"`
-	CommonRegions               []*string                 `mapstructure:"commonRegions" required:"false"`
+	CommonRegions               []*string                 `mapstructure:"commonRegions" required:"false" chain:"config.target.commonRegions"`
 	AddCreateVolumePermission   bool                      `mapstructure:"addCreateVolumePermission" required:"false"`
 	ModAccountRegionMappingList []AccountRegionMapping    `mapstructure:"-"`
 }

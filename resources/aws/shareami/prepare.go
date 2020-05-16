@@ -13,6 +13,7 @@ import (
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	var c Config
+	var md mapstructure.Metadata
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -22,7 +23,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 
 	clogger.Warn("Gathering Information...")
 
-	if err := mapstructure.Decode(rawConfig, &c); err != nil {
+	if err := mapstructure.DecodeMetadata(rawConfig, &c, &md); err != nil {
 		return err
 	}
 

@@ -47,6 +47,15 @@ func init() {
 	// applyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 func applyConfig(cmd *cobra.Command, args []string) {
+	// validate template before applying
+	clogger.SetPrefix("start-validation| ")
+	fmt.Println()
+	clogger.Info("Validating template before applying...")
+	validateConfig(cmd, args)
+	fmt.Println()
+
+	clogger.SetPrefix("start-apply | ")
+	clogger.Info("Applying template config...")
 	if len(args) == 0 {
 		log.Fatalln("Proffer Configuration file missing: Pls pass proffer config file to apply")
 	}
