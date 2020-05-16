@@ -16,3 +16,6 @@ vendor/
 
 # temp files
 output.yml
+
+# IDE
+.vscode

@@ -13,9 +13,9 @@ var (
 )
 
 type RawSrcAmiInfo struct {
-	Profile    *string             `yaml:"profile"`
-	RoleArn    *string             `yaml:"roleArn"`
-	AmiFilters map[*string]*string `yaml:"amiFilters"`
+	Profile    *string             `mapstructure:"profile" required:"false"`
+	RoleArn    *string             `mapstructure:"roleArn" required:"false"`
+	AmiFilters map[*string]*string `mapstructure:"amiFilters" required:"true" chain:"config.source.amiFilters"`
 }
 
 type SrcAmiInfo struct {
@@ -26,13 +26,13 @@ type SrcAmiInfo struct {
 }
 
 type RawAccountRegionMapping struct {
-	AccountID                 int                 `yaml:"accountId"`
-	Profile                   *string             `yaml:"profile"`
-	RoleArn                   *string             `yaml:"roleArn"`
-	Regions                   []*string           `yaml:"regions"`
-	AddExtraTags              map[*string]*string `yaml:"addExtraTags"`
-	CopyTagsAcrossAccounts    bool                `yaml:"copyTagsAcrossAccounts"`
-	AddCreateVolumePermission bool                `yaml:"addCreateVolumePermission"`
+	AccountID                 int                 `mapstructure:"accountId" required:"true" chain:"config.target.accountRegionMappingList.N.accountId"`
+	Profile                   *string             `mapstructure:"profile" required:"false"`
+	RoleArn                   *string             `mapstructure:"roleArn" required:"false"`
+	Regions                   []*string           `mapstructure:"regions" required:"true" chain:"config.target.accountRegionMappingList.N.regions"`
+	AddExtraTags              map[*string]*string `mapstructure:"addExtraTags" required:"false"`
+	CopyTagsAcrossAccounts    bool                `mapstructure:"copyTagsAcrossAccounts" required:"false"`
+	AddCreateVolumePermission bool                `mapstructure:"addCreateVolumePermission" required:"false"`
 }
 
 type AccountRegionMapping struct {
@@ -46,26 +46,24 @@ type AccountRegionMapping struct {
 }
 
 type Target struct {
-	AccountRegionMappingList    []RawAccountRegionMapping `yaml:"accountRegionMappingList"`
-	CopyTagsAcrossAccounts      bool                      `yaml:"copyTagsAcrossAccounts"`
-	CommonRegions               []*string                 `yaml:"commonRegions"`
-	AddCreateVolumePermission   bool                      `yaml:"addCreateVolumePermission"`
-	ModAccountRegionMappingList []AccountRegionMapping    `yaml:"-"`
+	AccountRegionMappingList    []RawAccountRegionMapping `mapstructure:"accountRegionMappingList" required:"true" chain:"config.target.accountRegionMappingList"`
+	CopyTagsAcrossAccounts      bool                      `mapstructure:"copyTagsAcrossAccounts" required:"false"`
+	CommonRegions               []*string                 `mapstructure:"commonRegions" required:"false"`
+	AddCreateVolumePermission   bool                      `mapstructure:"addCreateVolumePermission" required:"false"`
+	ModAccountRegionMappingList []AccountRegionMapping    `mapstructure:"-"`
 }
 
 type Config struct {
-	Source     RawSrcAmiInfo          `yaml:"source"`
-	Target     Target                 `yaml:"target"`
-	Other      map[string]interface{} `mapstructure:",remain"`
-	SrcAmiInfo SrcAmiInfo             `yaml:"-"`
+	Source     RawSrcAmiInfo `mapstructure:"source" required:"true" chain:"config.source"`
+	Target     Target        `mapstructure:"target" required:"true" chain:"config.target"`
+	SrcAmiInfo SrcAmiInfo    `mapstructure:"-"`
 }
 
 type Resource struct {
-	Name   *string
-	Type   *string
-	Config Config `yaml:"config"`
+	Name   *string `required:"true"`
+	Type   *string `required:"true"`
+	Config Config  `mapstructure:"config" required:"true"`
 }
-
 
 type (
 	AmiInfo struct {

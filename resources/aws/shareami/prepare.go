@@ -26,10 +26,6 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 		return err
 	}
 
-	if c.Other != nil {
-		clogger.Fatalf("Please remove invalid sections/properties: %s", c.Other)
-	}
-
 	r.Config = c
 
 	r.Config.SrcAmiInfo = prepareSrcAmiInfo(r.Config.Source)
