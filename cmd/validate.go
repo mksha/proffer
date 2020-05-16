@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	// "log"
 	"path/filepath"
 
 	"example.com/proffer/command"
