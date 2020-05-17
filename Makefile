@@ -1,6 +1,8 @@
 include .env
 
-default: fmt fmt-check mode-check tidy tidy-check
+.PHONY: dfault ci fmt fmt-check bsd-mode-check mode-check tidy tidy-check install-lint-deps lint ci-lint vet
+
+default: fmt fmt-check mode-check tidy tidy-check lint
 
 ci: fmt-check mode-check tidy-check ci-lint ## Test in continuous integration
 
@@ -34,15 +36,6 @@ mode-check: ## Check that only certain files are executable
 	else \
 		echo "Check passed."; \
 	fi
-
-build:
-	@go build -o bin/proffer .
-
-validate:
-	bin/proffer validate test/proffer.yml
-
-apply:
-	bin/proffer apply test/proffer.yml
 
 install-lint-deps: ## Install linter dependencies
 	@echo "==> Updating linter dependencies..."
