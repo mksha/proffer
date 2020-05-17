@@ -4,9 +4,6 @@ default: fmt fmt-check mode-check tidy tidy-check
 
 ci: fmt-check mode-check tidy-check ci-lint ## Test in continuous integration
 
-hello:
-	@echo "Hello"
-
 fmt: ## Format Go code
 	@go fmt ./...
 

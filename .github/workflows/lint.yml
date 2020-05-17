@@ -1,4 +1,4 @@
-name: Lint Go Code
+name: Lint GO Code
 
 on:
   push:
@@ -23,4 +23,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Lint Go Code
-        run: make lint
+        run: make ci-lint
+
+      - name: Check for unformatted go code
+        run: fmt-check
+
+      - name: Check for unused go dependencies
+        run: tidy-check
