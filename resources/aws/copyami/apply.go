@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"sync"
 
-	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	awscommon "github.com/proffer/resources/aws/common"
 )
 
 type TargetInfo struct {
@@ -25,11 +25,9 @@ func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[
 	if ok {
 		clogger.Warnf("AMI %s Already Exist In Account %s In Region %s", *sai.Image.Name, *sai.AccountID, *sess.Config.Region)
 		return
-	} else {
-		if err != nil {
-			errMap[*sess.Config.Region] = err
-			return
-		}
+	} else if err != nil {
+		errMap[*sess.Config.Region] = err
+		return
 	}
 
 	clogger.Infof("Started Copying AMI In Account: %s Region: %s ...", *sai.AccountID, *sess.Config.Region)
@@ -74,7 +72,6 @@ func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[
 }
 
 func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
-
 	sess, err := awscommon.GetAwsSession(srcAmiInfo.CredsInfo)
 	if err != nil {
 		return err
@@ -110,6 +107,7 @@ func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	if len(errMap) != 0 {
 		clogger.Error("AMI Copy Operation Failed For following Regions:")
+
 		for region, err := range errMap {
 			clogger.Errorf("%s:\n", region)
 			clogger.Errorf("\tReason: [%s] ", err)

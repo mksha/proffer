@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	clog "example.com/proffer/common/clogger"
-	"example.com/proffer/components"
+	clog "github.com/proffer/common/clogger"
+	"github.com/proffer/components"
 )
 
 var (

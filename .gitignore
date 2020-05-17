@@ -19,3 +19,8 @@ output.yml
 
 # IDE
 .vscode
+.idea/
+*.iml
+
+
+.DS_Store

@@ -18,9 +18,9 @@ package cmd
 import (
 	"path/filepath"
 
-	"example.com/proffer/command"
-	"example.com/proffer/common/validator"
-	"example.com/proffer/parser"
+	"github.com/proffer/command"
+	"github.com/proffer/common/validator"
+	"github.com/proffer/parser"
 	"github.com/spf13/cobra"
 )
 
@@ -37,16 +37,6 @@ var (
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// validateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// validateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func validateConfig(cmd *cobra.Command, args []string) {
@@ -89,7 +79,6 @@ func validateResources(c parser.TemplateConfig) {
 	}
 
 	for index, rawResource := range c.RawResources {
-
 		if validator.IsZero(rawResource) {
 			clogger.Fatalf("Empty resource found in list 'resources' at index: [%v]", index+1)
 		}

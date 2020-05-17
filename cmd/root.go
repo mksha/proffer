@@ -20,8 +20,8 @@ import (
 	"log"
 	"os"
 
-	clog "example.com/proffer/common/clogger"
 	"github.com/mitchellh/go-homedir"
+	clog "github.com/proffer/common/clogger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -32,7 +32,7 @@ var (
 	clogger = clog.New(os.Stdout, "", log.Lmsgprefix)
 )
 
-// rootCmd represents the base command when called without any subcommands
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:   "proffer",
 	Short: "Proffer is a cmd tool to distribute cloud images between multiple regions and environments",
@@ -97,8 +97,8 @@ func initConfig() {
 func setLogLevel() {
 	// Default level is info, unless debug flag is present
 	clog.SetGlobalLogLevel(clog.INFO)
+
 	if debug {
 		clog.SetGlobalLogLevel(clog.DEBUG)
-
 	}
 }

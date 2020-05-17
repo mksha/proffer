@@ -1,4 +1,4 @@
-module example.com/proffer
+module github.com/proffer
 
 go 1.14
 

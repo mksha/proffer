@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"strings"
 
-	"example.com/proffer/common/validator"
-	"example.com/proffer/components"
 	"github.com/mitchellh/mapstructure"
+	"github.com/proffer/common/validator"
+	"github.com/proffer/components"
 )
 
 func (r *Resource) Validate(rawResource components.RawResource) error {
@@ -44,6 +44,7 @@ func (r *Resource) Validate(rawResource components.RawResource) error {
 
 func (r *Resource) validateConfigSource() {
 	sourceType := reflect.TypeOf(r.Config.Source)
+
 	if errs := validator.CheckRequiredFieldsInStruct(r.Config.Source); len(errs) != 0 {
 		clogger.Errorf("Missing/Empty key(s) found in the resource: [%s]", *r.Name)
 		clogger.Fatal(errs)
@@ -51,6 +52,7 @@ func (r *Resource) validateConfigSource() {
 
 	if r.Config.Source.RoleArn != nil {
 		sf, _ := sourceType.FieldByName("RoleArn")
+
 		if !validator.IsAWSRoleARN(*r.Config.Source.RoleArn) {
 			clogger.Fatalf("Invalid Role ARN [%s] passed in [%s] property of Resource: [%s]",
 				*r.Config.Source.RoleArn, sf.Tag.Get("chain"), *r.Name)
@@ -64,6 +66,7 @@ func (r *Resource) validateConfigSource() {
 	}
 
 	sf, _ := sourceType.FieldByName("AmiFilters")
+
 	for filterName, filterValue := range r.Config.Source.AmiFilters {
 		if filterValue == nil {
 			clogger.Fatalf("Missing value for AMI Filter [%s] in [%s] property of Resource: [%s]",
@@ -99,12 +102,14 @@ func (r *Resource) validateConfigSource() {
 
 func (r *Resource) validateConfigTarget() {
 	targetType := reflect.TypeOf(r.Config.Target)
+
 	if errs := validator.CheckRequiredFieldsInStruct(r.Config.Target); len(errs) != 0 {
 		clogger.Errorf("Missing/Empty key(s) found in the resource: [%s]", *r.Name)
 		clogger.Fatal(errs)
 	}
 
 	sf1, _ := targetType.FieldByName("Regions")
+
 	for _, region := range r.Config.Target.Regions {
 		if !validator.IsAWSRegion(*region) {
 			clogger.Fatalf("Invalid AWS Region [%s] passed in [%s] property of Resource: [%s]",
@@ -113,6 +118,7 @@ func (r *Resource) validateConfigTarget() {
 	}
 
 	sf2, _ := targetType.FieldByName("AddExtraTags")
+
 	for tagKey, tagValue := range r.Config.Target.AddExtraTags {
 		if tagValue == nil {
 			continue

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"example.com/proffer/common/validator"
-	"example.com/proffer/components"
 	"github.com/mitchellh/mapstructure"
+	"github.com/proffer/common/validator"
+	"github.com/proffer/components"
 )
 
 func (r *Resource) Validate(rawResource components.RawResource) error {
@@ -37,6 +37,7 @@ func (r *Resource) Validate(rawResource components.RawResource) error {
 
 func (r *Resource) validateConfigSource() {
 	sourceType := reflect.TypeOf(r.Config.Source)
+
 	if errs := validator.CheckRequiredFieldsInStruct(r.Config.Source); len(errs) != 0 {
 		clogger.Errorf("Missing/Empty key(s) found in the resource: [%s]", *r.Name)
 		clogger.Fatal(errs)
@@ -44,6 +45,7 @@ func (r *Resource) validateConfigSource() {
 
 	if r.Config.Source.RoleArn != nil {
 		sf, _ := sourceType.FieldByName("RoleArn")
+
 		if !validator.IsAWSRoleARN(*r.Config.Source.RoleArn) {
 			clogger.Fatalf("Invalid Role ARN [%s] passed in [%s] property of Resource: [%s]",
 				*r.Config.Source.RoleArn, sf.Tag.Get("chain"), *r.Name)
@@ -51,6 +53,7 @@ func (r *Resource) validateConfigSource() {
 	}
 
 	sf, _ := sourceType.FieldByName("AmiFilters")
+
 	for filterName, filterValue := range r.Config.Source.AmiFilters {
 		if filterValue == nil {
 			clogger.Fatalf("Missing value for AMI Filter [%s] in [%s] property of Resource: [%s]",
@@ -95,6 +98,7 @@ func (r *Resource) validateConfigTarget() {
 
 	for index, accountRegionMapping := range r.Config.Target.AccountRegionMappingList {
 		acrMappingType := reflect.TypeOf(accountRegionMapping)
+
 		if errs := validator.CheckRequiredFieldsInStruct(accountRegionMapping, index); len(errs) != 0 {
 			clogger.Errorf("Missing/Empty key(s) found in the resource: [%s]", *r.Name)
 			clogger.Fatal(errs)
@@ -114,6 +118,7 @@ func (r *Resource) validateConfigTarget() {
 
 		sf1, _ := acrMappingType.FieldByName("Regions")
 		chain := strings.Replace(sf1.Tag.Get("chain"), ".N.", "."+strconv.Itoa(index)+".", 1)
+
 		for _, region := range accountRegionMapping.Regions {
 			if !validator.IsAWSRegion(*region) {
 				clogger.Fatalf("Invalid AWS Region [%s] passed in [%s] property of Resource: [%s]",
@@ -123,6 +128,7 @@ func (r *Resource) validateConfigTarget() {
 
 		sf2, _ := acrMappingType.FieldByName("AddExtraTags")
 		chain = strings.Replace(sf2.Tag.Get("chain"), ".N.", "."+strconv.Itoa(index)+".", 1)
+
 		for tagKey, tagValue := range accountRegionMapping.AddExtraTags {
 			if tagValue == nil {
 				continue
@@ -141,6 +147,7 @@ func (r *Resource) validateConfigTarget() {
 	}
 
 	sf, _ = targetType.FieldByName("CommonRegions")
+
 	for _, region := range r.Config.Target.CommonRegions {
 		if !validator.IsAWSRegion(*region) {
 			clogger.Fatalf("Invalid AWS Region [%s] passed in [%s] property of Resource: [%s]",

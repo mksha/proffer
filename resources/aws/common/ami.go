@@ -18,11 +18,14 @@ func IsError(err error) (bool, error) {
 				return true, fmt.Errorf("%s", aerr.Error())
 			}
 		}
+
 		return true, err
 	}
+
 	return false, nil
 }
 
+// nolint:interfacer
 func IsAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
 	svc := ec2.New(sess)
 	input := &ec2.DescribeImagesInput{
@@ -39,6 +42,7 @@ func IsAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
 	if len(images) == 0 {
 		return false, nil
 	}
+
 	return true, nil
 }
 
@@ -62,9 +66,11 @@ func GetAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 	}
 
 	images := result.Images
+
 	return images, nil
 }
 
+//nolint:interfacer
 func CreateEc2Tags(sess *session.Session, resources []*string, tags []*ec2.Tag) error {
 	svc := ec2.New(sess)
 	input := &ec2.CreateTagsInput{
