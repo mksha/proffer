@@ -22,11 +22,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Lint Go Code
-        run: make ci-lint
-
       - name: Check for unformatted go code
         run: fmt-check
 
       - name: Check for unused go dependencies
         run: tidy-check
+
+      - name: Lint Go Code
+        run: make ci-lint
