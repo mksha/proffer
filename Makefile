@@ -44,12 +44,6 @@ validate:
 apply:
 	bin/proffer apply test/proffer.yml
 
-compile:
-	echo "Compiling for every OS and Platform"
-	GOOS=freebsd GOARCH=386 go build -o bin/main-freebsd-386 main.go
-	GOOS=linux GOARCH=386 go build -o bin/main-linux-386 main.go
-	GOOS=windows GOARCH=386 go build -o bin/main-windows-386 main.go
-
 install-lint-deps: ## Install linter dependencies
 	@echo "==> Updating linter dependencies..."
 	@curl -sSfL -q https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.27.0

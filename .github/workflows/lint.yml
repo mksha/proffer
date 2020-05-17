@@ -28,5 +28,5 @@ jobs:
       - name: Check for unused go dependencies
         run: make tidy-check
 
-      - name: Lint Go Code
-        run: make ci-lint
+      - name: Run static code analysis
+        run: sudo make ci-lint
