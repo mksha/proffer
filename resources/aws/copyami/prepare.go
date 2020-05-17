@@ -1,8 +1,8 @@
 package copyami
 
 import (
-	"github.com/mitchellh/mapstructure"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/mitchellh/mapstructure"
 )
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
@@ -21,7 +21,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 }
 
 func prepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
-	var amiFilters []*ec2.Filter
+	amiFilters := make([]*ec2.Filter, 0)
 
 	for filterName, filterValue := range rawSrcAmiInfo.AmiFilters {
 		f := &ec2.Filter{

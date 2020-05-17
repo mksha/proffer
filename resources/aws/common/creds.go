@@ -1,21 +1,16 @@
 package common
 
 import (
-	// "fmt"
 	"fmt"
 	"log"
 	"os"
-	// "time"
 
-	clog "example.com/proffer/common/clogger"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	// "github.com/aws/aws-sdk-go/aws/credentials"
-	// "github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
-	// "github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	clog "github.com/proffer/common/clogger"
 )
 
 var (
@@ -88,8 +83,10 @@ func GetAwsSessWithDefaultCreds() (*session.Session, error) {
 	return sessPtr, nil
 }
 
+//nolint:interfacer
 func IsCredsExpired(sessPtr *session.Session) bool {
 	svc := sts.New(sessPtr)
+
 	_, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
@@ -104,6 +101,7 @@ func IsCredsExpired(sessPtr *session.Session) bool {
 	return false
 }
 
+//nolint:interfacer
 func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, error) {
 	svc := sts.New(sessPtr)
 	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})

@@ -1,9 +1,9 @@
 package command
 
 import (
-	"example.com/proffer/components"
-	awscopyamiresource "example.com/proffer/resources/aws/copyami"
-	awsshareamiresource "example.com/proffer/resources/aws/shareami"
+	"github.com/proffer/components"
+	awscopyamiresource "github.com/proffer/resources/aws/copyami"
+	awsshareamiresource "github.com/proffer/resources/aws/shareami"
 )
 
 var Resources = map[string]components.Resourcer{

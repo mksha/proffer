@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	clog "example.com/proffer/common/clogger"
-	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	clog "github.com/proffer/common/clogger"
+	awscommon "github.com/proffer/resources/aws/common"
 )
 
 var (
@@ -19,7 +19,6 @@ type RawSrcAmiInfo struct {
 	Region     *string             `mapstructure:"region" required:"true" chain:"config.source.region"`
 	AmiFilters map[*string]*string `mapstructure:"amiFilters" required:"true" chain:"config.source.amiFilters"`
 }
-
 
 type SrcAmiInfo struct {
 	CredsInfo map[string]string

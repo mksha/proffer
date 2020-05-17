@@ -20,11 +20,11 @@ import (
 	"log"
 	"path/filepath"
 
-	"example.com/proffer/command"
+	"github.com/proffer/command"
 	"github.com/spf13/cobra"
 )
 
-// applyCmd represents the apply command
+// applyCmd represents the apply command.
 var applyCmd = &cobra.Command{
 	Use:   "apply",
 	Short: "Apply proffer configuration",
@@ -35,16 +35,6 @@ in between multiple regions and with multiple accounts.`,
 
 func init() {
 	rootCmd.AddCommand(applyCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// applyCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// applyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 func applyConfig(cmd *cobra.Command, args []string) {
 	// validate template before applying
@@ -56,6 +46,7 @@ func applyConfig(cmd *cobra.Command, args []string) {
 
 	clogger.SetPrefix("start-apply | ")
 	clogger.Info("Applying template config...")
+
 	if len(args) == 0 {
 		log.Fatalln("Proffer Configuration file missing: Pls pass proffer config file to apply")
 	}
@@ -69,18 +60,19 @@ func applyConfig(cmd *cobra.Command, args []string) {
 }
 
 func executeResources(dsc string) {
-
 	c, err := parseConfig(dsc)
 	if err != nil {
 		fmt.Println("Unable to parse configuration file")
 	}
 
 	resources := command.Resources
+
 	for _, rawResource := range c.RawResources {
 		resource, ok := resources[rawResource.Type]
 		if !ok {
 			clogger.Fatalf("InvalidResourceType: Resource Type '%s' Not Found", rawResource.Type)
 		}
+
 		clogger.SetPrefix(rawResource.Type + " | ")
 		clogger.Successf("Resource : %s  Status: Started", rawResource.Name)
 		clogger.Info("")

@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	clog "example.com/proffer/common/clogger"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	clog "github.com/proffer/common/clogger"
 )
 
 var (
@@ -78,7 +78,6 @@ type (
 )
 
 func (r *Resource) Run() error {
-
 	if err := r.Config.apply(); err != nil {
 		return err
 	}
@@ -96,15 +95,4 @@ func (t Target) getTargetRegions() []*string {
 	regions = append(regions, t.CommonRegions...)
 
 	return regions
-}
-
-func (t Target) getTargetAccountFlagMap() AccountFlagMap {
-	accountFlagMap := make(AccountFlagMap, 0)
-
-	for _, accountRegionMapping := range t.ModAccountRegionMappingList {
-		account := accountRegionMapping.AccountID
-		accountFlagMap[account] = Flag{AddCVP: accountRegionMapping.AddCVP}
-	}
-
-	return accountFlagMap
 }

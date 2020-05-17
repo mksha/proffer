@@ -5,14 +5,15 @@ import (
 	"log"
 	"strconv"
 
-	awscommon "example.com/proffer/resources/aws/common"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/mitchellh/mapstructure"
+	awscommon "github.com/proffer/resources/aws/common"
 )
 
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	var c Config
+
 	var md mapstructure.Metadata
 
 	defer func() {
@@ -66,7 +67,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 }
 
 func prepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
-	var amiFilters []*ec2.Filter
+	amiFilters := make([]*ec2.Filter, 0)
 
 	for filterName, filterValue := range rawSrcAmiInfo.AmiFilters {
 		f := &ec2.Filter{
@@ -79,7 +80,7 @@ func prepareSrcAmiInfo(rawSrcAmiInfo RawSrcAmiInfo) SrcAmiInfo {
 	srcAmiInfo := SrcAmiInfo{
 		Filters:         amiFilters,
 		CredsInfo:       make(map[string]string, 2),
-		RegionAmiErrMap: make(RegionAmiErrMap, 0),
+		RegionAmiErrMap: make(RegionAmiErrMap),
 	}
 
 	if rawSrcAmiInfo.RoleArn != nil {
@@ -143,7 +144,7 @@ func (sai *SrcAmiInfo) prepareTargetRegionAmiMapping(regions []*string) (err err
 }
 
 func prepareRegionAmiErrMap(sai SrcAmiInfo, region *string, regionAmiErrChan chan<- RegionAmiErrMap) {
-	regionAmiErr := make(RegionAmiErrMap, 0)
+	regionAmiErr := make(RegionAmiErrMap)
 
 	sess, err := awscommon.GetAwsSession(sai.CredsInfo)
 	if err != nil {

@@ -1,0 +1,22 @@
+---
+resources:
+- name: Copy AMI To Commercial Account Regions
+  type: aws-copyami
+  config:
+    source:
+      roleArn: arn:aws:iam::123456789012:role/test-tool-functionality
+      region: us-east-1
+      amiFilters:
+        image-id: ami-32b55977557720a32
+        name: test-image
+        tag:Purpose: Testing
+        tag:Department: DevOps
+    target:
+      regions:
+      - ap-northeast-1
+      - ap-northeast-2
+      - us-west-2
+      copyTagsAcrossRegions: true
+      addExtraTags:
+        CreatedBy: local-testing-tool
+        Type: testing

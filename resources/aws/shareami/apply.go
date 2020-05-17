@@ -1,16 +1,13 @@
 package shareami
 
 import (
-	// "fmt"
 	"fmt"
 	"sync"
 
-	awscommon "example.com/proffer/resources/aws/common"
-	// "github.com/aws/aws-sdk-go/aws"
-	// "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	awscommon "github.com/proffer/resources/aws/common"
 )
 
 var (
@@ -56,7 +53,7 @@ func (c Config) triggerCopyTagsAcrossAccounts() error {
 			}
 		}
 
-		return fmt.Errorf("exiting.")
+		return fmt.Errorf("exiting")
 	}
 
 	return nil
@@ -80,6 +77,7 @@ func copyTagsAcrossAccount(sai SrcAmiInfo, accountRegionMapping AccountRegionMap
 
 	for _, targetRegion := range targetRegions {
 		rawTargetRegions = append(rawTargetRegions, *targetRegion)
+
 		copyTagsWg.Add(1)
 
 		go addTagsToTargetAmi(sess.Copy(&aws.Config{Region: targetRegion}), sai, accountRegionMapping.Tags, regionErrMap)
@@ -95,7 +93,6 @@ func copyTagsAcrossAccount(sai SrcAmiInfo, accountRegionMapping AccountRegionMap
 	clogger.Infof("\t  In Target Account: %s", *accountRegionMapping.AccountID)
 	clogger.Infof("\t  In Regions: %v", rawTargetRegions)
 	clogger.Info("")
-
 }
 
 func addTagsToTargetAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, regionErrMap RegionErrMap) {
@@ -218,11 +215,10 @@ func addPermissionsforTargetAccounts(sai SrcAmiInfo, region *string, regionErrMa
 	clogger.Infof("\t  With Account(s): %v", rawAccounts)
 	clogger.Infof("\t  In Region: %s", *region)
 	clogger.Info("")
-
 }
-
 func (m AccountRegionMapping) shareAmiWithIndividualRegions(sai SrcAmiInfo, accountRegionErrMap AccountRegionErrMap) {
 	defer innerWg.Done()
+
 	regionErrMap := RegionErrMap{}
 
 	for _, targetRegion := range m.Regions {
@@ -297,7 +293,7 @@ func (c *Config) apply() error {
 			}
 		}
 
-		return fmt.Errorf("exiting.")
+		return fmt.Errorf("exiting")
 	}
 
 	if err := c.triggerCopyTagsAcrossAccounts(); err != nil {

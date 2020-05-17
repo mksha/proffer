@@ -10,8 +10,10 @@ import (
 
 var (
 	re = map[string]*regexp.Regexp{
-		"awsRoleARN":   regexp.MustCompile(`(?m)^arn:(aws(|-cn|-us-gov))?:iam::\d{12}:role/[a-zA-Z_0-9+=,.@\-_/]{1,64}$`),
-		"awsRegion":    regexp.MustCompile(`(?m)(^(us(-gov)?)-(east|west)-(1|2)$)|(^eu-(central-1$|west-(1|2|3)$|(south|north)-1$))|(^cn-(north(west)?-1$))|(^ap-(east-1$|south(east)?-(1|2)$|northeast-(1|2|3)$))|(^ca-central-1$)|(^(af|me)-south-1$)|(^sa-east-1$)`),
+		"awsRoleARN": regexp.MustCompile(`(?m)^arn:(aws(|-cn|-us-gov))?:iam::\d{12}:role/[a-zA-Z_0-9+=,.@\-_/]{1,64}$`),
+		"awsRegion": regexp.MustCompile(`(?m)(^(us(-gov)?)-(east|west)-(1|2)$)|(^eu-(central-1$|west-(1|2|3)$|(south|
+north)-1$))|(^cn-(north(west)?-1$))|(^ap-(east-1$|south(east)?-(1|2)$|northeast-(1|2|3)$))|(^ca-central-1$)|
+(^(af|me)-south-1$)|(^sa-east-1$)`),
 		"awsAMIName":   regexp.MustCompile(`(?m)^[a-zA-Z0-9\-_.\(\)\/]{3,128}$`),
 		"awsAMIID":     regexp.MustCompile(`(?m)^ami-[0-9a-z]{8,17}$`),
 		"awsTagKey":    regexp.MustCompile(`^.{1,127}$`),
@@ -25,6 +27,7 @@ func IsZero(i interface{}) bool {
 	return v.IsZero()
 }
 
+//nolint:nestif,gocritic
 func CheckRequiredFieldsInStruct(i interface{}, index ...int) []error {
 	errs := make([]error, 0)
 	v := reflect.ValueOf(i)
@@ -44,6 +47,7 @@ func CheckRequiredFieldsInStruct(i interface{}, index ...int) []error {
 
 			if v.Field(i).IsZero() {
 				var err error
+
 				if vt.Field(i).Tag.Get("chain") != "" {
 					if len(index) != 0 {
 						msg := strings.Replace(vt.Field(i).Tag.Get("chain"), ".N.", "."+strconv.Itoa(index[0])+".", 1)
