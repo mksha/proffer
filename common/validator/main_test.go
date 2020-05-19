@@ -34,7 +34,7 @@ func TestCheckRequiredFieldsInStruct(t *testing.T) {
 	for n := range checkRequiredFieldsInStructTestCases {
 		tt := checkRequiredFieldsInStructTestCases[n]
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CheckRequiredFieldsInStruct(tt.customStruct, tt.index...); !reflect.DeepEqual(got, tt.want) {
+			if got := CheckRequiredFieldsInStruct(tt.cs); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CheckRequiredFieldsInStruct() = %v, want %v", got, tt.want)
 			}
 		})
@@ -49,7 +49,7 @@ func BenchmarkCheckRequiredFieldsInStruct(b *testing.B) {
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
 				// ignoring errors and results because we're just timing function execution
-				_ = CheckRequiredFieldsInStruct(tc.customStruct, tc.index...)
+				_ = CheckRequiredFieldsInStruct(tc.cs)
 			}
 		})
 	}

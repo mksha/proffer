@@ -83,7 +83,8 @@ func validateResources(c parser.TemplateConfig) {
 			clogger.Fatalf("Empty resource found in list 'resources' at index: [%v]", index+1)
 		}
 
-		if errs := validator.CheckRequiredFieldsInStruct(rawResource); len(errs) != 0 {
+		cs := validator.CustomStruct{Struct: rawResource}
+		if errs := validator.CheckRequiredFieldsInStruct(cs); len(errs) != 0 {
 			// check if the resource name is empty
 			if validator.IsZero(rawResource.Name) {
 				clogger.Errorf("Missing/Empty key(s) in the resource number: [%v]", index+1)

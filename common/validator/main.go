@@ -20,6 +20,12 @@ var (
 	}
 )
 
+type CustomStruct struct {
+	Struct     interface{}
+	IsListItem bool
+	Index      int
+}
+
 // IsZero checks if the given value is zero values of its type.
 func IsZero(i interface{}) bool {
 	v := reflect.ValueOf(i)
@@ -28,9 +34,9 @@ func IsZero(i interface{}) bool {
 
 //nolint:nestif,gocritic
 // CheckRequiredFieldsInStruct checks if the given structs's required field(s) are set or not.
-func CheckRequiredFieldsInStruct(customStruct interface{}, index ...int) []error {
+func CheckRequiredFieldsInStruct(s CustomStruct) []error {
 	errs := make([]error, 0)
-	v := reflect.ValueOf(customStruct)
+	v := reflect.ValueOf(s.Struct)
 
 	if v.Kind() == reflect.Struct {
 		vt := v.Type() // to get the filed info like tags, pkgpath etc
@@ -49,8 +55,8 @@ func CheckRequiredFieldsInStruct(customStruct interface{}, index ...int) []error
 				var err error
 
 				if vt.Field(i).Tag.Get("chain") != "" {
-					if len(index) != 0 {
-						msg := strings.Replace(vt.Field(i).Tag.Get("chain"), ".N.", "."+strconv.Itoa(index[0])+".", 1)
+					if s.IsListItem {
+						msg := strings.Replace(vt.Field(i).Tag.Get("chain"), ".N.", "."+strconv.Itoa(s.Index)+".", 1)
 						err = fmt.Errorf(msg)
 					} else {
 						err = fmt.Errorf(vt.Field(i).Tag.Get("chain"))

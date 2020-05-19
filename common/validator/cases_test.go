@@ -9,9 +9,6 @@ var (
 	zeroMap    map[string]int
 	zeroStruct struct{ Name string }
 	zeroSlice  []int
-
-	// TestCheckRequiredFieldsInStruct
-
 )
 
 // test cases for IsZero function.
@@ -79,72 +76,89 @@ var isZeroTestCases = []struct {
 
 // test cases for CheckRequiredFieldsInStruct function.
 var checkRequiredFieldsInStructTestCases = []struct {
-	name         string
-	customStruct interface{}
-	index        []int
-	want         []error
+	name string
+	cs   CustomStruct
+	want []error
 }{
 	{
 		name: "struct with required field filled",
-		customStruct: struct {
-			Name string `required:"true"`
-		}{Name: "test"},
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true"`
+			}{Name: "test"},
+		},
 		want: make([]error, 0),
 	},
 	{
 		name: "struct with required field filled and having private field",
-		customStruct: struct {
-			Name string `required:"true"`
-			age  int
-		}{Name: "test"},
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true"`
+				age  int
+			}{Name: "test"},
+		},
 		want: make([]error, 0),
 	},
 	{
-		name: "struct with required field filled, index given and having chain tag",
-		customStruct: struct {
-			Name string `required:"true" chain:"name"`
-		}{Name: "test"},
-		index: []int{1},
-		want:  make([]error, 0),
+		name: "struct with required field filled, member of list , index given and having chain tag",
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true" chain:"name"`
+				Age  int
+			}{Age: 1},
+			IsListItem: true,
+			Index:      1,
+		},
+		want: []error{fmt.Errorf("name")},
 	},
 	{
 		name: "struct with multiple required fields filled",
-		customStruct: struct {
-			Name string `required:"true"`
-			Age  int    `required:"true"`
-		}{Name: "test", Age: 1},
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true"`
+				Age  int    `required:"true"`
+			}{Name: "test", Age: 1},
+		},
 		want: make([]error, 0),
 	},
 	{
 		name: "struct with missing required field but having chain tag",
-		customStruct: struct {
-			Name string `required:"true" chain:"name"`
-			Age  int
-		}{Age: 1},
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true" chain:"name"`
+				Age  int
+			}{Age: 1},
+		},
 		want: []error{fmt.Errorf("name")},
 	},
 	{
 		name: "struct with missing required fields but having chain tag",
-		customStruct: struct {
-			Name string `required:"true" chain:"name"`
-			Age  int    `required:"true" chain:"age"`
-		}{},
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true" chain:"name"`
+				Age  int    `required:"true" chain:"age"`
+			}{},
+		},
 		want: []error{fmt.Errorf("name"), fmt.Errorf("age")},
 	},
 	{
 		name: "struct with missing required fields and having mapstructure tag instead of chain tag",
-		customStruct: struct {
-			Name string `required:"true" mapstructure:"name"`
-			Age  int
-		}{Age: 1},
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true" mapstructure:"name"`
+				Age  int
+			}{Age: 1},
+		},
 		want: []error{fmt.Errorf("name")},
 	},
 	{
 		name: "struct with required fields missing and having yaml tag instead of chain tag",
-		customStruct: struct {
-			Name string `required:"true" yaml:"name"`
-			Age  int
-		}{Age: 1},
+		cs: CustomStruct{
+			Struct: struct {
+				Name string `required:"true" yaml:"name"`
+				Age  int
+			}{Age: 1},
+		},
 		want: []error{fmt.Errorf("name")},
 	},
 }
