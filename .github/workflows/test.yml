@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint & Test Go Code
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.14
@@ -30,3 +30,6 @@ jobs:
 
       - name: Lint
         run: sudo make ci-lint
+
+      - name: Unit Test
+        run: make testrace
