@@ -33,7 +33,7 @@ func IsZero(i interface{}) bool {
 }
 
 //nolint:nestif,gocritic
-// CheckRequiredFieldsInStruct checks if the given structs's required field(s) are set or not.
+// CheckRequiredFieldsInStruct checks if the given struct's required field(s) are set or not.
 func CheckRequiredFieldsInStruct(s CustomStruct) []error {
 	errs := make([]error, 0)
 	v := reflect.ValueOf(s.Struct)
