@@ -14,7 +14,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Fetch origin/master
+      - name: Check for unformatted go code
+        run: make fmt-check
+
+      - name: Check for unused go dependencies
+        run: make tidy-check
+
+      - name: Fetch origin/master for golangci-lint arg
         run: git fetch origin master
 
       - name: golangci-lint
@@ -39,21 +45,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Check for unformatted go code
-        run: make fmt-check
-
-      - name: Check for unused go dependencies
-        run: make tidy-check
-
-      - name: Lint
-        run: sudo make ci-lint
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v1
-        with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.27
-          args: --new-from-rev=$(git merge-base origin/master HEAD) ./...
+      # - name: Lint
+      #   run: sudo make ci-lint
 
       - name: Unit Test
         run: make testrace
