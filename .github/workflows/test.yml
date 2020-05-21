@@ -8,7 +8,7 @@ on:
 
 jobs:
   golangci:
-    name: Lint Go Code
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -30,8 +30,8 @@ jobs:
           version: v1.27
           args: --new-from-rev=$(/usr/bin/git merge-base origin/master HEAD) ./...
 
-  test:
-    name: Test Go Code
+  unittest:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.14
