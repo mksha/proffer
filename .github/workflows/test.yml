@@ -8,7 +8,7 @@ on:
 
 jobs:
   golangci:
-    name: Lint
+    name: Lint Go Code
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -50,3 +50,14 @@ jobs:
 
       - name: Unit Test
         run: make testrace
+
+      - name: Generate Coverage Report
+        run: make ci-cover
+
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.out
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
