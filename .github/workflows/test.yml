@@ -7,8 +7,22 @@ on:
     branches: [ master ]
 
 jobs:
+  golangci:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.27
+          args: "--new-from-rev=$(git merge-base origin/master HEAD) ./..."
+
   test:
-    name: Lint & Test Go Code
+    name: Test Go Code
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.14
@@ -28,15 +42,15 @@ jobs:
       - name: Check for unused go dependencies
         run: make tidy-check
 
-      # - name: Lint
-      #   run: sudo make ci-lint
+      - name: Lint
+        run: sudo make ci-lint
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v1
-        with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.27
-          args: --new-from-rev=$(git merge-base origin/master HEAD) ./...
+      # - name: golangci-lint
+      #   uses: golangci/golangci-lint-action@v1
+      #   with:
+      #     # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+      #     version: v1.27
+      #     args: --new-from-rev=$(git merge-base origin/master HEAD) ./...
 
       - name: Unit Test
         run: make testrace
