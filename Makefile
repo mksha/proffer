@@ -1,7 +1,7 @@
 include .env
 
 .PHONY: dfault ci fmt fmt-check bsd-mode-check mode-check tidy tidy-check install-lint-deps lint ci-lint vet \
-				cover test testrace
+				cover ci-cover test testrace
 
 default: fmt fmt-check mode-check tidy tidy-check lint
 
