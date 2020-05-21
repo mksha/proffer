@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  lint:
+  test:
     name: Lint & Test Go Code
     runs-on: ubuntu-latest
     steps:
@@ -28,8 +28,15 @@ jobs:
       - name: Check for unused go dependencies
         run: make tidy-check
 
-      - name: Lint
-        run: sudo make ci-lint
+      # - name: Lint
+      #   run: sudo make ci-lint
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.27
+          args: --new-from-rev=$(git merge-base origin/master HEAD) ./...
 
       - name: Unit Test
         run: make testrace
