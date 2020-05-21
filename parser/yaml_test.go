@@ -21,3 +21,17 @@ func TestUnmarshalYaml(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkUnmarshalYaml(b *testing.B) {
+	// bench combined time to run through all test cases
+	for n := range unmarshalYamlTestCases {
+		tc := unmarshalYamlTestCases[n]
+
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				// ignoring errors and results because we're just timing function execution
+				_, _ = UnmarshalYaml(tc.filePath)
+			}
+		})
+	}
+}

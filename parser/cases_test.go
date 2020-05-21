@@ -177,7 +177,7 @@ var unmarshalYamlTestCases = []struct {
 						"target": map[interface{}]interface{}{
 							"accountRegionMappingList": []interface{}{
 								map[interface{}]interface{}{
-									"accountId": 591616226324,
+									"accountId": 121616226324,
 									"profile":   "demo-1",
 									"regions": []interface{}{
 										"ap-northeast-1",
@@ -190,7 +190,7 @@ var unmarshalYamlTestCases = []struct {
 									},
 								},
 								map[interface{}]interface{}{
-									"accountId": 221266418583,
+									"accountId": 121266418583,
 									"profile":   "platform-aws",
 									"regions": []interface{}{
 										"ap-northeast-2",
