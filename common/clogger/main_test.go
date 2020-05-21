@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	// "regexp"
 	"testing"
 )
 
@@ -59,8 +58,4 @@ func TestNew(t *testing.T) {
 			// fmt.Println(regexp.Match(tt.want, out.Bytes()))
 		})
 	}
-
-	// if gotOut := out.String(); gotOut != tt.wantOut {
-	// 	t.Errorf("New() = %v, want %v", gotOut, tt.wantOut)
-	// }
 }
