@@ -31,7 +31,8 @@ func (r *Resource) Validate(rawResource components.RawResource) error {
 		return fmt.Errorf("validation failed")
 	}
 
-	if errs := validator.CheckRequiredFieldsInStruct(c); len(errs) != 0 {
+	cs := validator.CustomStruct{Struct: c}
+	if errs := validator.CheckRequiredFieldsInStruct(cs); len(errs) != 0 {
 		clogger.Errorf("Missing/Empty key(s) found in the resource: [%s]", *r.Name)
 		clogger.Fatal(errs)
 	}
@@ -45,7 +46,8 @@ func (r *Resource) Validate(rawResource components.RawResource) error {
 func (r *Resource) validateConfigSource() {
 	sourceType := reflect.TypeOf(r.Config.Source)
 
-	if errs := validator.CheckRequiredFieldsInStruct(r.Config.Source); len(errs) != 0 {
+	cs := validator.CustomStruct{Struct: r.Config.Source}
+	if errs := validator.CheckRequiredFieldsInStruct(cs); len(errs) != 0 {
 		clogger.Errorf("Missing/Empty key(s) found in the resource: [%s]", *r.Name)
 		clogger.Fatal(errs)
 	}
@@ -103,7 +105,8 @@ func (r *Resource) validateConfigSource() {
 func (r *Resource) validateConfigTarget() {
 	targetType := reflect.TypeOf(r.Config.Target)
 
-	if errs := validator.CheckRequiredFieldsInStruct(r.Config.Target); len(errs) != 0 {
+	cs := validator.CustomStruct{Struct: r.Config.Target}
+	if errs := validator.CheckRequiredFieldsInStruct(cs); len(errs) != 0 {
 		clogger.Errorf("Missing/Empty key(s) found in the resource: [%s]", *r.Name)
 		clogger.Fatal(errs)
 	}

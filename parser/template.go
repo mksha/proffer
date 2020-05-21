@@ -37,7 +37,10 @@ func ParseTemplate(dsc string) (string, error) {
 
 	dscName := fileInfo.Name()
 	// Create template object for given dsc
-	tmplPtr := template.Must(template.New(dscName).Funcs(fm).ParseFiles(dsc))
+	tmplPtr, err := template.New(dscName).Funcs(fm).ParseFiles(dsc)
+	if err != nil {
+		return "", err
+	}
 
 	file, err := os.Create(parsedTemplateFileName)
 	if err != nil {

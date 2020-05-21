@@ -23,6 +23,7 @@ const (
 	ERROR
 	PANIC
 	FATAL
+	NONE
 )
 
 // Base Style.

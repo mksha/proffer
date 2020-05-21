@@ -20,8 +20,6 @@ func UnmarshalYaml(filePath string) (TemplateConfig, error) {
 	}
 	defer file.Close()
 
-	clogger.Debug(" YAML file found :-> ", filePath)
-
 	data := make([]byte, fileInfo.Size())
 
 	if _, err := file.Read(data); err != nil {

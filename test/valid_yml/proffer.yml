@@ -1,0 +1,61 @@
+---
+resources:
+- name: Copy AMI To Commercial Account Regions
+  type: aws-copyami
+  config:
+    source:
+      profile: demo-2
+      region: us-east-1
+      amiFilters:
+        name: test-image
+        tag:Purpose: Testing
+        tag:Department: DevOps
+    target:
+      regions:
+      - ap-northeast-1
+      - ap-northeast-2
+      - us-west-2
+      copyTagsAcrossRegions: true
+      addExtraTags:
+        CreatedBy: local-testing-tool
+        Type: testing
+
+- name: Share AMI With Other Accounts
+  type: aws-shareami
+  config:
+    source:
+      profile: demo-2
+      amiFilters:
+        name: test-image
+        # image-id: ami-1213
+        tag:Purpose: Testing
+        tag:Department: DevOps
+    target:
+      accountRegionMappingList:
+        - accountId: 591616226324
+          profile: demo-1
+          regions:
+            - ap-northeast-1
+            # - us-east-2
+          copyTagsAcrossAccounts: true
+          addExtraTags:
+            CreatedBy: SharedByDemo1
+            Type: AMITesting
+            Home: "/home/test"
+        # - accountId: 698203116079
+        #   profile: demo-2
+        #   regions:
+        #     # - us-west-1
+        #     - ap-northeast-2
+        #     # - us-east-2
+        - accountId: 221266418583
+          profile: platform-aws
+          regions:
+            - ap-northeast-2
+            # - us-east-2
+      copyTagsAcrossAccounts: true
+      addCreateVolumePermission: true
+      commonRegions:
+      - us-east-1
+      - us-west-2
+

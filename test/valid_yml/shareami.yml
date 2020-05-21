@@ -1,0 +1,32 @@
+---
+resources:
+- name: Share AMI With Other Accounts
+  type: aws-shareami
+  config:
+    source:
+      profile: demo-2
+      amiFilters:
+        name: test-image
+        tag:Purpose: Testing
+        tag:Department: DevOps
+    target:
+      accountRegionMappingList:
+        - accountId: 121616226324
+          profile: demo-1
+          regions:
+            - ap-northeast-1
+          copyTagsAcrossAccounts: true
+          addExtraTags:
+            CreatedBy: SharedByDemo1
+            Type: AMITesting
+            Home: "/home/test"
+        - accountId: 121266418583
+          profile: platform-aws
+          regions:
+            - ap-northeast-2
+      copyTagsAcrossAccounts: true
+      addCreateVolumePermission: true
+      commonRegions:
+      - us-east-1
+      - us-west-2
+

@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  golangci:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Check for unformatted go code
+        run: make fmt-check
+
+      - name: Check for unused go dependencies
+        run: make tidy-check
+
+      - name: Fetch origin/master for golangci-lint arg
+        run: git fetch origin master
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.27
+          args: --new-from-rev=$(/usr/bin/git merge-base origin/master HEAD) ./...
+
+  unittest:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+
+      - name: Check go version
+        run: go version
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Unit Test
+        run: make testrace
+
+      - name: Generate Coverage Report
+        run: make ci-cover
+
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.out
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true

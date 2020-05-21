@@ -1,6 +1,7 @@
 include .env
 
-.PHONY: dfault ci fmt fmt-check bsd-mode-check mode-check tidy tidy-check install-lint-deps lint ci-lint vet
+.PHONY: dfault ci fmt fmt-check bsd-mode-check mode-check tidy tidy-check install-lint-deps lint ci-lint vet \
+				cover ci-cover test testrace help
 
 default: fmt fmt-check mode-check tidy tidy-check lint
 
@@ -73,6 +74,23 @@ tidy-check: tidy ## Check go code for unused modules
 		echo "You can use the command: \`make tidy\` to remove unused go modules."; \
 		exit 1; \
 	fi
+
+# Runs code coverage and open a html page with report
+cover:
+	go test $(TEST) $(TESTARGS) -timeout=3m -coverprofile=coverage.out -covermode=atomic
+	go tool cover -html=coverage.out
+	rm coverage.out
+
+# Runs code coverage and upload the report to codecov.io for ci builds
+ci-cover:
+	go test $(TEST) $(TESTARGS) -timeout=3m -coverprofile=coverage.out -covermode=atomic
+	go tool cover -html=coverage.out
+
+test: mode-check vet ## Run unit tests
+	@go test $(TEST) $(TESTARGS) -timeout=3m
+
+testrace: mode-check vet ## Test with race detection enabled
+	@go test $(TEST) $(TESTARGS) -timeout=3m -p=8
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
