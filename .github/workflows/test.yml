@@ -1,4 +1,4 @@
-name: Run static code analysis
+name: Test
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
           args: --new-from-rev=$(/usr/bin/git merge-base origin/master HEAD) ./...
 
   unittest:
-    name: Test
+    name: Unit Test
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.14
@@ -44,9 +44,6 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v2
-
-      # - name: Lint
-      #   run: sudo make ci-lint
 
       - name: Unit Test
         run: make testrace
