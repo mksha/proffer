@@ -37,23 +37,23 @@ var setGlobalLogLevelTestCases = []struct {
 		level: DEBUG,
 	},
 	{
-		name:  "Set global log level Info",
+		name:  "Info",
 		level: INFO,
 	},
 	{
-		name:  "Set global log level warn",
+		name:  "warn",
 		level: WARN,
 	},
 	{
-		name:  "Set global log level error",
+		name:  "error",
 		level: ERROR,
 	},
 	{
-		name:  "Set global log level panic",
+		name:  "panic",
 		level: PANIC,
 	},
 	{
-		name:  "Set global log level fatal",
+		name:  "fatal",
 		level: FATAL,
 	},
 	{

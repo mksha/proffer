@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
+	"os/exec"
 	"testing"
 )
 
@@ -17,6 +19,7 @@ func TestNew(t *testing.T) {
 	for n := range newTestCases {
 		tt := newTestCases[n]
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			out := &bytes.Buffer{}
 			cl := New(out, tt.prefix, tt.flag)
 			gotP := cl.GetPrefix()
@@ -45,6 +48,7 @@ func Test_getColoredMsg(t *testing.T) {
 	for n := range getColoredMsgTestCases {
 		tt := getColoredMsgTestCases[n]
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := getColoredMsg(tt.msg, tt.codeList...); got != tt.want {
 				t.Errorf("getColoredMsg() = %v, want %v", got, tt.want)
 			}
@@ -57,6 +61,7 @@ func TestCLogger_SetPrefix(t *testing.T) {
 		tt := cLoggerSetPrefixTestCases[n]
 
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			out := &bytes.Buffer{}
 			cl := &CLogger{
 				Logger: log.New(out, tt.prefix, log.Lmsgprefix),
@@ -212,32 +217,55 @@ func TestCLogger_Warnf(t *testing.T) {
 	}
 }
 
-// func TestCLogger_Success(t *testing.T) {
-// 	for n := range clogTestCases {
-// 		tt := clogTestCases[n]
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			out := &bytes.Buffer{}
-// 			cl := &CLogger{
-// 				Logger: log.New(out, "", log.Lmsgprefix),
-// 			}
+func TestCLogger_Success(t *testing.T) {
+	for n := range clogTestCases {
+		tt := clogTestCases[n]
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			out := &bytes.Buffer{}
+			cl := &CLogger{
+				Logger: log.New(out, "", log.Lmsgprefix),
+			}
 
-// 			cl.Success(tt.a...)
+			cl.Success(tt.a...)
 
-// 			got := out.String()
-// 			msg := fmt.Sprint(tt.a...)
-// 			pre := fmt.Sprintf("%s[%dm%s\x1b[0m", escape, FgCyan, "")
-// 			pre = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, pre)
-// 			msg = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, pre+msg)
-// 			want := fmt.Sprintf("%s[%dm%s\x1b[0m", escape, FgHiGreen, msg)
+			got := out.String()
+			msg := fmt.Sprint(tt.a...)
+			pre := fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, "")
+			msg = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, msg)
+			want := pre + fmt.Sprintf("%s[%dm%s\x1b[0m\n", escape, FgHiGreen, msg)
 
-// 			fmt.Println(len(want))
-// 			fmt.Println(len(got))
-// 			if want != got {
-// 				t.Errorf("want: %v, got: %v", want, got)
-// 			}
-// 		})
-// 	}
-// }
+			if want != got {
+				t.Errorf("want: %v, got: %v", want, got)
+			}
+		})
+	}
+}
+
+func TestCLogger_Successf(t *testing.T) {
+	for n := range clogTestCases {
+		tt := clogTestCases[n]
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			out := &bytes.Buffer{}
+			cl := &CLogger{
+				Logger: log.New(out, "", log.Lmsgprefix),
+			}
+
+			cl.Successf("%v %v %v %v %v", tt.a...)
+
+			got := out.String()
+			msg := fmt.Sprintf("%v %v %v %v %v", tt.a...)
+			pre := fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, "")
+			msg = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, msg)
+			want := pre + fmt.Sprintf("%s[%dm%s\x1b[0m\n", escape, FgHiGreen, msg)
+
+			if want != got {
+				t.Errorf("want: %v, got: %v", want, got)
+			}
+		})
+	}
+}
 
 func TestCLogger_Info(t *testing.T) {
 	for n := range clogTestCases {
@@ -383,6 +411,7 @@ func TestCLogger_Panic(t *testing.T) {
 	for n := range clogTestCases {
 		tt := clogTestCases[n]
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			defer func() {
 				if r := recover(); r == nil {
 					t.Error("Panic not triggered")
@@ -401,6 +430,7 @@ func TestCLogger_Panicf(t *testing.T) {
 	for n := range clogTestCases {
 		tt := clogTestCases[n]
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			defer func() {
 				if r := recover(); r == nil {
 					t.Error("Panic not triggered")
@@ -415,23 +445,64 @@ func TestCLogger_Panicf(t *testing.T) {
 	}
 }
 
-// func TestCLogger_Fatal(t *testing.T) {
-// 	for n := range clogTestCases {
-// 		tt := clogTestCases[n]
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			out := &bytes.Buffer{}
-// 			cl := &CLogger{
-// 				Logger: log.New(out, "", log.Lmsgprefix),
-// 			}
-// 			var flag bool
-// 			go func (){
-// 				cl.Fatal(tt.a...)
-// 				flag = true
-// 			}()
+// This test's coverage will not be available in same report bec it runs test in subprocess.
+func TestCLogger_Fatal(t *testing.T) {
+	for n := range clogTestCases {
+		tt := clogTestCases[n]
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if os.Getenv("TRIGGER_FATAL") == "1" {
+				out := &bytes.Buffer{}
+				cl := &CLogger{
+					Logger: log.New(out, "", log.Lmsgprefix),
+				}
 
-// 			if flag {
-// 				t.Error("Did not cause exit")
-// 			}
-// 		})
-// 	}
-// }
+				cl.Fatal(tt.a...)
+
+				return
+			}
+
+			prog := os.Args[0]
+			cmd := exec.Command(prog, "-test.run=TestCLogger_Fatal")
+
+			cmd.Env = append(os.Environ(), "TRIGGER_FATAL=1")
+
+			err := cmd.Run()
+			if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+				return
+			}
+
+			t.Errorf("want: exist status 1, got: %v", err)
+		})
+	}
+}
+
+func TestCLogger_Fatalf(t *testing.T) {
+	for n := range clogTestCases {
+		tt := clogTestCases[n]
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if os.Getenv("TRIGGER_FATALF") == "1" {
+				out := &bytes.Buffer{}
+				cl := &CLogger{
+					Logger: log.New(out, "", log.Lmsgprefix),
+				}
+				cl.Fatalf("%v %v %v %v %v", tt.a...)
+
+				return
+			}
+
+			prog := os.Args[0]
+			cmd := exec.Command(prog, "-test.run=TestCLogger_Fatal")
+
+			cmd.Env = append(os.Environ(), "TRIGGER_FATAL=1")
+
+			err := cmd.Run()
+			if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+				return
+			}
+
+			t.Errorf("want: exist status 1, got: %v", err)
+		})
+	}
+}
