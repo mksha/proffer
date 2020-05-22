@@ -212,6 +212,33 @@ func TestCLogger_Warnf(t *testing.T) {
 	}
 }
 
+// func TestCLogger_Success(t *testing.T) {
+// 	for n := range clogTestCases {
+// 		tt := clogTestCases[n]
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			out := &bytes.Buffer{}
+// 			cl := &CLogger{
+// 				Logger: log.New(out, "", log.Lmsgprefix),
+// 			}
+
+// 			cl.Success(tt.a...)
+
+// 			got := out.String()
+// 			msg := fmt.Sprint(tt.a...)
+// 			pre := fmt.Sprintf("%s[%dm%s\x1b[0m", escape, FgCyan, "")
+// 			pre = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, pre)
+// 			msg = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, Bold, pre+msg)
+// 			want := fmt.Sprintf("%s[%dm%s\x1b[0m", escape, FgHiGreen, msg)
+
+// 			fmt.Println(len(want))
+// 			fmt.Println(len(got))
+// 			if want != got {
+// 				t.Errorf("want: %v, got: %v", want, got)
+// 			}
+// 		})
+// 	}
+// }
+
 func TestCLogger_Info(t *testing.T) {
 	for n := range clogTestCases {
 		tt := clogTestCases[n]
