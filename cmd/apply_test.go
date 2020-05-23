@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-   "regexp"
-   "testing"
+	"regexp"
+	"testing"
 
 	"github.com/spf13/cobra"
 )

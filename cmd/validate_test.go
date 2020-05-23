@@ -77,7 +77,7 @@ func executeCommandC(root *cobra.Command, args ...string) (c *cobra.Command, out
 	root.SetOut(buf)
 	root.SetErr(buf)
 	root.SetArgs(args)
-	
+
 	c, err = root.ExecuteC()
 
 	return c, buf.String(), err
@@ -96,6 +96,7 @@ func Test_validateCmd(t *testing.T) {
 	}
 	root.AddCommand(validateCmd)
 	root.SilenceUsage = true
+
 	for n := range validaCmdTestCases {
 		tt := validaCmdTestCases[n]
 		t.Run(tt.name, func(t *testing.T) {
