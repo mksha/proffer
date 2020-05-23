@@ -1,18 +1,20 @@
 ---
 resources:
-- name: Copy AMI To Commercial Account Regions
-  type: aws-copyami
+- name: test
+  type: aws-copyami1
   config:
     source:
       profile: demo-2
-      region: us-east-1
+      region: us-west-1
       amiFilters:
-        name: {{ Name.Test }}
-        tag:Purpose: test
+        name: test-image
+        tag:Purpose: Testing
         tag:Department: DevOps
     target:
       regions:
-        - us-west-1
+      - ap-northeast-1
+      - ap-northeast-2
+      - us-west-2
       copyTagsAcrossRegions: true
       addExtraTags:
         CreatedBy: local-testing-tool

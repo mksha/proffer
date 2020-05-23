@@ -22,9 +22,6 @@ jobs:
       - name: Check for unused go dependencies
         run: make tidy-check
 
-      # - name: Fetch origin/master for golangci-lint arg
-      #   run: git fetch origin master
-
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v1
         with:

@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 
 	"github.com/proffer/command"
@@ -30,39 +29,56 @@ var applyCmd = &cobra.Command{
 	Short: "Apply proffer configuration",
 	Long: `Apply command is used to apply the proffer configuration and distribute the cloud image
 in between multiple regions and with multiple accounts.`,
-	Run: applyConfig,
+	Run: runApplyConfig,
 }
 
 func init() {
 	rootCmd.AddCommand(applyCmd)
 }
-func applyConfig(cmd *cobra.Command, args []string) {
+
+func runApplyConfig(cmd *cobra.Command, args []string) {
+	if err := applyConfig(cmd, args); err != nil {
+		clogger.Error(err)
+	}
+}
+
+func applyConfig(cmd *cobra.Command, args []string) error {
 	// validate template before applying
 	clogger.SetPrefix("start-validation| ")
 	fmt.Println()
+
+	if len(args) == 0 {
+		return fmt.Errorf("proffer Configuration file missing: Pls pass proffer config file to apply")
+	}
+
+	cfgFileAbsPath, err := filepath.Abs(args[0])
+	if err != nil {
+		return err
+	}
+
 	clogger.Info("Validating template before applying...")
-	validateConfig(cmd, args)
+
+	if err := validateConfig(cmd, args); err != nil {
+		return err
+	}
+
 	fmt.Println()
 
 	clogger.SetPrefix("start-apply | ")
 	clogger.Info("Applying template config...")
 
-	if len(args) == 0 {
-		log.Fatalln("Proffer Configuration file missing: Pls pass proffer config file to apply")
+	if err := executeResources(cfgFileAbsPath); err != nil {
+		return err
 	}
 
-	cfgFileAbsPath, err := filepath.Abs(args[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	executeResources(cfgFileAbsPath)
+	return nil
 }
 
-func executeResources(dsc string) {
+func executeResources(dsc string) error {
 	c, err := parseConfig(dsc)
 	if err != nil {
-		fmt.Println("Unable to parse configuration file")
+		clogger.Errorf("unable to parse configuration file")
+		return err
 	}
 
 	resources := command.Resources
@@ -70,7 +86,7 @@ func executeResources(dsc string) {
 	for _, rawResource := range c.RawResources {
 		resource, ok := resources[rawResource.Type]
 		if !ok {
-			clogger.Fatalf("InvalidResourceType: Resource Type '%s' Not Found", rawResource.Type)
+			return fmt.Errorf("invalidResourceType: Resource Type '%s' Not Found", rawResource.Type)
 		}
 
 		clogger.SetPrefix(rawResource.Type + " | ")
@@ -78,17 +94,19 @@ func executeResources(dsc string) {
 		clogger.Info("")
 
 		if err := resource.Prepare(rawResource.Config); err != nil {
-			clogger.Error(err)
-			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
+			clogger.Errorf("resource : %s  Status: Failed", rawResource.Name)
+			return err
 		}
 
 		if err := resource.Run(); err != nil {
-			clogger.Error(err)
-			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
+			clogger.Errorf("resource : %s  Status: Failed", rawResource.Name)
+			return err
 		}
 
 		clogger.Info("")
 		clogger.Successf("Resource : %s  Status: Succeeded", rawResource.Name)
 		fmt.Println("")
 	}
+
+	return nil
 }

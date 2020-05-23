@@ -2,10 +2,11 @@
 resources:
 - name: Copy AMI To Commercial Account Regions
   type: aws-copyami
+  ss: test
   config:
     source:
       profile: demo-2
-      region: {{test}}
+      region: us-west-1
       amiFilters:
         name: test-image
         tag:Purpose: Testing
