@@ -4,7 +4,7 @@
 
 ![Tests](https://github.com/mohit-kumar-sharma/proffer/workflows/Tests/badge.svg)
 
-Proffer is a tool to copy and share the cloud images across multiple regions and account.
+Proffer is a cross platform tool to copy and share the cloud images across multiple regions and accounts.
 
 Proffer is a lightweight tool that can be used on any major platform.
 
