@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+      - run: |
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
 
       - name: Check for unformatted go code
         run: make fmt-check
@@ -20,8 +22,8 @@ jobs:
       - name: Check for unused go dependencies
         run: make tidy-check
 
-      - name: Fetch origin/master for golangci-lint arg
-        run: git fetch origin master
+      # - name: Fetch origin/master for golangci-lint arg
+      #   run: git fetch origin master
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v1
