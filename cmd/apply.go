@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 flashtaken <flashtaken1@gmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// applyCmd represents the apply command.
+// applyCmd represents the apply command used to apply the given configuration.
 var applyCmd = &cobra.Command{
 	Use:   "apply",
 	Short: "Apply proffer configuration",
@@ -36,6 +36,8 @@ in between multiple regions and with multiple accounts.`,
 func init() {
 	rootCmd.AddCommand(applyCmd)
 }
+
+// applyConfig applies the given template configuration.
 func applyConfig(cmd *cobra.Command, args []string) {
 	// validate template before applying
 	clogger.SetPrefix("start-validation| ")
@@ -56,9 +58,11 @@ func applyConfig(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	// apply template
 	executeResources(cfgFileAbsPath)
 }
 
+// executeResources applies the given resources in given configuration.
 func executeResources(dsc string) {
 	c, err := parseConfig(dsc)
 	if err != nil {
@@ -67,6 +71,7 @@ func executeResources(dsc string) {
 
 	resources := command.Resources
 
+	// apply resources defined in template one by one
 	for _, rawResource := range c.RawResources {
 		resource, ok := resources[rawResource.Type]
 		if !ok {

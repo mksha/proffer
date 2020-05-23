@@ -77,6 +77,7 @@ type (
 	AccountFlagMap map[*string]Flag
 )
 
+// Run applies the resource specific configuration.
 func (r *Resource) Run() error {
 	if err := r.Config.apply(); err != nil {
 		return err

@@ -18,6 +18,7 @@ type TargetInfo struct {
 
 var wg sync.WaitGroup
 
+// It copies the given source ami to target regions.
 func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
 	defer wg.Done()
 
@@ -71,6 +72,7 @@ func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[
 	clogger.Infof("Tags Have Copied/Added To AMI : %s , In Region: %s", *result.ImageId, *sess.Config.Region)
 }
 
+// It applies the configuration for resources of kind aws-copyami.
 func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 	sess, err := awscommon.GetAwsSession(srcAmiInfo.CredsInfo)
 	if err != nil {

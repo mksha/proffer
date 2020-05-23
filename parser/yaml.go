@@ -6,6 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// UnmarshalYaml is used to unmarshal the given yaml file to go struct.
 func UnmarshalYaml(filePath string) (TemplateConfig, error) {
 	var c TemplateConfig
 

@@ -5,6 +5,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// Prepare gathers the pre-requisites information and form it in usable form.
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	var c Config
 

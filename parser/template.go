@@ -17,6 +17,7 @@ func setDefaultValue(givenValue, currentValue string) string {
 	return currentValue
 }
 
+// ParseTemplate can be used to parse the given go template.
 func ParseTemplate(dsc string) (string, error) {
 	var (
 		fm = template.FuncMap{

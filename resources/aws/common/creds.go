@@ -24,6 +24,8 @@ func createSession(sessOpts session.Options) (sessPtr *session.Session) {
 	return
 }
 
+// GetAwsSessWithAssumeRole returns a pointer to aws session which got the credentials by assuming the given role arn.
+// It also returns an error if there was any.
 func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 	sessPtr, err := GetAwsSessWithDefaultCreds()
 
@@ -55,6 +57,8 @@ func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 	return newSessPtr, nil
 }
 
+// GetAwsSessWithProfile returns a pointer to profile that has got creds from aws profile.
+// It also returns an error if there was any.
 func GetAwsSessWithProfile(profile string) (*session.Session, error) {
 	sessPtr := createSession(session.Options{Profile: profile})
 
@@ -69,6 +73,8 @@ func GetAwsSessWithProfile(profile string) (*session.Session, error) {
 	return sessPtr, nil
 }
 
+// GetAwsSessWithDefaultCreds returns a pointer to session which has got aws creds from default methods.
+// It also returns an error if there was any.
 func GetAwsSessWithDefaultCreds() (*session.Session, error) {
 	sessPtr := createSession(session.Options{SharedConfigState: session.SharedConfigEnable})
 
@@ -84,6 +90,7 @@ func GetAwsSessWithDefaultCreds() (*session.Session, error) {
 }
 
 //nolint:interfacer
+// IsCredsExpired returns true if given session is having expired credentials.
 func IsCredsExpired(sessPtr *session.Session) bool {
 	svc := sts.New(sessPtr)
 
@@ -102,6 +109,8 @@ func IsCredsExpired(sessPtr *session.Session) bool {
 }
 
 //nolint:interfacer
+// GetAccountInfo returns the caller identity from the given session.
+// It also returns an error if there was any.
 func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, error) {
 	svc := sts.New(sessPtr)
 	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
@@ -113,6 +122,8 @@ func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, err
 	return result, nil
 }
 
+// GetAWSSession returns a session pointer based on given credential provider.
+// It also returns an error if there was any.
 func GetAwsSession(credProviderInfo map[string]string) (*session.Session, error) {
 	switch credProviderInfo["getCredsUsing"] {
 	case "profile":
