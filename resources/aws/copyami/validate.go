@@ -10,6 +10,7 @@ import (
 	"github.com/proffer/components"
 )
 
+// Validate verifies the resource configuration.
 func (r *Resource) Validate(rawResource components.RawResource) error {
 	var c Config
 

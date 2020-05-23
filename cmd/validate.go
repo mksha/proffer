@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 flashtaken <flashtaken1@gmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,18 +32,19 @@ var (
 		Long:  `Validate command is used to validate the proffer configuration file.`,
 		Run:   validateConfig,
 	}
-	// clogger = clog.New(os.Stdout, "config-validation | ", log.Lmsgprefix)
 )
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
 }
 
+// validates the config passed to the tool.
 func validateConfig(cmd *cobra.Command, args []string) {
 	config := getTempConfigOnValidSyntax(args)
 	validateResources(config)
 }
 
+// returns the parsed template config if there was no errors throughout parsing.
 func getTempConfigOnValidSyntax(args []string) parser.TemplateConfig {
 	var config parser.TemplateConfig
 
@@ -68,6 +69,7 @@ func getTempConfigOnValidSyntax(args []string) parser.TemplateConfig {
 	return config
 }
 
+// validates the resources specified in the template config.
 func validateResources(c parser.TemplateConfig) {
 	resources := command.Resources
 
@@ -109,6 +111,7 @@ func validateResources(c parser.TemplateConfig) {
 	clogger.Success("Template config is valid.")
 }
 
+// parses the given template config and returns the parsed template with error if there was any.
 func parseConfig(dsc string) (parser.TemplateConfig, error) {
 	var config parser.TemplateConfig
 

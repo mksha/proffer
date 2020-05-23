@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	LogLevel int
+	LogLevel int // global log level.
 )
 
 type CLogger struct {
@@ -93,13 +93,17 @@ const (
 	escape    = "\x1b"
 )
 
+// New creates a custom logger with given args.
 func New(out io.Writer, prefix string, flag int) *CLogger {
 	return &CLogger{Logger: log.New(out, getColoredMsg(prefix, FgCyan), flag)}
 }
+
+// SetGlobalLogLevel sets the log level at global scope.
 func SetGlobalLogLevel(level int) {
 	LogLevel = level
 }
 
+// getColoredMsg returns a given string after applying given colorcode.
 func getColoredMsg(msg string, codeList ...int) string {
 	for _, code := range codeList {
 		msg = fmt.Sprintf("%s[%dm%s\x1b[0m", escape, code, msg)
@@ -108,6 +112,7 @@ func getColoredMsg(msg string, codeList ...int) string {
 	return msg
 }
 
+// SetPrefix sets the prefix for the given clogger.
 func (cl *CLogger) SetPrefix(prefix string, code ...int) {
 	if len(code) == 0 {
 		cl.Logger.SetPrefix(getColoredMsg(prefix, FgCyan))
@@ -117,11 +122,13 @@ func (cl *CLogger) SetPrefix(prefix string, code ...int) {
 	cl.Logger.SetPrefix(getColoredMsg(prefix, code...))
 }
 
+// GetPrefix gets the current prefix of clogger.
 func (cl *CLogger) GetPrefix() string {
 	return cl.Logger.Prefix()
 }
 
 // Error is used to print info in red color.
+// Message is only printed if the log level is set to lesser or equal to ERROR.
 func (cl *CLogger) Error(a ...interface{}) {
 	if LogLevel <= ERROR {
 		msg := fmt.Sprint(a...)
@@ -132,6 +139,7 @@ func (cl *CLogger) Error(a ...interface{}) {
 }
 
 // Errorf is used to print info in red color.
+// Message is only printed if the log level is set to lesser or equal to ERROR.
 func (cl *CLogger) Errorf(format string, a ...interface{}) {
 	if LogLevel <= ERROR {
 		msg := fmt.Sprintf(format, a...)
@@ -142,6 +150,7 @@ func (cl *CLogger) Errorf(format string, a ...interface{}) {
 }
 
 // Warn is used to print a formatted warning message in yellow color.
+// Info is only printed if the log level is set to lesser or equal to WARN.
 func (cl *CLogger) Warn(a ...interface{}) {
 	if LogLevel <= WARN {
 		msg := fmt.Sprint(a...)
@@ -151,7 +160,8 @@ func (cl *CLogger) Warn(a ...interface{}) {
 	}
 }
 
-// Warn is used to print a warning message in yellow color.
+// Warn is used to print a formatted warning message in yellow color.
+// Info is only printed if the log level is set to lesser or equal to WARN.
 func (cl *CLogger) Warnf(format string, a ...interface{}) {
 	if LogLevel <= WARN {
 		msg := fmt.Sprintf(format, a...)
@@ -161,7 +171,8 @@ func (cl *CLogger) Warnf(format string, a ...interface{}) {
 	}
 }
 
-// Success is used to print a success message in green color.
+// Success is used to print a success message in bold green color.
+// Info is  printed regardless of log level.
 func (cl *CLogger) Success(a ...interface{}) {
 	msg := fmt.Sprint(a...)
 	oldPrefix := cl.GetPrefix()
@@ -174,7 +185,8 @@ func (cl *CLogger) Success(a ...interface{}) {
 	cl.SetPrefix(oldPrefix)
 }
 
-// Successf is used to print a success message in green color.
+// Successf is used to print a formatted success message in bold green color.
+// Info is printed regardless of log level.
 func (cl *CLogger) Successf(format string, a ...interface{}) {
 	msg := fmt.Sprintf(format, a...)
 	oldPrefix := cl.GetPrefix()
@@ -187,8 +199,9 @@ func (cl *CLogger) Successf(format string, a ...interface{}) {
 	cl.SetPrefix(oldPrefix)
 }
 
-// Info is used to print info message in blue color.
-
+// Info is used to print message in green color.
+// It can be used to print the message with normal severity.
+// Message is only printed if the log level is set to lesser or equal to INFO.
 func (cl *CLogger) Info(a ...interface{}) {
 	if LogLevel <= INFO {
 		msg := fmt.Sprint(a...)
@@ -198,7 +211,9 @@ func (cl *CLogger) Info(a ...interface{}) {
 	}
 }
 
-// Infof is used to print formatted info message in blue color.
+// Infof is used to print formatted info message in green color.
+// It can be used to print the message with normal severity.
+// Message is only printed if the log level is set to lesser or equal to INFO.
 func (cl *CLogger) Infof(format string, a ...interface{}) {
 	if LogLevel <= INFO {
 		msg := fmt.Sprintf(format, a...)
@@ -208,7 +223,8 @@ func (cl *CLogger) Infof(format string, a ...interface{}) {
 	}
 }
 
-// Debug is used to print debug message in green color.
+// Debug is used to print debug message in hi-intensity green color.
+// Message is only printed if the log level is set to lesser or equal to DEBUG.
 func (cl *CLogger) Debug(a ...interface{}) {
 	if LogLevel <= DEBUG {
 		msg := fmt.Sprint(a...)
@@ -218,7 +234,8 @@ func (cl *CLogger) Debug(a ...interface{}) {
 	}
 }
 
-// Debugf is used to print formatted debug message in green color.
+// Debugf is used to print formatted debug message in hi-intensity green color.
+// Message is only printed if the log level is set to lesser or equal to DEBUG.
 func (cl *CLogger) Debugf(format string, a ...interface{}) {
 	if LogLevel <= DEBUG {
 		msg := fmt.Sprintf(format, a...)
@@ -228,7 +245,8 @@ func (cl *CLogger) Debugf(format string, a ...interface{}) {
 	}
 }
 
-// Panic is used to print panic message in green color.
+// Panic is used to print panic message in bold red color.
+// Message is only printed if the log level is set to lesser or equal to PANIC.
 func (cl *CLogger) Panic(a ...interface{}) {
 	if LogLevel <= PANIC {
 		msg := fmt.Sprint(a...)
@@ -240,7 +258,8 @@ func (cl *CLogger) Panic(a ...interface{}) {
 	}
 }
 
-// Panicf is used to print formatted panic message in green color.
+// Panicf is used to print formatted panic message in bold red color.
+// Message is only printed if the log level is set to lesser or equal to PANIC.
 func (cl *CLogger) Panicf(format string, a ...interface{}) {
 	if LogLevel <= PANIC {
 		msg := fmt.Sprintf(format, a...)
@@ -252,7 +271,9 @@ func (cl *CLogger) Panicf(format string, a ...interface{}) {
 	}
 }
 
-// Fatalf is used to print formatted fatal message in green color.
+// Fatalf is used to print formatted fatal message in bold hi-intensity red color.
+// Message is only printed if the log level is set to lesser or equal to FATAL.
+// At the end it will call os.Exit(1).
 func (cl *CLogger) Fatal(a ...interface{}) {
 	if LogLevel <= FATAL {
 		msg := fmt.Sprint(a...)
@@ -264,7 +285,9 @@ func (cl *CLogger) Fatal(a ...interface{}) {
 	}
 }
 
-// Fatalf is used to print formatted fatal message in green color.
+// Fatalf is used to print formatted fatal message in bold hi-intensity red color.
+// Message is only printed if the log level is set to lesser or equal to FATAL.
+// At the end it will call os.Exit(1).
 func (cl *CLogger) Fatalf(format string, a ...interface{}) {
 	if LogLevel <= FATAL {
 		msg := fmt.Sprintf(format, a...)

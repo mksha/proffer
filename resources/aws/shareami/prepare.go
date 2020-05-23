@@ -11,6 +11,7 @@ import (
 	awscommon "github.com/proffer/resources/aws/common"
 )
 
+// Prepare ready the resource pre-requisites.
 func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	var c Config
 

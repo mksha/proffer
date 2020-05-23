@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 flashtaken <flashtaken1@gmail.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -94,6 +94,7 @@ func initConfig() {
 	}
 }
 
+// sets the defaultlog level for all commands and subcommands.
 func setLogLevel() {
 	// Default level is info, unless debug flag is present
 	clog.SetGlobalLogLevel(clog.INFO)

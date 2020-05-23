@@ -46,6 +46,7 @@ type Resource struct {
 	Config Config  `mapstructure:"config" required:"true"`
 }
 
+// Run applies the resource specific configuration.
 func (r *Resource) Run() error {
 	target := r.Config.Target
 
