@@ -16,8 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"path/filepath"
 
+	"github.com/lithammer/dedent"
 	"github.com/proffer/command"
 	"github.com/proffer/common/validator"
 	"github.com/proffer/parser"
@@ -25,12 +27,24 @@ import (
 )
 
 var (
+	validateExamples = dedent.Dedent(`
+		$ proffer validate [flags] TEMPLATE
+		$ proffer validate proffer.yml
+		$ proffer validate -d proffer.yml`)
+
 	// validateCmd represents the validate command
 	validateCmd = &cobra.Command{
-		Use:   "validate",
-		Short: "Validate proffer configuration file.",
-		Long:  `Validate command is used to validate the proffer configuration file.`,
-		Run:   validateConfig,
+		Use:     "validate",
+		Short:   "Validate proffer configuration file.",
+		Long:    `Validate command is used to validate the proffer configuration file syntax and configuration itself.`,
+		Example: validateExamples,
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return errors.New("proffer config file is missing in arguments, pls pass config file to validate")
+			}
+			return nil
+		},
+		Run: validateConfig,
 	}
 )
 
@@ -49,10 +63,6 @@ func getTempConfigOnValidSyntax(args []string) parser.TemplateConfig {
 	var config parser.TemplateConfig
 
 	clogger.SetPrefix("validate-syntax | ")
-
-	if len(args) == 0 {
-		clogger.Fatal("Proffer template file is missing: Pls pass proffer template file to apply")
-	}
 
 	cfgFileAbsPath, err := filepath.Abs(args[0])
 	if err != nil {
@@ -124,6 +134,8 @@ func parseConfig(dsc string) (parser.TemplateConfig, error) {
 	if err != nil {
 		return config, err
 	}
+
+	clogger.Debugf("Parsed config can be found at: %s", parsedTemplateFileName)
 
 	return config, nil
 }
