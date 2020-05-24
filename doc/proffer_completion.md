@@ -5,7 +5,7 @@ Generates shell completion script for specified shell type
 ### Synopsis
 
 
-Output shell completion code for the specified shell (bash).
+Output shell completion code for the specified shell (bash/zsh).
 The shell code must be evaluated to provide interactive
 completion of proffer commands. This can be done by sourcing it from
 the .bash_profile.
@@ -21,6 +21,7 @@ following line to the .bash_profile
 
 If bash-completion is not installed on Linux, please install the 'bash-completion' package
 via your distribution's package manager.
+
 Note for zsh users: [1] zsh completions are only supported in versions of zsh >= 5.2
 
 ```
