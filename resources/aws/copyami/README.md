@@ -23,14 +23,17 @@
 >> - **type:** Dict
 >> - **required:** True
 >> >
+> >
 >> **Properties/Keys:**
+>> <hr style="border:2px solid yellow"> </hr>
+> >
 >>> **profile:**
 >>> - **type:** String 
 >>> - **required:** Optional
 >>> - **allowed-values:** Valid aws profile name
 >>> - **description:** Aws Profile to get creds for source account.
 > > 
->> <hr style="border:2px solid gray"> </hr>
+>> <hr style="border:2px solid green"> </hr>
 > >
 >>> **roleArn:**
 >>> - **type:** String
@@ -38,7 +41,7 @@
 >>> - **allowed-values:** valid aws role arn
 >>> - **description:** AWS Role ARN to get creds for source account.
 > >
->> <hr style="border:2px solid gray"> </hr>
+>> <hr style="border:2px solid green"> </hr>
 > >
 >>> **region:**
 >>> - **type:** String
@@ -46,15 +49,16 @@
 >>> - **allowed-values:** Valid aws region.
 >>> - **description:** Source ami region.
 > >
->> <hr style="border:2px solid gray"> </hr>
+>> <hr style="border:2px solid green"> </hr>
 > >
 >>> **amiFilters:**
 >>> - **type:** Dict.
 >>> - **required:** True
 >>> - **allowed-values:** Valid AWS ami filters.
 >>> - **description:** AMI filters to uniquely identify source ami.
+>> <hr style="border:2px solid yellow"> </hr>
 >
-> <hr style="border:2px solid gray"> </hr>
+> <hr style="border:2px solid grey"> </hr>
 >
 >> **target:**
 >> - **type:** Dict
