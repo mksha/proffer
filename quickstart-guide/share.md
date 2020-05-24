@@ -55,7 +55,7 @@ In this case, in our template we are using a resource of type `aws-shareami`. Th
 Our current template has resource of type `aws-copyami`. This resource has some configuration properties like source and target.
 `source` specifies the source of AWS AMI and `target` specifies the target account with which we want to share the source ami.
 
-Each resource has a fixed set of properties. Some are optional, some are required. Detailed documentation for each resource can be found at [Proffer Resources](resource.md).
+Each resource has a fixed set of properties. Some are optional, some are required. Detailed documentation for each resource can be found at [Proffer Resources](../resources/README.md).
 
 Before applying the template, let's validate the template by running `proffer validate example.yml`. This command checks the syntax as well as the configuration values to verify they look valid. The output should look similar to below, because the template should be valid. If there are any errors, this command will tell you.
 

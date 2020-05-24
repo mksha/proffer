@@ -43,7 +43,7 @@ Template has one top-level section `resources` that is required in each template
 
 In this case, in our template we are using a resource of type `aws-copyami`. This resources type is responsible to copy an AWS AMI from one region to multiple regions.
 
-Each resource has a fixed set of properties. Some are optional, some are required. Detailed documentation for each resource can be found at [Proffer Resources](resource.md).
+Each resource has a fixed set of properties. Some are optional, some are required. Detailed documentation for each resource can be found at [Proffer Resources](../resources/README.md).
 
 Our current template has resource of type `aws-copyami`. This resource has some configuration properties like source and target.
 `source` specifies the source of AWS AMI and `target` specifies the target where we want to copy the source ami.
