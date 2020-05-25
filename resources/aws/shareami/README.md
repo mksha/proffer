@@ -148,7 +148,7 @@ resources:
             Type: AMITesting
             Home: {{ env "HOME" | default "default value" }}
         - accountId: 121266418583
-          profile: platform-aws
+          profile: demo-3
           regions:
             - ap-northeast-2
       copyTagsAcrossAccounts: true
