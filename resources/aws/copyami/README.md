@@ -1,96 +1,131 @@
-# copyami resource properties
+# aws-copyami
 
-> **name:**
-> - **type:** String
-> - **required:** True
-> - **allowed-values:** Any valid string.
+This resource is responsible for copying an AWS AMI from one source region to multiple target regions within same AWS account. This resource also provides some additional features that are listed below:
 
-<hr style="border:2px solid gray"> </hr>
+* Adding extra tags to target ami(s).
+* Copy source ami tags to target ami(s).
+* Specify AWS Account Credential using multiple creds provider like profile, roleArn and default.
 
-> **type:**
-> - **type:** String
-> - **required:** True
-> - **allowed-values:** aws-copyami
+To start using this resource in proffer template, take a look at the `aws-copyami` resource schema mentioned below:
 
-<hr style="border:2px solid gray"> </hr>
+``` YAML
+---
+# Schema
+name: string       # Required | Desc: Friendly Name of the resource.
+type: aws-copyami  # Required | Desc: This value is fixed for aws-copyami resource type.
+config: configDict # Required | Desc: Resource configuration.
 
-> **config:**
-> - **type:** Dict
-> - **required:** True
-> >
-> **Properties/Keys:**
-> <hr style="border:2px solid black"> </hr>
->
->> **source:**
->> - **type:** Dict
->> - **required:** True
->> >
-> >
->> **Properties/Keys:**
->> <hr style="border:2px solid yellow"> </hr>
-> >
->>> **profile:**
->>> - **type:** String 
->>> - **required:** Optional
->>> - **allowed-values:** Valid aws profile name
->>> - **description:** Aws Profile to get creds for source account.
-> > 
->> <hr style="border:3px solid green"> </hr>
-> >
->>> **roleArn:**
->>> - **type:** String
->>> - **required:** Optional
->>> - **allowed-values:** valid aws role arn
->>> - **description:** AWS Role ARN to get creds for source account.
-> >
->> <hr style="border:3px solid green"> </hr>
-> >
->>> **region:**
->>> - **type:** String
->>> - **required:** True
->>> - **allowed-values:** Valid aws region.
->>> - **description:** Source ami region.
-> >
->> <hr style="border:3px solid green"> </hr>
-> >
->>> **amiFilters:**
->>> - **type:** Dict.
->>> - **required:** True
->>> - **allowed-values:** Valid AWS ami filters.
->>> - **description:** AMI filters to uniquely identify source ami.
-> >
->> <hr style="border:2px solid yellow"> </hr>
->
-> <hr style="border:2px solid grey"> </hr>
->
->> **target:**
->> - **type:** Dict
->> - **required:** True
->> >
->> **Properties/Keys:**
->> <hr style="border:3px solid green"> </hr>
-> >
->>> **regions:**
->>> - **type:** List
->>> - **required:** True
->>> - **allowed-values:** List of valid aws regions.
->>> - **description:** Target AWS regions to which we want to copy the source ami.
-> >
->> <hr style="border:3px solid green"> </hr>
-> >
->>> **copyTagsAcrossRegions:**
->>> - **type:** Boolean
->>> - **required:** Optional
->>> - **allowed-values:** [true, false].
->>> - **description:** Set this flag to true if you want to copy the source ami tags to target ami.
-> >
->> <hr style="border:3px solid green"> </hr>
-> >
->>> **addExtraTags:**
->>> - **type:** Dict
->>> - **required:** Optional
->>> - **allowed-values:** Valid AWS tags.
->>> - **description:** Add extra tags to target ami in the form of `key:value` .
-> >
->> <hr style="border:3px solid green"> </hr>
-> >
+
+# Example : How to use resource in proffer template.
+---
+resources:
+  - name: example resource
+    type: aws-copyami
+    config: configDict
+```
+
+### configDict:
+
+It provides the configuration needed for `aws-copyami` resource to work.
+
+``` YAML
+---
+# Schema
+config:
+  source: sourceDict # Required | Desc: Source AMI and Account Information.
+  target: targetDict # Required | Desc: Target AMI(s) and Account information.
+```
+
+### sourceDict:
+
+It provides the information regarding source ami. This dict object includes information like source ami region, ami-filters to use, how to get aws creds to access source ami.
+
+``` YAML
+---
+# Schema
+source:
+  profile: string             # Optional | Desc: AWS Profile to get creds for source ami account.
+  roleArn: string             # Optional | Desc: AWS Role ARN to get creds for source ami account
+  region: string              # Required | Desc: Source AMI region.
+  amiFilters: amiFiltersDict  # Required | Desc: AMI filters to uniquely identify the source ami.
+```
+
+> [!NOTE] If both `profile` and `roleArn` property not specified then proffer will get the AWS Creds from AWS Default credential providers like environment vars, default profile, aws config file etc.
+
+### amiFiltersDict:
+
+AMI filter to uniquely identify an AMI in a region.
+
+``` YAML
+---
+# Schema
+amiFilters:
+  filerName:filterValue
+
+
+# Examples
+amiFilters:
+  name: test-ami
+  image-id: ami-123456789012
+  tag:Purpose: testing
+```
+
+### targetDict:
+
+It provides the information about target ami(s). This dict object defines in which target regions, we want to copy the source ami. It also has some bool flags that can be used to change the behavior of copy operation.
+
+``` YAML
+---
+# Schema
+target:
+  regions: [string]            # Required | Desc: List of target AWS regions where we want to copy the source ami.
+  copyTagsAcrossRegions: bool  # Optional | Desc: Flag to indicate if we want to copy the source ami tags to target ami(s).
+  addExtraTags: tags           # Optional | Desc: AWS EC2 tags to add to target ami(s).
+```
+
+### tags:
+
+AWS EC2 tags to add to the EC2 resources like AMI, etc. In this case these tags are added to the target ami(s).
+
+``` YAML
+---
+# Schema
+tags:
+  string: string
+
+
+# Examples
+tags:
+  work: test
+  job: test
+```
+
+
+## Complete Example:
+
+It shows how to use `aws-copyami` resource type in proffer template with all configuration possible.
+
+```YAML
+---
+resources:
+- name: Copy AMI To Multiple Regions
+  type: aws-copyami
+  config:
+    source:
+      profile: demo-2
+      region: us-east-1
+      amiFilters:
+        name: test-image
+        tag:Purpose: Testing
+        tag:Department: DevOps
+    target:
+      regions:
+      - ap-northeast-1
+      - ap-northeast-2
+      - us-west-2
+      copyTagsAcrossRegions: true
+      addExtraTags:
+        CreatedBy: local-testing-tool
+        Type: testing
+
+```

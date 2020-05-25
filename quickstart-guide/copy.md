@@ -36,8 +36,7 @@ resources:
 
 This is a basic template that is ready to go.
 
-> **_NOTE:_**
-    When applying the template we need to make sure we have AWS creds available on your machine, in this case we are not specifying any cred provider name so proffer will get AWS Creds from AWS Env Vars. Make sure, yous creds have permission to copy source ami. For more info take a look at [aws-docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html).
+> [!NOTE] When applying the template we need to make sure we have AWS creds available on your machine, in this case we are not specifying any cred provider name so proffer will get AWS Creds from AWS Env Vars. Make sure, yous creds have permission to copy source ami. For more info take a look at [aws-docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html).
 
 Template has one top-level section `resources` that is required in each template. `resources` section contains a list of resources. Resource is a component of proffer that is responsible to do a specific operation. In proffer we have different types of resources, and each resource has an unique purpose to perform.
 
