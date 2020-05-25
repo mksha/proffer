@@ -20,6 +20,27 @@ Each resource then have their own properties like type, keys and etc. To find al
 
 To quickly start with proffer , you can follow the [quick-start-guide](quickstart-guide/main.md).
 
+
+## Resources Available In Proffer
+
+Resource is a component in proffer. Each resources is responsible to perform a particular set of operations. Proffer has different kinds of resources.For more details, check [Available Proffer Resources](resources/README.md).
+
+
+## Access Environment Variables
+
+To access the environment variables within proffer template , we can use below format:
+
+```Yaml
+Home: {{ env "HOME" }}
+```
+
+If we want to set default value of a environment variable if its not set then we can use below format:
+
+```Yaml
+Home: {{ env "HOME" | default "default home dir path" }}
+```
+
+
 ## License
 
 Proffer is released under the Apache License, Version 2.0.

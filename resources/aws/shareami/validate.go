@@ -65,10 +65,9 @@ func (r *Resource) validateConfigSource() {
 
 		switch *filterName {
 		case "image-id":
-			if !validator.IsAWSAMIID(*filterValue) {
-				clogger.Fatalf("Invalid AWS AMI ID [%s] passed in [%s] property of Resource: [%s]",
-					*filterValue, sf.Tag.Get("chain"), *r.Name)
-			}
+			clogger.Errorf("Remove filter [%s] passed in [%s] property of Resource: [%s]. ",
+				*filterName, sf.Tag.Get("chain"), *r.Name)
+			clogger.Fatal("It is not needed because unique image-id can't be used to get all source ami(s) info in diff regions of source account.")
 		case "name":
 			if !validator.IsAWSAMIName(*filterValue) {
 				clogger.Fatalf("Invalid AWS AMI Name [%s] passed in [%s] property of Resource: [%s]",
@@ -109,9 +108,12 @@ func (r *Resource) validateConfigTarget() {
 			clogger.Fatal(errs)
 		}
 
-		if accountRegionMapping.Profile == nil && accountRegionMapping.RoleArn == nil {
-			clogger.Fatalf("Need to specify one of the keys [profile or roleArn] in [%s.%v] item of Resource: [%s]",
-				sf.Tag.Get("chain"), index, *r.Name)
+		if accountRegionMapping.CopyTagsAcrossAccounts {
+			if accountRegionMapping.Profile == nil && accountRegionMapping.RoleArn == nil {
+				clogger.Errorf("Found `copyTagsAcrossAccounts` flag set to true at %s.%v", sf.Tag.Get("chain"), index)
+				clogger.Fatalf("Need to specify one of the keys [profile or roleArn] in [%s.%v] item of Resource: [%s]",
+					sf.Tag.Get("chain"), index, *r.Name)
+			}
 		}
 
 		if !validator.IsAWSAccountID(strconv.Itoa(accountRegionMapping.AccountID)) {

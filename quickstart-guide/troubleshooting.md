@@ -48,3 +48,8 @@ Each message printed by proffer has two parts and they are separated by `|`.
     ```
 
     in above logs, aws-copyami tells that we are applying aws-copyami operation and the Data part in Bright Red Color tells that we got an fatal error that caused program to broke with given error message.
+
+
+## Template debugging:
+
+When we run the proffer `validate` or `apply` command , it generates a `output.yml` file in the same location from where we are running the proffer. We can take a look at this file to check if the template resolved the dynamic information (env vars) or not.

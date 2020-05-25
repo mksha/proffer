@@ -13,3 +13,4 @@ Available Resource Types:
     - Provider: AWS
     - Use case: This resource type can be used to share the AMI with different AWS Accounts and regions.
     - [Allowed Properties](aws/shareami/README.md)
+
