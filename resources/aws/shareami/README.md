@@ -95,10 +95,10 @@ This dict object specifies the information regarding target AWS accounts , regio
 ---
 # Schema
 accountId: integer                # Required | Desc: Target AWS account id.
-profile: string                   # Optional | Desc: AWS Profile to get creds for target aws account.
-roleArn: string                   # Optional | Desc: AWS Role ARN to get creds for target aws account.
+profile: string                   # Optional | Desc: AWS Profile to get creds for target aws account. Needed if `copyTagsAcrossAccounts` flag is true and `roleArn` key is not set.
+roleArn: string                   # Optional | Desc: AWS Role ARN to get creds for target aws account. Needed if `copyTagsAcrossAccounts` flag is true and `profile` key is not set.
 regions: [string]                 # Required | Desc: List of target AWS account regions with which we want to share the source ami.
-copyTagsAcrossAccounts: bool      # Optional | Desc: Flag to indicate if we want to copy the source ami tags to target ami across target account.
+copyTagsAcrossAccounts: bool      # Optional | Desc: Flag to indicate if we want to copy the source ami tags to target ami across target account. If this flag is true then make sure either `profile` or `roleArn` key is specified for target aws account creds.
 addCreateVolumePermission: bool   # Optional | Desc: Flag to indicate if we want to give `CreateVolumePermission` to target account for shared source ami.
 addExtraTags: tags                # Optional | Desc: AWS EC2 tags to add to target ami.
 ```
@@ -148,10 +148,8 @@ resources:
             Type: AMITesting
             Home: {{ env "HOME" | default "default value" }}
         - accountId: 121266418583
-          profile: demo-3
           regions:
             - ap-northeast-2
-      copyTagsAcrossAccounts: true
       addCreateVolumePermission: true
       commonRegions:
       - us-east-1
