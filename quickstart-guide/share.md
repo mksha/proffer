@@ -75,3 +75,6 @@ $ proffer apply example.yml
 ```
 
 Proffer will share the source AMI with target accounts and regions in parallel.
+
+
+[Step 4 (Optional): Troubleshooting](troubleshooting.md)

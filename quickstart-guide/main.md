@@ -4,10 +4,10 @@ Proffer is a command-line tool to distribute cloud images in between multiple re
 
 The following sections describe how to get set up and provide an introductory exercise.
 
-Step 1: [Installation](install.md)
+[Step 1: Installation](install.md)
 
-Step 2: [Copy an Image](copy.md)
+[Step 2: Copy an Image](copy.md)
 
-Step 3: [Share an Image](share.md)
+[Step 3: Share an Image](share.md)
 
-Step 4: [Troubleshooting](troubleshooting.md)
+[Step 4 (Optional): Troubleshooting](troubleshooting.md)

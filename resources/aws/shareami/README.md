@@ -52,7 +52,8 @@ source:
   amiFilters: amiFiltersDict  # Required | Desc: AMI filters to uniquely identify the source ami.
 ```
 
-> [!NOTE] If both `profile` and `roleArn` property not specified then proffer will get the AWS Creds from AWS Default credential providers like environment vars, default profile, aws config file etc.
+> **NOTE:**
+    If both `profile` and `roleArn` property not specified then proffer will get the AWS Creds from AWS Default credential providers like environment vars, default profile, aws config file etc.
 
 ### amiFiltersDict:
 

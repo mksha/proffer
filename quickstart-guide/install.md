@@ -46,3 +46,6 @@ If you get an error that proffer could not be found, then your `PATH` environmen
 Proffer also provide a command called `completion` through which we can generate the bash/zsh auto-completion scripts.
 
 To set-up the base/zsh completion take a look at [setup auto-completion](../doc/proffer_completion.md) page.
+
+
+[Step 2: Copy an Image](copy.md)
