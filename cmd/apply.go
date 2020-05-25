@@ -16,22 +16,41 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"path/filepath"
 
+	"github.com/lithammer/dedent"
 	"github.com/proffer/command"
 	"github.com/spf13/cobra"
 )
 
-// applyCmd represents the apply command used to apply the given configuration.
-var applyCmd = &cobra.Command{
-	Use:   "apply",
-	Short: "Apply proffer configuration",
-	Long: `Apply command is used to apply the proffer configuration and distribute the cloud image
-in between multiple regions and with multiple accounts.`,
-	Run: applyConfig,
-}
+var (
+	applyLong = dedent.Dedent(`
+		Apply command is used to apply the proffer configuration and distribute the cloud image
+		in between multiple regions and with multiple accounts.`)
+
+	applyExamples = dedent.Dedent(`
+		$ proffer apply [flags] TEMPLATE
+		$ proffer apply proffer.yml
+		$ proffer apply -d proffer.yml`)
+
+	// applyCmd represents the apply command used to apply the given configuration.
+	applyCmd = &cobra.Command{
+		Use:     "apply",
+		Short:   "Apply proffer configuration file.",
+		Long:    applyLong,
+		Example: applyExamples,
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return errors.New("proffer config file is missing in arguments, pls pass config file to apply")
+			}
+			return nil
+		},
+		Run: applyConfig,
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(applyCmd)
