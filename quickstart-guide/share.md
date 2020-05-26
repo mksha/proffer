@@ -46,7 +46,7 @@ resources:
 This is a basic template that is ready to go.
 
 > **NOTE:**
-    When applying the template we need to make sure we have AWS creds available on your machine, in this case we are specifying aws profiles. For source account we are using `demo-2` and for target account we are using `demo-1` and `demo-2` aws profiles. Make sure, yous creds are valid. For more info take a look at [aws-docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-explicit.html).
+    When applying the template we need to make sure we have AWS creds available on your machine, in this case we are specifying aws profiles. For source account we are using `demo-2` aws profiles. Make sure, yous creds are valid. For more info take a look at [aws-docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-explicit.html).
 
 Template has one top-level section `resources` that is required in each template. `resources` section contains a list of resources. Resource is a component of proffer that is responsible to do a specific operation. In proffer we have different types of resources, and each resource has an unique purpose to perform.
 
@@ -67,12 +67,62 @@ validate-config | Template config is valid.
 
 Once we have valid template, let's apply this template and share the source image to target accounts and regions.
 
-Before applying the template and copy the AMI to target regions, we need to make sure the system from which we are going to apply the template has valid AWS Account Credentials. In this case we are using AWS profiles `demo-2` for `demo2` source aws account and `demo-1`, `demo-3` for `demo-1`, `demo-3` target aws accounts.
+Before applying the template and copy the AMI to target regions, we need to make sure the system from which we are going to apply the template has valid AWS Account Credentials. In this case we are using AWS profiles `demo-2` for `demo2` source aws account.
 
 After , that let's apply the template by running `proffer apply example.yml` command.
 
 ```bash
 $ proffer apply example.yml
+
+start-validation| Validating template before applying...
+validate-syntax | Template syntax is valid.
+validate-config | Template config is valid.
+
+start-apply | Applying template config...
+aws-shareami | Resource : Share AMI With Other Accounts  Status: Started
+aws-shareami |
+aws-shareami | Gathering Information...
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: ap-northeast-1
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: ap-northeast-2
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: us-west-2
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: us-east-1
+aws-shareami | Successfully Gathered All Info Needed For Source
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-east-1
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-west-2
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-west-2
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-east-1
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [783492102934]
+aws-shareami | 	  In Region: ap-northeast-2
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712]
+aws-shareami | 	  In Region: ap-northeast-1
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712]
+aws-shareami | 	  In Region: ap-northeast-1
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [783492102934]
+aws-shareami | 	  In Region: ap-northeast-2
+aws-shareami |
+aws-shareami |
+aws-shareami | Resource : Share AMI With Other Accounts  Status: Succeeded
+
 ```
 
 Proffer will share the source AMI with target accounts and regions in parallel.
