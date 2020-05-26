@@ -73,6 +73,56 @@ After , that let's apply the template by running `proffer apply example.yml` com
 
 ```bash
 $ proffer apply example.yml
+
+start-validation| Validating template before applying...
+validate-syntax | Template syntax is valid.
+validate-config | Template config is valid.
+
+start-apply | Applying template config...
+aws-shareami | Resource : Share AMI With Other Accounts  Status: Started
+aws-shareami |
+aws-shareami | Gathering Information...
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: ap-northeast-1
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: ap-northeast-2
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: us-west-2
+aws-shareami | Source AMI: test-image Found In Account: 123456789012 In Region: us-east-1
+aws-shareami | Successfully Gathered All Info Needed For Source
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-east-1
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-west-2
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-west-2
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712 783492102934]
+aws-shareami | 	  In Region: us-east-1
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [783492102934]
+aws-shareami | 	  In Region: ap-northeast-2
+aws-shareami |
+aws-shareami | Started Sharing AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712]
+aws-shareami | 	  In Region: ap-northeast-1
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [873212098712]
+aws-shareami | 	  In Region: ap-northeast-1
+aws-shareami |
+aws-shareami | Successfully Shared AMI: test-image
+aws-shareami | 	  With Account(s): [783492102934]
+aws-shareami | 	  In Region: ap-northeast-2
+aws-shareami |
+aws-shareami |
+aws-shareami | Resource : Share AMI With Other Accounts  Status: Succeeded
+
 ```
 
 Proffer will share the source AMI with target accounts and regions in parallel.
