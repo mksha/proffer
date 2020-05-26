@@ -46,7 +46,7 @@ resources:
 This is a basic template that is ready to go.
 
 > **NOTE:**
-    When applying the template we need to make sure we have AWS creds available on your machine, in this case we are specifying aws profiles. For source account we are using `demo-2` and for target account we are using `demo-1` and `demo-2` aws profiles. Make sure, yous creds are valid. For more info take a look at [aws-docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-explicit.html).
+    When applying the template we need to make sure we have AWS creds available on your machine, in this case we are specifying aws profiles. For source account we are using `demo-2` aws profiles. Make sure, yous creds are valid. For more info take a look at [aws-docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-explicit.html).
 
 Template has one top-level section `resources` that is required in each template. `resources` section contains a list of resources. Resource is a component of proffer that is responsible to do a specific operation. In proffer we have different types of resources, and each resource has an unique purpose to perform.
 
@@ -67,7 +67,7 @@ validate-config | Template config is valid.
 
 Once we have valid template, let's apply this template and share the source image to target accounts and regions.
 
-Before applying the template and copy the AMI to target regions, we need to make sure the system from which we are going to apply the template has valid AWS Account Credentials. In this case we are using AWS profiles `demo-2` for `demo2` source aws account and `demo-1`, `demo-3` for `demo-1`, `demo-3` target aws accounts.
+Before applying the template and copy the AMI to target regions, we need to make sure the system from which we are going to apply the template has valid AWS Account Credentials. In this case we are using AWS profiles `demo-2` for `demo2` source aws account.
 
 After , that let's apply the template by running `proffer apply example.yml` command.
 
