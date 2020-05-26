@@ -10,6 +10,22 @@ before:
 builds:
 - env:
   - CGO_ENABLED=0
+  # GOOS list to build for.
+  # For more info refer to: https://golang.org/doc/install/source#environment
+  # Defaults are darwin and linux.
+  goos:
+    - windows
+    - darwin
+    - linux
+
+  # GOARCH to build for.
+  # For more info refer to: https://golang.org/doc/install/source#environment
+  # Defaults are 386 and amd64.
+  goarch:
+    - 386
+    - amd64
+    - arm
+    - arm64
 
 archives:
 - files:
@@ -20,6 +36,13 @@ archives:
     windows: Windows
     386: i386
     amd64: x86_64
+  
+  # Can be used to change the archive formats for specific GOOSs.
+  # Most common use case is to archive as zip on Windows.
+  # Default is empty.
+  format_overrides:
+    - goos: windows
+      format: zip
 
 checksum:
   name_template: 'checksums.txt'
