@@ -49,7 +49,7 @@ var (
 		Short:   "Proffer is a cross platform tool to distribute cloud images between multiple regions and environments using yml configuration file.",
 		Long:    profferLong,
 		Example: profferExamples,
-		Version: "0.1.0",
+		Version: "0.1.1",
 		// Uncomment the following line if your bare application
 		// has an action associated with it:
 		//	Run: func(cmd *cobra.Command, args []string) { },
