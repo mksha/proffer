@@ -32,7 +32,7 @@ builds:
       - arm
       - arm64
 
-  - id : "proffer"
+  - id : "proffer_linux"
 
     env:
     - CGO_ENABLED=0
