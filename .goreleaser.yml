@@ -8,24 +8,49 @@ before:
     - go generate ./...
 
 builds:
-- env:
-  - CGO_ENABLED=0
-  # GOOS list to build for.
-  # For more info refer to: https://golang.org/doc/install/source#environment
-  # Defaults are darwin and linux.
-  goos:
-    - windows
-    - darwin
-    - linux
+  # You can have multiple builds defined as a yaml list
+  - 
+    # ID of the build.
+    # Defaults to the project name.
+    id: "proffer_windows"
 
-  # GOARCH to build for.
-  # For more info refer to: https://golang.org/doc/install/source#environment
-  # Defaults are 386 and amd64.
-  goarch:
-    - 386
-    - amd64
-    - arm
-    - arm64
+    # Custom flags templates.
+    # Default is empty.
+    flags:
+      - -tags=windows
+      - -v
+
+    env:
+    - CGO_ENABLED=0
+  
+    goos:
+      - windows
+
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+
+  - id : "proffer"
+
+    env:
+    - CGO_ENABLED=0
+    # GOOS list to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    # Defaults are darwin and linux.
+    goos:
+      - darwin
+      - linux
+
+    # GOARCH to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    # Defaults are 386 and amd64.
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
 
 archives:
 - files:

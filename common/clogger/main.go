@@ -93,6 +93,7 @@ const (
 	escape    = "\x1b"
 )
 
+
 // New creates a custom logger with given args.
 func New(out io.Writer, prefix string, flag int) *CLogger {
 	return &CLogger{Logger: log.New(out, getColoredMsg(prefix, FgCyan), flag)}
