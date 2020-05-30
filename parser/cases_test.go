@@ -393,6 +393,7 @@ var getVarsTestCases = []struct {
 	name    string
 	varName string
 	want    string
+	wantOpt string
 }{
 	{
 		name:    "dynamic var of type string exist in yml config",
@@ -408,6 +409,7 @@ var getVarsTestCases = []struct {
 		name:    "dynamic var of type map exist in yml config",
 		varName: "addExtraTags",
 		want:    "{CreatedBy: local-testing-tool, Type: testing}",
+		wantOpt: "{Type: testing, CreatedBy: local-testing-tool}",
 	},
 	{
 		name:    "dynamic var of type string does not exist in dynamic and default yml config",

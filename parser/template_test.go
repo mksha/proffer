@@ -103,7 +103,7 @@ func Test_getVar(t *testing.T) {
 	for n := range getVarsTestCases {
 		tt := getVarsTestCases[n]
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getVar(tt.varName); got != tt.want {
+			if got := getVar(tt.varName); got != tt.want && got != tt.wantOpt {
 				t.Errorf("getVar() = %v, want %v", got, tt.want)
 			}
 		})
