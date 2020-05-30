@@ -57,6 +57,13 @@ If we want to set default value of a environment variable if its not set then we
 Home: {{ env "HOME" | default "default home dir path" }}
 ```
 
+## Define dynamic variables in variables file and default variables in template file
+
+Proffer also allows us to define the dynamic variables in a separate variable file and use them in proffer
+template file. To resolve their value in template we pass this variable file in proffer `validate` and `apply` commands using `--var-file` argument.
+
+For more details take a look at [How to use variables in template file](quickstart-guide/variables/main.md)
+
 ## License
 
 Proffer is released under the Apache License, Version 2.0.
