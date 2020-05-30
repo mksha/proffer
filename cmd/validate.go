@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 
 	"github.com/lithammer/dedent"
@@ -56,6 +57,11 @@ func init() {
 func validateConfig(cmd *cobra.Command, args []string) {
 	config := getTempConfigOnValidSyntax(args)
 	validateResources(config)
+
+	// cleanup temp files.
+	if !debug {
+		_ = os.Remove("output.yml")
+	}
 }
 
 // returns the parsed template config if there was no errors throughout parsing.
@@ -124,6 +130,14 @@ func validateResources(c parser.TemplateConfig) {
 // parses the given template config and returns the parsed template with error if there was any.
 func parseConfig(dsc string) (parser.TemplateConfig, error) {
 	var config parser.TemplateConfig
+
+	if err := parser.UnmarshalDynamicVars(dynamicVarsFile); err != nil {
+		return config, err
+	}
+
+	if err := parser.UnmarshalDefaultVars(dsc); err != nil {
+		return config, err
+	}
 
 	parsedTemplateFileName, err := parser.ParseTemplate(dsc)
 	if err != nil {

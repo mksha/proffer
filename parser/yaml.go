@@ -1,7 +1,9 @@
 package parser
 
 import (
+	"io/ioutil"
 	"os"
+	"regexp"
 
 	"gopkg.in/yaml.v2"
 )
@@ -10,20 +12,12 @@ import (
 func UnmarshalYaml(filePath string) (TemplateConfig, error) {
 	var c TemplateConfig
 
-	fileInfo, err := os.Stat(filePath)
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return c, err
 	}
 
-	file, err := os.Open(filePath)
+	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return c, err
-	}
-	defer file.Close()
-
-	data := make([]byte, fileInfo.Size())
-
-	if _, err := file.Read(data); err != nil {
 		return c, err
 	}
 
@@ -33,4 +27,80 @@ func UnmarshalYaml(filePath string) (TemplateConfig, error) {
 	}
 
 	return c, nil
+}
+
+func UnmarshalDynamicVars(dynamicVarsPath string) error {
+	// Reset dynamicVars global var.
+	clogger.Debug("")
+	clogger.Debug("Resetting dynamic vars.")
+
+	dynamicVars = DynamicVars{}
+
+	// Check dynamic vars file.
+	clogger.Debug("Checking dynamic vars file")
+
+	if _, err := os.Stat(dynamicVarsPath); os.IsNotExist(err) {
+		return err
+	}
+
+	// Evaluate dynamic vars.
+	clogger.Debug("Evaluate dynamic vars")
+
+	evaluatedDynamicVarsFilePath, err := ParseTemplate(dynamicVarsPath)
+	if err != nil {
+		return err
+	}
+
+	// Populate dynamic vars.
+	dynamicVarsData, err := ioutil.ReadFile(evaluatedDynamicVarsFilePath)
+	if err != nil {
+		return err
+	}
+
+	clogger.Debug("Populate dynamic vars")
+
+	err = yaml.UnmarshalStrict(dynamicVarsData, &dynamicVars)
+	if err != nil {
+		return err
+	}
+
+	clogger.Debug("Parsed dynamic vars")
+
+	return nil
+}
+
+func UnmarshalDefaultVars(defaultVarsPath string) error {
+	// Reset defaultVars global var.
+	clogger.Debug("")
+	clogger.Debug("Resetting default vars.")
+
+	defaultVars = DefaultVars{}
+
+	// Check default vars file.
+	if _, err := os.Stat(defaultVarsPath); os.IsNotExist(err) {
+		return err
+	}
+
+	// Populate default vars.
+	defaultVarsData, err := ioutil.ReadFile(defaultVarsPath)
+	if err != nil {
+		return err
+	}
+
+	// Regex pattern captures "^resources:" from the content
+	// because its reserved word to specify resource list so
+	// not allowed any other key with same name at top level scope.
+	pattern := regexp.MustCompile(`(?m)^resources:$`)
+	loc := pattern.FindIndex(defaultVarsData)
+
+	clogger.Debug("Populate default vars.")
+
+	err = yaml.UnmarshalStrict(defaultVarsData[:loc[0]], &defaultVars)
+	if err != nil {
+		return err
+	}
+
+	clogger.Debug("Parsed default vars.")
+
+	return nil
 }

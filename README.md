@@ -20,30 +20,31 @@ Some features of proffer:
 * It is very fast and easy to use.
 * In build bash and zsh completion.
 * In build validation for yml config file.
+* It allows to use dynamic and default variables in template file.
 * It has lots of advanced features, like copy the tags across regions and accounts, share different kins of ami permission for target accounts, adding extra tags.
 
-## Supported Cloud Providers
+## Supported Cloud Providers:
 
 * AWS
 
 Support for the other cloud providers can be added via resource plugin.
 
-## How Proffer works
+## How Proffer works:
 
 Proffer command takes a template called `proffer.yml` written in yaml format and apply the resources defined in template. Each proffer template has a top-level section called `resources` that is list of proffer resources.
 Each resource then have their own properties like type, keys and etc. To find all available proffer resources, visit [Available Proffer Resources](resources/README.md) page.
 
 ![](images/proffer-workflow.png)
 
-## Quick Start
+## Quick Start:
 
 To quickly start with proffer , you can follow the [quick-start-guide](quickstart-guide/main.md).
 
-## Resources Available In Proffer
+## Resources Available In Proffer:
 
 Resource is a component in proffer. Each resources is responsible to perform a particular set of operations. Proffer has different kinds of resources. For more details, check [Available Proffer Resources](resources/README.md).
 
-## Access Environment Variables
+## Access Environment Variables:
 
 To access the environment variables within proffer template , we can use below format:
 
@@ -57,6 +58,13 @@ If we want to set default value of a environment variable if its not set then we
 Home: {{ env "HOME" | default "default home dir path" }}
 ```
 
-## License
+## Define dynamic variables in variables file and default variables in template file:
+
+Proffer also allows us to define the dynamic variables in a separate variable file and use them in proffer
+template file. Similarly define default variables and use them in template file. To resolve their values in template file we need to pass this variable file in proffer `validate` and `apply` commands using `--var-file` argument.
+
+For more details take a look at [How to use variables in template file](quickstart-guide/variables/main.md)
+
+## License:
 
 Proffer is released under the Apache License, Version 2.0.
