@@ -93,7 +93,7 @@ func UnmarshalDefaultVars(defaultVarsPath string) error {
 	pattern := regexp.MustCompile(`(?m)^resources:$`)
 	loc := pattern.FindIndex(defaultVarsData)
 
-	clogger.Debug("Populate default vars.")
+	clogger.Debug("Populate default vars if any.")
 
 	err = yaml.UnmarshalStrict(defaultVarsData[:loc[0]], &defaultVars)
 	if err != nil {
