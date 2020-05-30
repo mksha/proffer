@@ -131,8 +131,10 @@ func validateResources(c parser.TemplateConfig) {
 func parseConfig(dsc string) (parser.TemplateConfig, error) {
 	var config parser.TemplateConfig
 
-	if err := parser.UnmarshalDynamicVars(dynamicVarsFile); err != nil {
-		return config, err
+	if dynamicVarsFile != "" {
+		if err := parser.UnmarshalDynamicVars(dynamicVarsFile); err != nil {
+			return config, err
+		}
 	}
 
 	if err := parser.UnmarshalDefaultVars(dsc); err != nil {

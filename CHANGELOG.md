@@ -1,3 +1,14 @@
+# v0.1.4 (May 30, 2020)
+
+Features:
+
+* Enabled testing on release also.
+
+Bugfix:
+
+* Made variables usage optional
+
+
 # v0.1.3 (May 30, 2020)
 
 Features:

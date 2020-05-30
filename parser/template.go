@@ -14,9 +14,11 @@ func getEnv(name string) string {
 func getVar(name string) string {
 	value, ok := dynamicVars[name]
 	if !ok {
+		clogger.Debugf("Variable '%s' not found in variable file. Will check default vars in template file.", name)
+
 		defaultValue, ok := defaultVars["vars"][name]
 		if !ok {
-			clogger.Fatalf("Variable '%s' not found", name)
+			clogger.Fatalf("Variable '%s' not found in default vars [vars property of proffer template file].", name)
 		}
 
 		value = defaultValue
