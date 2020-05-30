@@ -8,12 +8,19 @@ import (
 	"github.com/proffer/components"
 )
 
+type (
+	DynamicVars map[string]interface{}
+	DefaultVars map[string]map[string]interface{}
+)
+
 var (
-	clogger = clog.New(os.Stdout, "config-parser | ", log.Lmsgprefix)
+	clogger     = clog.New(os.Stdout, "config-parser | ", log.Lmsgprefix)
+	dynamicVars DynamicVars
+	defaultVars DefaultVars
 )
 
 type TemplateConfig struct {
-	Variables    map[string]string        `yaml:"variables,flow"`
+	Vars         map[string]interface{}   `yaml:"vars"`
 	RawResources []components.RawResource `yaml:"resources,flow" required:"true"`
 	Resources    components.MapOfResource `yaml:"-"`
 }

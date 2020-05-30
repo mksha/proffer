@@ -1,12 +1,58 @@
 package parser
 
 import (
+	"fmt"
 	"os"
+	"reflect"
 	"text/template"
 )
 
 func getEnv(name string) string {
 	return os.Getenv(name)
+}
+
+func getVar(name string) string {
+	value, ok := dynamicVars[name]
+	if !ok {
+		defaultValue, ok := defaultVars["vars"][name]
+		if !ok {
+			clogger.Fatalf("Variable '%s' not found", name)
+		}
+
+		value = defaultValue
+	}
+
+	switch v := reflect.ValueOf(value); v.Kind() {
+	case reflect.Slice:
+		s := "["
+		for _, v := range value.([]interface{}) {
+			if s == "[" {
+				s += v.(string)
+			} else {
+				s += ", " + v.(string)
+			}
+		}
+
+		s += "]"
+
+		return s
+	case reflect.Map:
+		s := "{"
+
+		for k, v := range value.(map[interface{}]interface{}) {
+			if pair := k.(string) + ": " + v.(string); s == "{" {
+				s += pair
+			} else {
+				s += ", " + pair
+			}
+		}
+
+		s += "}"
+
+		return s
+	default:
+		return fmt.Sprintf("%v", value)
+	}
 }
 
 func setDefaultValue(givenValue, currentValue string) string {
@@ -23,8 +69,10 @@ func ParseTemplate(dsc string) (string, error) {
 		fm = template.FuncMap{
 			"env":     getEnv,
 			"default": setDefaultValue,
+			"var":     getVar,
 		}
 		// Create output file for storing parsed template content
+		// parsedTemplateFileName = uuid.New().String() + ".yml"
 		parsedTemplateFileName = "output.yml"
 	)
 
@@ -34,6 +82,7 @@ func ParseTemplate(dsc string) (string, error) {
 		return "", err
 	}
 
+	clogger.Debug("")
 	clogger.Debug("Template Found At :-> ", dsc)
 
 	dscName := fileInfo.Name()

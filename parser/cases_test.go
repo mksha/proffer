@@ -321,3 +321,102 @@ var unmarshalYamlTestCases = []struct {
 		wantErr:  true,
 	},
 }
+
+// test cases for UnmarshalDefaultVars function.
+var unmarshalDefaultVarsTestCases = []struct {
+	name            string
+	defaultVarsPath string
+	wantErr         bool
+}{
+	{
+		name:            "yml file does not exist",
+		defaultVarsPath: "file_path_does_not_exist",
+		wantErr:         true,
+	},
+	{
+		name:            "invalid yaml config with invalid characters",
+		defaultVarsPath: "../test/invalid_yml/sample3.yml",
+		wantErr:         false,
+	},
+	{
+		name:            "valid template config with vars defined",
+		defaultVarsPath: "../test/valid_config/dynamicproffer.yml",
+		wantErr:         false,
+	},
+	{
+		name:            "yml file with no read permission",
+		defaultVarsPath: "../test/invalid_yml/no_read_permission.yml",
+		wantErr:         true,
+	},
+}
+
+// test cases for UnmarshalDynamicVars function.
+var unmarshalDynamicVarsTestCases = []struct {
+	name            string
+	dynamicVarsPath string
+	wantErr         bool
+}{
+	{
+		name:            "yml file does not exist",
+		dynamicVarsPath: "file_path_does_not_exist",
+		wantErr:         true,
+	},
+	{
+		name:            "invalid yaml config with invalid characters",
+		dynamicVarsPath: "../test/invalid_yml/sample3.yml",
+		wantErr:         true,
+	},
+	{
+		name:            "invalid yaml config with invalid characters",
+		dynamicVarsPath: "../test/invalid_yml/data2.yml",
+		wantErr:         true,
+	},
+	{
+		name:            "valid empty data yaml",
+		dynamicVarsPath: "../test/invalid_yml/data1.yml",
+		wantErr:         false,
+	},
+	{
+		name:            "valid template config with dynamic defined",
+		dynamicVarsPath: "../test/valid_yml/data.yml",
+		wantErr:         false,
+	},
+	{
+		name:            "yml file with no read permission",
+		dynamicVarsPath: "../test/invalid_yml/no_read_permission.yml",
+		wantErr:         true,
+	},
+}
+
+// test cases for getVars function.
+var getVarsTestCases = []struct {
+	name    string
+	varName string
+	want    string
+}{
+	{
+		name:    "dynamic var of type string exist in yml config",
+		varName: "srcRegion",
+		want:    "us-east-1",
+	},
+	{
+		name:    "dynamic var of type list exist in yml config",
+		varName: "targetCopyRegions",
+		want:    "[us-east-1, us-west-2]",
+	},
+	{
+		name:    "dynamic var of type map exist in yml config",
+		varName: "addExtraTags",
+		want:    "{CreatedBy: local-testing-tool, Type: testing}",
+	},
+	{
+		name:    "dynamic var of type string does not exist in dynamic and default yml config",
+		varName: "notexist",
+		want:    "<nil>",
+	},
+	{
+		name:    "dynamic var of type string does not exist in dynamic and but exist in default yml config",
+		varName: "targetAccountsCommonRegions",
+		want:    "[us-east-1, us-west-2]",
+	},
+}

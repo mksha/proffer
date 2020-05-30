@@ -90,3 +90,22 @@ func BenchmarkParseTemplate(b *testing.B) {
 		})
 	}
 }
+
+func Test_getVar(t *testing.T) {
+	if err := UnmarshalDynamicVars("../test/valid_yml/data.yml"); err != nil {
+		t.Errorf("got err during parsing of dynamic vars: \n%v", err)
+	}
+
+	if err := UnmarshalDefaultVars("../test/valid_config/dynamicproffer.yml"); err != nil {
+		t.Errorf("got err during parsing of default vars: \n%v", err)
+	}
+
+	for n := range getVarsTestCases {
+		tt := getVarsTestCases[n]
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getVar(tt.varName); got != tt.want {
+				t.Errorf("getVar() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

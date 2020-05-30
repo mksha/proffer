@@ -1,5 +1,5 @@
 ---
-variables:
+vars:
   ci: 385838
   develop: 2322424
   sandbox: 121241
@@ -66,4 +66,3 @@ resources:
       commonRegions:
       - us-east-1
       - us-west-2
-

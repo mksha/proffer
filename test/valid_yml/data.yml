@@ -1,0 +1,25 @@
+---
+# Source Account Info
+srcAcctID: 698203116079
+srcProfile: demo-2
+srcRegion: us-east-1
+targetCopyRegions:
+  - us-east-1
+  - us-west-2
+
+srcAmiFilters:
+  image-id: ami-01b55974057720a43
+  name: test-image
+  tag:Purpose: Testing
+  tag:Department: DevOps
+
+addExtraTags:
+  CreatedBy: local-testing-tool
+  Type: testing
+
+copyTagsAcrossRegions: true
+
+# Target Account Info
+
+target1AcctId: 591616226324
+target2AcctId: 221266418583

@@ -35,3 +35,29 @@ func BenchmarkUnmarshalYaml(b *testing.B) {
 		})
 	}
 }
+
+func TestUnmarshalDefaultVars(t *testing.T) {
+	for n := range unmarshalDefaultVarsTestCases {
+		tt := unmarshalDefaultVarsTestCases[n]
+		t.Run(tt.name, func(t *testing.T) {
+			err := UnmarshalDefaultVars(tt.defaultVarsPath)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UnmarshalYaml() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
+func TestUnmarshalDynamicVars(t *testing.T) {
+	for n := range unmarshalDynamicVarsTestCases {
+		tt := unmarshalDynamicVarsTestCases[n]
+		t.Run(tt.name, func(t *testing.T) {
+			err := UnmarshalDynamicVars(tt.dynamicVarsPath)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UnmarshalYaml() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}

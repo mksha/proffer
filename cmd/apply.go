@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/lithammer/dedent"
@@ -79,13 +80,18 @@ func applyConfig(cmd *cobra.Command, args []string) {
 
 	// apply template
 	executeResources(cfgFileAbsPath)
+
+	// cleanup temp files.
+	if !debug {
+		_ = os.Remove("output.yml")
+	}
 }
 
 // executeResources applies the given resources in given configuration.
 func executeResources(dsc string) {
 	c, err := parseConfig(dsc)
 	if err != nil {
-		fmt.Println("Unable to parse configuration file")
+		clogger.Fatal("Unable to parse configuration file: \n", err)
 	}
 
 	resources := command.Resources
