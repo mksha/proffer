@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/mohit-kumar-sharma/proffer/branch/master/graph/badge.svg?token=YFU0AS3HEJ)](https://codecov.io/gh/mohit-kumar-sharma/proffer)
 ![Tests](https://github.com/mohit-kumar-sharma/proffer/workflows/Tests/badge.svg)
-
+![License](https://img.shields.io/badge/license-Apache--2.0-brightgreen.svg)
 
 ## Introduction:
 
