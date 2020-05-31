@@ -29,7 +29,7 @@ $ proffer validate -d proffer.yml
 
 ```
   -d, --debug             Set debug flag to get detailed logging
-      --var-file string   Variable file to pass variable's value, otherwise will use default values
+      --var-file string   YAML file containing dynamic variables
 ```
 
 ### SEE ALSO

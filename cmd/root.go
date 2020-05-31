@@ -69,7 +69,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Set debug flag to get detailed logging")
-	rootCmd.PersistentFlags().StringVar(&dynamicVarsFile, "var-file", "", "Variable file to pass variable's value, otherwise will use default values")
+	rootCmd.PersistentFlags().StringVar(&dynamicVarsFile, "var-file", "", "YAML file containing dynamic variables")
 }
 
 // initConfig reads in config file and ENV variables if set.
