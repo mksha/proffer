@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/mohit-kumar-sharma/proffer/branch/master/graph/badge.svg?token=YFU0AS3HEJ)](https://codecov.io/gh/mohit-kumar-sharma/proffer)
 ![Tests](https://github.com/mohit-kumar-sharma/proffer/workflows/Tests/badge.svg)
-
+![License](https://img.shields.io/badge/license-Apache--2.0-brightgreen.svg)
 
 ## Introduction:
 
@@ -33,6 +33,8 @@ Support for the other cloud providers can be added via resource plugin.
 
 Proffer command takes a template called `proffer.yml` written in yaml format and apply the resources defined in template. Each proffer template has a top-level section called `resources` that is list of proffer resources.
 Each resource then have their own properties like type, keys and etc. To find all available proffer resources, visit [Available Proffer Resources](resources/README.md) page.
+
+In addition, proffer also allows us to use the dynamic and default variables defined at different places. To process dynamic variable's values in proffer template, we need to pass the variable file to proffer command using `--var-file` flag.
 
 ![](images/proffer-workflow.png)
 
