@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
 // IsError checks if the given err is an aws error or not or any valid error.
@@ -28,8 +29,7 @@ func IsError(err error) (bool, error) {
 
 // IsAmiExist returns true if ami exists with the given ami filters.
 // nolint:interfacer
-func IsAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
-	svc := ec2.New(sess)
+func IsAmiExist(svc ec2iface.EC2API, filters []*ec2.Filter) (bool, error) {
 	input := &ec2.DescribeImagesInput{
 		Filters: filters,
 	}
@@ -50,7 +50,8 @@ func IsAmiExist(sess *session.Session, filters []*ec2.Filter) (bool, error) {
 
 // GetAMiInfo returns the a list of aws images that matched the given ami filters.
 func GetAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, error) {
-	if ok, err := IsAmiExist(sess, filters); !ok {
+	svc := ec2.New(sess)
+	if ok, err := IsAmiExist(svc, filters); !ok {
 		if err != nil {
 			return nil, err
 		}
@@ -58,7 +59,6 @@ func GetAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 		return nil, fmt.Errorf("UnableToGetAmiInfo: AMI doesnot exist in Region %s with Filters %v ", *sess.Config.Region, filters)
 	}
 
-	svc := ec2.New(sess)
 	input := &ec2.DescribeImagesInput{
 		Filters: filters,
 	}
@@ -75,8 +75,7 @@ func GetAmiInfo(sess *session.Session, filters []*ec2.Filter) ([]*ec2.Image, err
 
 // CreateEc2Tags creates tags for given ec2 resources.
 //nolint:interfacer
-func CreateEc2Tags(sess *session.Session, resources []*string, tags []*ec2.Tag) error {
-	svc := ec2.New(sess)
+func CreateEc2Tags(svc ec2iface.EC2API, resources []*string, tags []*ec2.Tag) error {
 	input := &ec2.CreateTagsInput{
 		Resources: resources,
 		Tags:      tags,
