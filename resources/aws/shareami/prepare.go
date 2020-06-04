@@ -156,7 +156,11 @@ func prepareRegionAmiErrMap(sai SrcAmiInfo, region *string, regionAmiErrChan cha
 	}
 
 	sess.Config.Region = region
-	images, err := awscommon.GetAmiInfo(sess, sai.Filters)
+	ci := awscommon.AwsClientInfo{
+		SVC:    ec2.New(sess),
+		Region: sess.Config.Region,
+	}
+	images, err := awscommon.GetAmiInfo(ci, sai.Filters)
 
 	if err != nil {
 		regionAmiErr[region] = AmiInfo{Error: err}

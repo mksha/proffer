@@ -160,3 +160,52 @@ var isErrorTestCases = []struct {
 		wantErr: true,
 	},
 }
+
+//test cases for GetAmiInfo function.
+var getAmiInfoTestCases = []struct {
+	name    string
+	filters []*ec2.Filter
+	want    []*ec2.Image
+	wantErr bool
+}{
+	{
+		name:    "empty filters",
+		filters: []*ec2.Filter{},
+		want:    nil,
+		wantErr: true,
+	},
+	{
+		name: "filters that will not give any ami (give empty image list)",
+		filters: []*ec2.Filter{
+			{
+				Name: aws.String("unknown"),
+				Values: []*string{
+					aws.String("unknown"),
+				},
+			},
+		},
+		want:    nil,
+		wantErr: true,
+	},
+	{
+		name: "call with valid filters",
+		filters: []*ec2.Filter{
+			{
+				Name: aws.String("name"),
+				Values: []*string{
+					aws.String("test-image"),
+				},
+			},
+			{
+				Name: aws.String("tag:Purpose"),
+				Values: []*string{
+					aws.String("testing"),
+				},
+			},
+		},
+		want: []*ec2.Image{{
+			ImageId: aws.String("test-image-id"),
+		}},
+		wantErr: false,
+	},
+}

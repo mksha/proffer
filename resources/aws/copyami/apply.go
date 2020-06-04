@@ -87,7 +87,11 @@ func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	srcAmiInfo.AccountID = accountInfo.Account
 	sess.Config.Region = srcAmiInfo.Region
-	images, err := awscommon.GetAmiInfo(sess, srcAmiInfo.Filters)
+	ci := awscommon.AwsClientInfo{
+		SVC:    ec2.New(sess),
+		Region: sess.Config.Region,
+	}
+	images, err := awscommon.GetAmiInfo(ci, srcAmiInfo.Filters)
 
 	if err != nil {
 		return err
