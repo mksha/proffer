@@ -1,65 +1,11 @@
 package common
 
 import (
-	"errors"
 	"reflect"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
-
-// Define a mock struct to use in unit tests.
-type mockEC2Client struct {
-	ec2iface.EC2API
-}
-
-func (m *mockEC2Client) DescribeImages(input *ec2.DescribeImagesInput) (*ec2.DescribeImagesOutput, error) {
-	// Check that required inputs exist
-	if input.Filters == nil || len(input.Filters) == 0 {
-		return nil, errors.New("DescribeImagesInput.Filters is nil or an empty slice")
-	}
-
-	var resp *ec2.DescribeImagesOutput
-
-	for _, filter := range input.Filters {
-		if *filter.Name == "unknown" {
-			resp = &ec2.DescribeImagesOutput{
-				Images: []*ec2.Image{},
-			}
-
-			return resp, nil
-		}
-	}
-
-	resp = &ec2.DescribeImagesOutput{
-		Images: []*ec2.Image{{
-			ImageId: aws.String("test-image-id"),
-		}},
-	}
-
-	return resp, nil
-}
-
-func (m *mockEC2Client) CreateTags(input *ec2.CreateTagsInput) (*ec2.CreateTagsOutput, error) {
-	// Check that required inputs exist
-	if input.Resources == nil || len(input.Resources) == 0 {
-		return nil, errors.New("CreateTagsInput.Resources is nil or an empty slice")
-	}
-
-	if input.Tags == nil || len(input.Tags) == 0 {
-		return nil, errors.New("CreateTagsInput.Tags is nil or an empty slice")
-	}
-
-	if input.Tags[0].Key == nil || *input.Tags[0].Key == "" || input.Tags[0].Value == nil || *input.Tags[0].Value == "" {
-		return nil, errors.New("CreateTagsInput.Tags[0].Tag or CreateTagsInput.Tags[0].Value is nil or an empty string")
-	}
-
-	resp := &ec2.CreateTagsOutput{}
-
-	return resp, nil
-}
 
 func TestIsError(t *testing.T) {
 	for n := range isErrorTestCases {
