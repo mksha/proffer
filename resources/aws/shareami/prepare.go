@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/mitchellh/mapstructure"
 	awscommon "github.com/proffer/resources/aws/common"
 )
@@ -38,7 +39,8 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 		return err
 	}
 
-	accountInfo, err := awscommon.GetAccountInfo(sess)
+	svc := sts.New(sess)
+	accountInfo, err := awscommon.GetAccountInfo(svc)
 	if err != nil {
 		return err
 	}

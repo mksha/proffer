@@ -34,7 +34,8 @@ func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 		return nil, err
 	}
 
-	callerAccountInfo, err := GetAccountInfo(sessPtr)
+	svc := sts.New(sessPtr)
+	callerAccountInfo, err := GetAccountInfo(svc)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,6 @@ func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 		}
 	}
 
-	svc := sts.New(newSessPtr)
 	if ok := IsCredsExpired(svc); ok {
 		return nil, fmt.Errorf("AwsAssumeRoleCredsExpired: Provided AWS Assume Role's Credentials Have Expired")
 	}
@@ -112,8 +112,7 @@ func IsCredsExpired(svc stsiface.STSAPI) bool {
 //nolint:interfacer
 // GetAccountInfo returns the caller identity from the given session.
 // It also returns an error if there was any.
-func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, error) {
-	svc := sts.New(sessPtr)
+func GetAccountInfo(svc stsiface.STSAPI) (*sts.GetCallerIdentityOutput, error) {
 	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 	if err != nil {

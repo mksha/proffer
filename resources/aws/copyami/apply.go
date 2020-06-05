@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	awscommon "github.com/proffer/resources/aws/common"
+	"github.com/aws/aws-sdk-go/service/sts"
 )
 
 type TargetInfo struct {
@@ -80,7 +81,8 @@ func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 		return err
 	}
 
-	accountInfo, err := awscommon.GetAccountInfo(sess)
+	svc := sts.New(sess)
+	accountInfo, err := awscommon.GetAccountInfo(svc)
 	if err != nil {
 		return err
 	}
