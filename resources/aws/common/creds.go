@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	clog "github.com/proffer/common/clogger"
 )
 
@@ -33,7 +34,9 @@ func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 		return nil, err
 	}
 
-	callerAccountInfo, err := GetAccountInfo(sessPtr)
+	svc := sts.New(sessPtr)
+
+	callerAccountInfo, err := GetAccountInfo(svc)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +53,7 @@ func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 		}
 	}
 
-	if ok := IsCredsExpired(newSessPtr); ok {
+	if ok := IsCredsExpired(svc); ok {
 		return nil, fmt.Errorf("AwsAssumeRoleCredsExpired: Provided AWS Assume Role's Credentials Have Expired")
 	}
 
@@ -66,7 +69,8 @@ func GetAwsSessWithProfile(profile string) (*session.Session, error) {
 		return nil, fmt.Errorf("AWSProfileDoesNotExist: Failed To Retrieve Credentials From AWS Profile '%s'", profile)
 	}
 
-	if ok := IsCredsExpired(sessPtr); ok {
+	svc := sts.New(sessPtr)
+	if ok := IsCredsExpired(svc); ok {
 		return nil, fmt.Errorf("AwsProfileCredsExpired: AWS Profile '%s's Credentials Have Expired", profile)
 	}
 
@@ -82,18 +86,16 @@ func GetAwsSessWithDefaultCreds() (*session.Session, error) {
 		return nil, fmt.Errorf("NoDefaultCredProviderExist: No Default Credential Provider Exists")
 	}
 
-	if ok := IsCredsExpired(sessPtr); ok {
+	svc := sts.New(sessPtr)
+	if ok := IsCredsExpired(svc); ok {
 		return nil, fmt.Errorf("CredsExpired: Default AWS Provider's Credentials Have Expired")
 	}
 
 	return sessPtr, nil
 }
 
-//nolint:interfacer
 // IsCredsExpired returns true if given session is having expired credentials.
-func IsCredsExpired(sessPtr *session.Session) bool {
-	svc := sts.New(sessPtr)
-
+func IsCredsExpired(svc stsiface.STSAPI) bool {
 	_, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
@@ -108,11 +110,9 @@ func IsCredsExpired(sessPtr *session.Session) bool {
 	return false
 }
 
-//nolint:interfacer
 // GetAccountInfo returns the caller identity from the given session.
 // It also returns an error if there was any.
-func GetAccountInfo(sessPtr *session.Session) (*sts.GetCallerIdentityOutput, error) {
-	svc := sts.New(sessPtr)
+func GetAccountInfo(svc stsiface.STSAPI) (*sts.GetCallerIdentityOutput, error) {
 	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 	if err != nil {

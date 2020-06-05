@@ -103,7 +103,8 @@ func addTagsToTargetAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, 
 	snapshotID := sai.RegionAmiErrMap[region].Ami.BlockDeviceMappings[0].Ebs.SnapshotId
 	tags = append(tags, sai.RegionAmiErrMap[region].Ami.Tags...)
 
-	if err := awscommon.CreateEc2Tags(sess, []*string{amiID, snapshotID}, tags); err != nil {
+	svc := ec2.New(sess)
+	if err := awscommon.CreateEc2Tags(svc, []*string{amiID, snapshotID}, tags); err != nil {
 		regionErrMap[*region] = err
 		return
 	}
