@@ -35,6 +35,7 @@ func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 	}
 
 	svc := sts.New(sessPtr)
+
 	callerAccountInfo, err := GetAccountInfo(svc)
 	if err != nil {
 		return nil, err
@@ -109,7 +110,6 @@ func IsCredsExpired(svc stsiface.STSAPI) bool {
 	return false
 }
 
-//nolint:interfacer
 // GetAccountInfo returns the caller identity from the given session.
 // It also returns an error if there was any.
 func GetAccountInfo(svc stsiface.STSAPI) (*sts.GetCallerIdentityOutput, error) {

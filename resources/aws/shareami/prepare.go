@@ -40,6 +40,7 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 	}
 
 	svc := sts.New(sess)
+
 	accountInfo, err := awscommon.GetAccountInfo(svc)
 	if err != nil {
 		return err

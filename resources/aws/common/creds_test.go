@@ -66,7 +66,7 @@ func TestGetAccountInfo(t *testing.T) {
 			msvc: &mockSTSClient{
 				Error: awserr.New("ExpiredToken", "Creds have expired", errors.New("ExpiredToken")),
 			},
-			want: nil,
+			want:    nil,
 			wantErr: true,
 		},
 	}
