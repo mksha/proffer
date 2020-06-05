@@ -29,6 +29,7 @@ func UnmarshalYaml(filePath string) (TemplateConfig, error) {
 	return c, nil
 }
 
+// UnmarshalDynamicVars un-marshalls the given dynamic vars file.
 func UnmarshalDynamicVars(dynamicVarsPath string) error {
 	// Reset dynamicVars global var.
 	clogger.Debug("")
@@ -69,6 +70,7 @@ func UnmarshalDynamicVars(dynamicVarsPath string) error {
 	return nil
 }
 
+// UnmarshalDefaultVars un-marshalls the default vars from proffer template file.
 func UnmarshalDefaultVars(defaultVarsPath string) error {
 	// Reset defaultVars global var.
 	clogger.Debug("")

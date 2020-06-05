@@ -9,7 +9,9 @@ import (
 )
 
 type (
+	// DynamicVars stores dynamic variables.
 	DynamicVars map[string]interface{}
+	// DefaultVars stores default variables.
 	DefaultVars map[string]map[string]interface{}
 )
 
@@ -19,6 +21,7 @@ var (
 	defaultVars DefaultVars
 )
 
+// TemplateConfig represent the proffer template file in go data-structure.
 type TemplateConfig struct {
 	Vars         map[string]interface{}   `yaml:"vars"`
 	RawResources []components.RawResource `yaml:"resources,flow" required:"true"`

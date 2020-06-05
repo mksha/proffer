@@ -13,6 +13,7 @@ var (
 	clogger = clog.New(os.Stdout, "aws-copyami | ", log.Lmsgprefix)
 )
 
+// RawSrcAmiInfo represents the raw source ami information.
 type RawSrcAmiInfo struct {
 	Profile    *string             `mapstructure:"profile" required:"false" chain:"config.source.profile"`
 	RoleArn    *string             `mapstructure:"roleArn" required:"false" chain:"config.source.roleArn"`
@@ -20,6 +21,7 @@ type RawSrcAmiInfo struct {
 	AmiFilters map[*string]*string `mapstructure:"amiFilters" required:"true" chain:"config.source.amiFilters"`
 }
 
+// SrcAmiInfo represents the parsed source ami information.
 type SrcAmiInfo struct {
 	CredsInfo map[string]string
 	AccountID *string
@@ -28,18 +30,21 @@ type SrcAmiInfo struct {
 	Image     *ec2.Image
 }
 
+// Target represents the target configuration needed by aws-copyami resource.
 type Target struct {
 	Regions               []*string           `mapstructure:"regions" required:"true" chain:"config.target.regions"`
 	CopyTagsAcrossRegions bool                `mapstructure:"copyTagsAcrossRegions" chain:"config.target.copyTagsAcrossRegions"`
 	AddExtraTags          map[*string]*string `mapstructure:"addExtraTags" chain:"config.target.addExtraTags"`
 }
 
+// Config represents the configuration needed by aws-copyami resource in go struct.
 type Config struct {
 	Source     RawSrcAmiInfo `mapstructure:"source" required:"true" chain:"config.source"`
 	Target     Target        `mapstructure:"target" required:"true" chain:"config.target"`
 	SrcAmiInfo SrcAmiInfo    `mapstructure:"-"`
 }
 
+// Resource represents the aws-copyami resource.
 type Resource struct {
 	Name   *string `required:"true"`
 	Type   *string `required:"true"`

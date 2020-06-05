@@ -11,6 +11,7 @@ import (
 	awscommon "github.com/proffer/resources/aws/common"
 )
 
+// TargetInfo represents the target data in go struct form.
 type TargetInfo struct {
 	Regions  []*string
 	CopyTags bool

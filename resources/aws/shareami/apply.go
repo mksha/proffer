@@ -18,7 +18,9 @@ var (
 )
 
 type (
-	RegionErrMap        map[string]error
+	// RegionErrMap represents the region and error mapping.
+	RegionErrMap map[string]error
+	// AccountRegionErrMap represents the mapping of account and RegionErrMap.
 	AccountRegionErrMap map[string]RegionErrMap
 )
 

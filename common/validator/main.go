@@ -20,6 +20,7 @@ var (
 	}
 )
 
+// CustomStruct represents the custom go-struct with some metadata included.
 type CustomStruct struct {
 	Struct     interface{}
 	IsListItem bool
@@ -32,8 +33,8 @@ func IsZero(i interface{}) bool {
 	return v.IsZero()
 }
 
-//nolint:nestif,gocritic
 // CheckRequiredFieldsInStruct checks if the given struct's required field(s) are set or not.
+//nolint:nestif,gocritic
 func CheckRequiredFieldsInStruct(s CustomStruct) []error {
 	errs := make([]error, 0)
 	v := reflect.ValueOf(s.Struct)

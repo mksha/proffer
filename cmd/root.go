@@ -1,3 +1,4 @@
+// Package cmd is used to created the cli utility for proffer.
 /*
 Copyright © 2020 mohit-kumar-sharma <flashtaken1@gmail.com>
 

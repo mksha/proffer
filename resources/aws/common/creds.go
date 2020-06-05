@@ -122,7 +122,7 @@ func GetAccountInfo(svc stsiface.STSAPI) (*sts.GetCallerIdentityOutput, error) {
 	return result, nil
 }
 
-// GetAWSSession returns a session pointer based on given credential provider.
+// GetAwsSession returns a session pointer based on given credential provider.
 // It also returns an error if there was any.
 func GetAwsSession(credProviderInfo map[string]string) (*session.Session, error) {
 	switch credProviderInfo["getCredsUsing"] {
