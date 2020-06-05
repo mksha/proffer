@@ -112,14 +112,9 @@ var formEc2TagsTestCases = []struct {
 	{
 		name: "valid map of tags",
 		tags: map[*string]*string{
-			aws.String("testkey"):    aws.String("testvalue"),
 			aws.String("test key2 "): aws.String("test value 12187^B*&@*$*@%$*O$"),
 		},
 		want: []*ec2.Tag{
-			{
-				Key:   aws.String("testkey"),
-				Value: aws.String("testvalue"),
-			},
 			{
 				Key:   aws.String("test key2 "),
 				Value: aws.String("test value 12187^B*&@*$*@%$*O$"),
