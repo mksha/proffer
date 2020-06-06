@@ -114,7 +114,7 @@ linters:
     - nestif
     - prealloc
     - wsl
-  
+
   fast: true
 
 # all available settings of specific linters

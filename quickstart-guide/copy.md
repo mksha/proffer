@@ -36,7 +36,7 @@ resources:
 
 This is a basic template that is ready to go.
 
-> **NOTE:** 
+> **NOTE:**
     When applying the template we need to make sure we have AWS creds available on your machine, in this case we are not specifying any cred provider name so proffer will get AWS Creds from AWS Env Vars. Make sure, yous creds have permission to copy source ami. For more info take a look at [aws-docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html).
 
 Template has one top-level section `resources` that is required in each template. `resources` section contains a list of resources. Resource is a component of proffer that is responsible to do a specific operation. In proffer we have different types of resources, and each resource has an unique purpose to perform.
@@ -71,14 +71,14 @@ validate-config | Template config is valid.
 
 start-apply | Applying template config...
 aws-copyami | Resource : Copy AMI To Diff AWS Regions  Status: Started
-aws-copyami | 
+aws-copyami |
 aws-copyami | Started Copying AMI In Account: 12345678901 Region: ap-northeast-1 ...
 aws-copyami | Started Copying AMI In Account: 12345678901 Region: ap-northeast-2 ...
 aws-copyami | Started Copying AMI In Account: 12345678901 Region: us-west-2 ...
 aws-copyami | Copied AMI In Account: 12345678901 In Region: ap-northeast-1 , New AMI Id Is: ami-0347a3dc51f46491d
 aws-copyami | Copied AMI In Account: 12345678901 In Region: ap-northeast-2 , New AMI Id Is: ami-0dd435a3959fb57e4
 aws-copyami | Copied AMI In Account: 12345678901 In Region: us-west-2 , New AMI Id Is: ami-09ff2a7d34a6bc60c
-aws-copyami | 
+aws-copyami |
 aws-copyami | Resource : Copy AMI To Diff AWS Regions  Status: Succeeded
 
 ```
@@ -96,11 +96,11 @@ validate-config | Template config is valid.
 
 start-apply | Applying template config...
 aws-copyami | Resource : Copy AMI To Diff AWS Regions  Status: Started
-aws-copyami | 
+aws-copyami |
 aws-copyami | AMI test-image Already Exist In Account 12345678901 In Region ap-northeast-1
 aws-copyami | AMI test-image Already Exist In Account 12345678901 In Region ap-northeast-2
 aws-copyami | AMI test-image Already Exist In Account 12345678901 In Region us-west-2
-aws-copyami | 
+aws-copyami |
 aws-copyami | Resource : Copy AMI To Diff AWS Regions  Status: Succeeded
 
 ```
