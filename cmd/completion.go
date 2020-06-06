@@ -1,3 +1,4 @@
+// Package cmd is used to created the cli utility for proffer.
 /*
 Copyright © 2020 mohit-kumar-sharma <flashtaken1@gmail.com>
 
@@ -70,7 +71,7 @@ var (
 			$ proffer completion bash > ~/.proffer/proffer_completion.bash.inc
 			$ printf "\n# Proffer shell completion\nsource '$HOME/.proffer/proffer_completion.bash.inc'\n" >> $HOME/.bash_profile
 			$ source $HOME/.bash_profile
-		
+
 		For zsh-completion
 		# Load the proffer completion code for zsh[1] into the current shell
 			$ source <(proffer completion zsh)`)

@@ -1,6 +1,6 @@
 # Install Proffer Cli
 
-To install proffer cli, download platform specific tar/zip file from [release-page](https://github.com/mohit-kumar-sharma/proffer/releases). 
+To install proffer cli, download platform specific tar/zip file from [release-page](https://github.com/mohit-kumar-sharma/proffer/releases).
 
 After downloading the artifact, unzip it and you should see a proffer binary. If you intend to access Proffer from the command-line, make sure to place this binary somewhere on your `PATH`.
 

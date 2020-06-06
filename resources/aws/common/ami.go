@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
+// AwsClientInfo represents aws ec2 mock api interface with some metadata.
 type AwsClientInfo struct {
 	SVC    ec2iface.EC2API
 	Region *string
@@ -52,7 +53,7 @@ func IsAmiExist(svc ec2iface.EC2API, filters []*ec2.Filter) (bool, error) {
 	return true, nil
 }
 
-// GetAMiInfo returns the a list of aws images that matched the given ami filters.
+// GetAmiInfo returns the a list of aws images that matched the given ami filters.
 func GetAmiInfo(ci AwsClientInfo, filters []*ec2.Filter) ([]*ec2.Image, error) {
 	if ok, err := IsAmiExist(ci.SVC, filters); !ok {
 		if err != nil {

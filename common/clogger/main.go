@@ -8,14 +8,16 @@ import (
 )
 
 var (
-	LogLevel int // global log level.
+	// LogLevel sets global log level.
+	LogLevel int
 )
 
+// CLogger represents custom logger.
 type CLogger struct {
 	Logger *log.Logger
 }
 
-// Log level.
+// Log levels.
 const (
 	DEBUG = iota
 	INFO
@@ -160,7 +162,7 @@ func (cl *CLogger) Warn(a ...interface{}) {
 	}
 }
 
-// Warn is used to print a formatted warning message in yellow color.
+// Warnf is used to print a formatted warning message in yellow color.
 // Info is only printed if the log level is set to lesser or equal to WARN.
 func (cl *CLogger) Warnf(format string, a ...interface{}) {
 	if LogLevel <= WARN {
@@ -271,7 +273,7 @@ func (cl *CLogger) Panicf(format string, a ...interface{}) {
 	}
 }
 
-// Fatalf is used to print formatted fatal message in bold hi-intensity red color.
+// Fatal is used to print formatted fatal message in bold hi-intensity red color.
 // Message is only printed if the log level is set to lesser or equal to FATAL.
 // At the end it will call os.Exit(1).
 func (cl *CLogger) Fatal(a ...interface{}) {

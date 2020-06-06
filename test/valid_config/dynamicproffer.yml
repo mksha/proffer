@@ -47,4 +47,3 @@ resources:
       copyTagsAcrossAccounts: true
       addCreateVolumePermission: true
       commonRegions: {{ var `targetAccountsCommonRegions` }}
-
