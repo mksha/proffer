@@ -4,7 +4,7 @@
 ![Tests](https://github.com/mohit-kumar-sharma/proffer/workflows/Tests/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache--2.0-brightgreen.svg)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/mohit-kumar-sharma/proffer)](https://goreportcard.com/report/github.com/mohit-kumar-sharma/proffer)
 
 ## Introduction:
 
