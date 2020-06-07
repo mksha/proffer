@@ -41,12 +41,12 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 
 	svc := sts.New(sess)
 
-	accountInfo, err := awscommon.GetAccountInfo(svc)
+	callerInfo, err := awscommon.GetCallerInfo(svc)
 	if err != nil {
 		return err
 	}
 
-	r.Config.SrcAmiInfo.AccountID = accountInfo.Account
+	r.Config.SrcAmiInfo.AccountID = callerInfo.Account
 
 	regions := r.Config.Target.getTargetRegions()
 

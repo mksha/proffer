@@ -1,0 +1,14 @@
+account:
+  id: "698203116079"
+  alias: flux7-demo2
+sourceImage:
+  id: ami-0789874ede9e4a342
+  name: test-image
+  region: us-east-1
+targetImages:
+  us-east-1:
+    id: ami-00309f6548fa67f6f
+    name: test-image
+  us-west-2:
+    id: ami-00185152629a3e465
+    name: test-image

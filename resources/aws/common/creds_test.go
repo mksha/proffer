@@ -42,7 +42,7 @@ func TestIsCredsExpired(t *testing.T) {
 	}
 }
 
-func TestGetAccountInfo(t *testing.T) {
+func TestGetCallerInfo(t *testing.T) {
 	tests := []struct {
 		name    string
 		msvc    *mockSTSClient
@@ -73,13 +73,13 @@ func TestGetAccountInfo(t *testing.T) {
 	for n := range tests {
 		tt := tests[n]
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetAccountInfo(tt.msvc)
+			got, err := GetCallerInfo(tt.msvc)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("GetAccountInfo() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("GetCallerInfo() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetAccountInfo() = %v, want %v", got, tt.want)
+				t.Errorf("GetCallerInfo() = %v, want %v", got, tt.want)
 			}
 		})
 	}

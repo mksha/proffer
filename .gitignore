@@ -17,6 +17,7 @@ bin/
 
 # temp files
 output.yml
+inventory.yml
 
 # IDE
 .vscode

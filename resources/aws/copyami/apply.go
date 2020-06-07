@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
 	awscommon "github.com/proffer/resources/aws/common"
 )
@@ -21,14 +22,31 @@ type TargetInfo struct {
 var wg sync.WaitGroup
 
 // It copies the given source ami to target regions.
-func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
+func (r *Resource) copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[string]error) {
 	defer wg.Done()
 
 	svc := ec2.New(sess)
+	amiMeta := AmiMeta{Name: sai.Image.Name}
 
-	ok, err := awscommon.IsAmiExist(svc, sai.Filters)
+	defer func() {
+		r.Record.TargetImages[sess.Config.Region] = amiMeta
+	}()
+
+	targetAmiFilters := []*ec2.Filter{{
+		Name:   aws.String("name"),
+		Values: []*string{amiMeta.Name}}}
+
+	ok, err := awscommon.IsAmiExist(svc, targetAmiFilters)
 	if ok {
-		clogger.Warnf("AMI %s Already Exist In Account %s In Region %s", *sai.Image.Name, *sai.AccountID, *sess.Config.Region)
+		ci := awscommon.AwsClientInfo{
+			SVC:    ec2.New(sess),
+			Region: sess.Config.Region,
+		}
+		images, _ := awscommon.GetAmiInfo(ci, targetAmiFilters)
+
+		clogger.Warnf("AMI %s(%s) Already Exist In Account %s In Region %s", *sai.Image.Name, *images[0].ImageId, *sai.AccountID, *sess.Config.Region)
+		amiMeta.ID = images[0].ImageId
+
 		return
 	} else if err != nil {
 		errMap[*sess.Config.Region] = err
@@ -59,6 +77,8 @@ func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[
 
 	clogger.Infof("Copied AMI In Account: %s In Region: %s , New AMI Id Is: %s", *sai.AccountID, *sess.Config.Region, *result.ImageId)
 
+	amiMeta.ID = result.ImageId
+
 	if len(tags) == 0 {
 		clogger.Debug("No Tags To Add Or Create")
 		return
@@ -76,7 +96,7 @@ func copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Tag, errMap map[
 }
 
 // It applies the configuration for resources of kind aws-copyami.
-func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
+func (r *Resource) apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 	sess, err := awscommon.GetAwsSession(srcAmiInfo.CredsInfo)
 	if err != nil {
 		return err
@@ -84,12 +104,24 @@ func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 
 	svc := sts.New(sess)
 
-	accountInfo, err := awscommon.GetAccountInfo(svc)
+	callerInfo, err := awscommon.GetCallerInfo(svc)
 	if err != nil {
 		return err
 	}
 
-	srcAmiInfo.AccountID = accountInfo.Account
+	iamSVC := iam.New(sess)
+
+	accountAlias, err := awscommon.GetAccountAlias(iamSVC)
+	if err != nil {
+		return err
+	}
+
+	r.Record.AccountMeta = AccountMeta{
+		ID:    callerInfo.Account,
+		Alias: accountAlias,
+	}
+
+	srcAmiInfo.AccountID = callerInfo.Account
 	sess.Config.Region = srcAmiInfo.Region
 	ci := awscommon.AwsClientInfo{
 		SVC:    ec2.New(sess),
@@ -102,6 +134,10 @@ func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 	}
 
 	srcAmiInfo.Image = images[0]
+	r.Record.SrcImage.Region = srcAmiInfo.Region
+	r.Record.SrcImage.Name = images[0].Name
+	r.Record.SrcImage.ID = images[0].ImageId
+	r.Record.TargetImages = make(map[*string]AmiMeta)
 	errMap := map[string]error{}
 
 	if targetInfo.CopyTags {
@@ -111,7 +147,7 @@ func apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 	for _, targetRegion := range targetInfo.Regions {
 		wg.Add(1)
 
-		go copyAmi(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, targetInfo.Tags, errMap)
+		go r.copyAmi(sess.Copy(&aws.Config{Region: targetRegion}), srcAmiInfo, targetInfo.Tags, errMap)
 	}
 
 	wg.Wait()

@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	clog "github.com/proffer/common/clogger"
 	awscommon "github.com/proffer/resources/aws/common"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -44,11 +45,38 @@ type Config struct {
 	SrcAmiInfo SrcAmiInfo    `mapstructure:"-"`
 }
 
+// SrcImage represent the source ami information used for inventory generation.
+type SrcImage struct {
+	ID     *string `yaml:"id"`
+	Name   *string `yaml:"name"`
+	Region *string `yaml:"region"`
+}
+
+// AmiMeta represent the AWS AMI metadata used for inventory generation.
+type AmiMeta struct {
+	ID   *string `yaml:"id"`
+	Name *string `yaml:"name"`
+}
+
+// AccountMeta represents the AWS Account metadata like id, alias, etc.
+type AccountMeta struct {
+	ID    *string
+	Alias *string
+}
+
+// Record represents the inventory record for aws-copyami resource.
+type Record struct {
+	AccountMeta  AccountMeta         `yaml:"account"`
+	SrcImage     SrcImage            `yaml:"sourceImage"`
+	TargetImages map[*string]AmiMeta `yaml:"targetImages"`
+}
+
 // Resource represents the aws-copyami resource.
 type Resource struct {
 	Name   *string `required:"true"`
 	Type   *string `required:"true"`
 	Config Config  `mapstructure:"config" required:"true"`
+	Record Record  `mapstructure:"-"`
 }
 
 // Run applies the resource specific configuration.
@@ -61,7 +89,21 @@ func (r *Resource) Run() error {
 		Tags:     awscommon.FormEc2Tags(target.AddExtraTags),
 	}
 
-	if err := apply(r.Config.SrcAmiInfo, targetInfo); err != nil {
+	if err := r.apply(r.Config.SrcAmiInfo, targetInfo); err != nil {
+		return err
+	}
+
+	clogger.Info(r.Record)
+	bs, _ := yaml.Marshal(r.Record)
+	clogger.Info(string(bs))
+
+	file, err := os.Create("inventory.yml")
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bs)
+	if err != nil {
 		return err
 	}
 
