@@ -20,6 +20,18 @@ var (
 	clogger = clog.New(os.Stdout, "common | ", log.Lmsgprefix)
 )
 
+// AccountMeta represents the AWS Account metadata like id, alias, etc.
+type AccountMeta struct {
+	ID    *string
+	Alias *string
+}
+
+// AmiMeta represent the AWS AMI metadata used for inventory generation.
+type AmiMeta struct {
+	ID   *string `yaml:"id"`
+	Name *string `yaml:"name"`
+}
+
 // createSession is used to create aws session with given configuration.
 func createSession(sessOpts session.Options) (sessPtr *session.Session) {
 	// Create a Session with a custom config

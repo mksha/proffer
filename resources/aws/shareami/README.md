@@ -57,7 +57,7 @@ source:
 
 ### amiFiltersDict:
 
-AMI filter to uniquely identify an AMI in a region.
+AMI filters to uniquely identify source AMI(s) in different regions.
 
 ``` YAML
 ---
@@ -69,7 +69,6 @@ amiFilters:
 # Examples
 amiFilters:
   name: test-ami
-  image-id: ami-123456789012
   tag:Purpose: testing
 ```
 

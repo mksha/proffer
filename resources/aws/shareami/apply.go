@@ -154,6 +154,17 @@ func addPermissionsforTargetAccounts(sai SrcAmiInfo, region *string, regionErrMa
 	createVolumePermissions := make([]*ec2.CreateVolumePermission, 0)
 
 	for _, accountRegionMapping := range accountRegionMappingList {
+		// Record account and regional distribution.
+		if sai.AccountRecord[accountRegionMapping.AccountID].Regions == nil {
+			sai.AccountRecord[accountRegionMapping.AccountID] = AccountImage{
+				Regions:      make(map[*string]awscommon.AmiMeta),
+				AccountAlias: accountRegionMapping.AccountAlias,
+			}
+		}
+
+		sai.AccountRecord[accountRegionMapping.AccountID].Regions[region] = sai.RegionalRecord[region]
+
+		// Form lunch permission for all accounts given.
 		launchPermission := &ec2.LaunchPermission{UserId: accountRegionMapping.AccountID}
 		launchPermissions = append(launchPermissions, launchPermission)
 

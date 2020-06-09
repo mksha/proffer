@@ -52,23 +52,11 @@ type SrcImage struct {
 	Region *string `yaml:"region"`
 }
 
-// AmiMeta represent the AWS AMI metadata used for inventory generation.
-type AmiMeta struct {
-	ID   *string `yaml:"id"`
-	Name *string `yaml:"name"`
-}
-
-// AccountMeta represents the AWS Account metadata like id, alias, etc.
-type AccountMeta struct {
-	ID    *string
-	Alias *string
-}
-
 // Record represents the inventory record for aws-copyami resource.
 type Record struct {
-	AccountMeta  AccountMeta         `yaml:"account"`
-	SrcImage     SrcImage            `yaml:"sourceImage"`
-	TargetImages map[*string]AmiMeta `yaml:"targetImages"`
+	AccountMeta  awscommon.AccountMeta         `yaml:"account"`
+	SrcImage     SrcImage                      `yaml:"sourceImage"`
+	TargetImages map[*string]awscommon.AmiMeta `yaml:"targetImages"`
 }
 
 // Resource represents the aws-copyami resource.

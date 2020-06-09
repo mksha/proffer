@@ -26,7 +26,7 @@ func (r *Resource) copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Ta
 	defer wg.Done()
 
 	svc := ec2.New(sess)
-	amiMeta := AmiMeta{Name: sai.Image.Name}
+	amiMeta := awscommon.AmiMeta{Name: sai.Image.Name}
 
 	defer func() {
 		r.Record.TargetImages[sess.Config.Region] = amiMeta
@@ -116,7 +116,7 @@ func (r *Resource) apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 		return err
 	}
 
-	r.Record.AccountMeta = AccountMeta{
+	r.Record.AccountMeta = awscommon.AccountMeta{
 		ID:    callerInfo.Account,
 		Alias: accountAlias,
 	}
@@ -137,7 +137,7 @@ func (r *Resource) apply(srcAmiInfo SrcAmiInfo, targetInfo TargetInfo) error {
 	r.Record.SrcImage.Region = srcAmiInfo.Region
 	r.Record.SrcImage.Name = images[0].Name
 	r.Record.SrcImage.ID = images[0].ImageId
-	r.Record.TargetImages = make(map[*string]AmiMeta)
+	r.Record.TargetImages = make(map[*string]awscommon.AmiMeta)
 	errMap := map[string]error{}
 
 	if targetInfo.CopyTags {

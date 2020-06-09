@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/mitchellh/mapstructure"
 	awscommon "github.com/proffer/resources/aws/common"
@@ -46,9 +47,20 @@ func (r *Resource) Prepare(rawConfig map[string]interface{}) error {
 		return err
 	}
 
+	iamSVC := iam.New(sess)
+
+	accountAlias, err := awscommon.GetAccountAlias(iamSVC)
+	if err != nil {
+		return err
+	}
+
 	r.Config.SrcAmiInfo.AccountID = callerInfo.Account
+	r.Config.SrcAmiInfo.AccountAlias = accountAlias
 
 	regions := r.Config.Target.getTargetRegions()
+	// Initialize record store.
+	r.Config.SrcAmiInfo.RegionalRecord = make(map[*string]awscommon.AmiMeta)
+	r.Config.SrcAmiInfo.AccountRecord = make(map[*string]AccountImage)
 
 	if err := r.Config.SrcAmiInfo.prepareTargetRegionAmiMapping(regions); err != nil {
 		for region, amiInfo := range r.Config.SrcAmiInfo.RegionAmiErrMap {
@@ -103,11 +115,12 @@ func (r *Resource) prepareAccountRegionMappingList() {
 
 	for _, rawAccountRegionMapping := range r.Config.Target.AccountRegionMappingList {
 		accountRegionMapping := AccountRegionMapping{
-			CopyTags:  rawAccountRegionMapping.CopyTagsAcrossAccounts,
-			Tags:      awscommon.FormEc2Tags(rawAccountRegionMapping.AddExtraTags),
-			Regions:   rawAccountRegionMapping.Regions,
-			AccountID: aws.String(strconv.Itoa(rawAccountRegionMapping.AccountID)),
-			CredsInfo: make(map[string]string, 2),
+			CopyTags:     rawAccountRegionMapping.CopyTagsAcrossAccounts,
+			Tags:         awscommon.FormEc2Tags(rawAccountRegionMapping.AddExtraTags),
+			Regions:      rawAccountRegionMapping.Regions,
+			AccountID:    aws.String(strconv.Itoa(rawAccountRegionMapping.AccountID)),
+			AccountAlias: rawAccountRegionMapping.AccountAlias,
+			CredsInfo:    make(map[string]string, 2),
 		}
 
 		if rawAccountRegionMapping.RoleArn != nil {
@@ -129,8 +142,8 @@ func (sai *SrcAmiInfo) prepareTargetRegionAmiMapping(regions []*string) (err err
 	defer close(regionAmiErrChan)
 
 	for _, targetRegion := range regions {
-		sai := *sai
-		go prepareRegionAmiErrMap(sai, targetRegion, regionAmiErrChan)
+		// sai := *sai
+		go sai.prepareRegionAmiErrMap(targetRegion, regionAmiErrChan)
 	}
 
 	for i := 0; i < len(regions); i++ {
@@ -147,13 +160,17 @@ func (sai *SrcAmiInfo) prepareTargetRegionAmiMapping(regions []*string) (err err
 	return
 }
 
-func prepareRegionAmiErrMap(sai SrcAmiInfo, region *string, regionAmiErrChan chan<- RegionAmiErrMap) {
+func (sai *SrcAmiInfo) prepareRegionAmiErrMap(region *string, regionAmiErrChan chan<- RegionAmiErrMap) {
 	regionAmiErr := make(RegionAmiErrMap)
+	amiMeta := awscommon.AmiMeta{}
+
+	defer func() {
+		regionAmiErrChan <- regionAmiErr
+	}()
 
 	sess, err := awscommon.GetAwsSession(sai.CredsInfo)
 	if err != nil {
 		regionAmiErr[region] = AmiInfo{Error: err}
-		regionAmiErrChan <- regionAmiErr
 
 		return
 	}
@@ -168,18 +185,17 @@ func prepareRegionAmiErrMap(sai SrcAmiInfo, region *string, regionAmiErrChan cha
 	if err != nil {
 		regionAmiErr[region] = AmiInfo{Error: err}
 
-		regionAmiErrChan <- regionAmiErr
-
 		return
 	}
 
 	image := images[0]
+	amiMeta.Name = image.Name
+	amiMeta.ID = image.ImageId
 
 	clogger.Infof("Source AMI: %s Found In Account: %s In Region: %s", *image.Name, *sai.AccountID, *region)
 
 	regionAmiErr[region] = AmiInfo{Ami: image}
-
-	regionAmiErrChan <- regionAmiErr
+	sai.RegionalRecord[region] = amiMeta
 }
 
 func (t *Target) setCommonPropertiesIfAny() {
