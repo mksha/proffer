@@ -4,11 +4,12 @@ srcAcctID: 698203116079
 srcProfile: demo-2
 srcRegion: us-east-1
 targetCopyRegions:
-  - us-east-1
   - us-west-2
+  - ap-northeast-1
+  - ap-northeast-2
 
 srcAmiFilters:
-  # image-id: ami-01b55974057720a43
+  image-id: ami-0789874ede9e4a342
   name: test-image
   tag:Purpose: Testing
   tag:Department: DevOps

@@ -6,17 +6,17 @@ vars:
     - us-west-2
 
 resources:
-# - name: Copy AMI To Commercial Account Regions
-#   type: aws-copyami
-#   config:
-#     source:
-#       profile: {{ var `srcProfile`}}
-#       region: {{ var `srcRegion` }}
-#       amiFilters: {{ var `srcAmiFilters` }}
-#     target:
-#       regions: {{ var `targetCopyRegions` }}
-#       copyTagsAcrossRegions: {{ var `copyTagsAcrossRegions` }}
-#       addExtraTags: {{ var `addExtraTags` }}
+- name: Copy AMI To Commercial Account Regions
+  type: aws-copyami
+  config:
+    source:
+      profile: {{ var `srcProfile`}}
+      region: {{ var `srcRegion` }}
+      amiFilters: {{ var `srcAmiFilters` }}
+    target:
+      regions: {{ var `targetCopyRegions` }}
+      copyTagsAcrossRegions: {{ var `copyTagsAcrossRegions` }}
+      addExtraTags: {{ var `addExtraTags` }}
 
 - name: Share AMI With Other Accounts
   type: aws-shareami

@@ -32,9 +32,23 @@ func (r *Resource) copyAmi(sess *session.Session, sai SrcAmiInfo, tags []*ec2.Ta
 		r.Record.TargetImages[sess.Config.Region] = amiMeta
 	}()
 
+	filters := make([]*ec2.Filter, 0)
+
+	if len(tags) != 0 {
+		for _, tag := range tags {
+			filter := &ec2.Filter{
+				Name:   aws.String(fmt.Sprintf("tag:%s", *tag.Key)),
+				Values: []*string{tag.Value},
+			}
+			filters = append(filters, filter)
+		}
+	}
+
 	targetAmiFilters := []*ec2.Filter{{
 		Name:   aws.String("name"),
 		Values: []*string{amiMeta.Name}}}
+
+	targetAmiFilters = append(targetAmiFilters, filters...)
 
 	ok, err := awscommon.IsAmiExist(svc, targetAmiFilters)
 	if ok {

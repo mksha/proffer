@@ -5,6 +5,7 @@ type Resourcer interface {
 	Validate(RawResource) error
 	Prepare(map[string]interface{}) error
 	Run() error
+	GenerateInventory() ([]byte, error)
 }
 
 // RawResource represents raw resource information.

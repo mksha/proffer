@@ -131,19 +131,6 @@ func (r *Resource) Run() error {
 		r.Record.TargetAccountsImages[account] = accountImage
 	}
 
-	bs, _ := yaml.Marshal(r.Record)
-	clogger.Info(string(bs))
-
-	file, err := os.Create("inventory.yml")
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(bs)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -157,4 +144,23 @@ func (t Target) getTargetRegions() []*string {
 	regions = append(regions, t.CommonRegions...)
 
 	return regions
+}
+
+// GenerateInventory generates the distribution inventory for aws-shareami resource.
+func (r *Resource) GenerateInventory() ([]byte, error) {
+	inventoryRecord := struct {
+		ResourceName *string `yaml:"resourceName"`
+		Output       Record  `yaml:"output"`
+	}{
+		ResourceName: r.Name,
+		Output:       r.Record,
+	}
+
+	bs, err := yaml.Marshal(inventoryRecord)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
 }

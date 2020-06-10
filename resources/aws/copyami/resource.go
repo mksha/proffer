@@ -81,19 +81,24 @@ func (r *Resource) Run() error {
 		return err
 	}
 
-	clogger.Info(r.Record)
-	bs, _ := yaml.Marshal(r.Record)
-	clogger.Info(string(bs))
-
-	file, err := os.Create("inventory.yml")
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(bs)
-	if err != nil {
-		return err
-	}
-
 	return nil
+}
+
+// GenerateInventory generates the distribution inventory for aws-copyami resource.
+func (r *Resource) GenerateInventory() ([]byte, error) {
+	inventoryRecord := struct {
+		ResourceName *string `yaml:"resourceName"`
+		Output       Record  `yaml:"output"`
+	}{
+		ResourceName: r.Name,
+		Output:       r.Record,
+	}
+
+	bs, err := yaml.Marshal(inventoryRecord)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
 }
