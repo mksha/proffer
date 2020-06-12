@@ -39,7 +39,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(gendocCmd)
-	gendocCmd.Flags().StringVarP(&path, "path", "p", "doc", "path for generating proffer documentation. Default is 'doc'")
+	gendocCmd.Flags().StringVarP(&path, "path", "p", "doc", "path for generating proffer documentation.")
 }
 
 // Generate docs.
