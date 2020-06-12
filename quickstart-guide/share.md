@@ -31,12 +31,14 @@ resources:
       accountRegionMappingList:
           # Target Account 1
         - accountId: 871209123409
+          accountAlias: demo-1
           # Target regions for Account-1 account.
           regions:
             - ap-northeast-1
 
         # Target Account 2
         - accountId: 120923873465
+          accountAlias: demo-3
           # Target regions for Account-2 account.
           regions:
             - ap-northeast-2

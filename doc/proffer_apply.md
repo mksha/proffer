@@ -25,7 +25,7 @@ $ proffer apply -d proffer.yml
 
 ```
   -h, --help               help for apply
-  -i, --inventory string   yml file path for storing proffer inventory report. (default "inventory.yml")
+  -i, --inventory string   yml file path to store proffer inventory report. (default "inventory.yml")
 ```
 
 ### Options inherited from parent commands

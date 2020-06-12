@@ -14,7 +14,7 @@ proffer gendoc [flags]
 
 ```
   -h, --help          help for gendoc
-  -p, --path string   path for generating proffer documentation. (default "doc")
+  -p, --path string   path to generate proffer documentation. (default "doc")
 ```
 
 ### Options inherited from parent commands

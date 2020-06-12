@@ -94,6 +94,7 @@ This dict object specifies the information regarding target AWS accounts , regio
 ---
 # Schema
 accountId: integer                # Required | Desc: Target AWS account id.
+accountAlias: string              # Optional | Desc: Target AWS account alias. It is recommended, bec we will get better inventory report. Otherwise accountAlias will be null in report.
 profile: string                   # Optional | Desc: AWS Profile to get creds for target aws account. Needed if `copyTagsAcrossAccounts` flag is true and `roleArn` key is not set.
 roleArn: string                   # Optional | Desc: AWS Role ARN to get creds for target aws account. Needed if `copyTagsAcrossAccounts` flag is true and `profile` key is not set.
 regions: [string]                 # Required | Desc: List of target AWS account regions with which we want to share the source ami.
@@ -138,6 +139,7 @@ resources:
     target:
       accountRegionMappingList:
         - accountId: 121616226324
+          accountAlias: demo-1
           profile: demo-1
           regions:
             - ap-northeast-1
@@ -147,6 +149,7 @@ resources:
             Type: AMITesting
             Home: {{ env "HOME" | default "default value" }}
         - accountId: 121266418583
+          accountAlias: demo-3
           regions:
             - ap-northeast-2
       addCreateVolumePermission: true

@@ -9,7 +9,7 @@ targetCopyRegions:
   - ap-northeast-2
 
 srcAmiFilters:
-  image-id: ami-0789874ede9e4a342
+  image-id: ami-01b55974057720a43
   name: test-image
   tag:Purpose: Testing
   tag:Department: DevOps
