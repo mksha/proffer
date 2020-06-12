@@ -148,15 +148,17 @@ func (t Target) getTargetRegions() []*string {
 
 // GenerateInventory generates the distribution inventory for aws-shareami resource.
 func (r *Resource) GenerateInventory() ([]byte, error) {
-	inventoryRecord := struct {
+	type inventoryRecord struct {
 		ResourceName *string `yaml:"resourceName"`
 		Output       Record  `yaml:"output"`
-	}{
+	}
+
+	ir := inventoryRecord{
 		ResourceName: r.Name,
 		Output:       r.Record,
 	}
 
-	bs, err := yaml.Marshal(inventoryRecord)
+	bs, err := yaml.Marshal([]inventoryRecord{ir})
 
 	if err != nil {
 		return nil, err

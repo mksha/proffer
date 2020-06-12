@@ -101,6 +101,8 @@ func executeResources(dsc string) {
 
 	resources := command.Resources
 	inventory := make([]byte, 0)
+	header := []byte("---\n")
+	inventory = append(inventory, header...)
 
 	// apply resources defined in template one by one
 	for _, rawResource := range c.RawResources {
@@ -122,9 +124,6 @@ func executeResources(dsc string) {
 			clogger.Error(err)
 			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
 		}
-
-		header := []byte("---\n")
-		inventory = append(inventory, header...)
 
 		bs, err := resource.GenerateInventory()
 		if err != nil {

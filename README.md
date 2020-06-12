@@ -77,7 +77,7 @@ distribution like where is the source image located ,where are target images cre
 
 If we want to change the name of the inventory file generated, we can use `--inventory` option in `proffer apply command` to pass the custom name for inventory being generated. By default report name is `inventory.yml`.
 
-Inventory report sample can be found at [sample-inventory-report](output-samples/inventory.yml)
+Inventory report sample can be found at [sample-inventory-report](output-samples/example-inventory.yml)
 
 ## Command-line documentation:
 
