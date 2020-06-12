@@ -59,7 +59,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(applyCmd)
-	applyCmd.Flags().StringVarP(&inventoryPath, "inventory", "i", "inventory.yml", "yml file path for storing proffer inventory report.")
+	applyCmd.Flags().StringVarP(&inventoryPath, "inventory", "i", "inventory.yml", "yml file path to store proffer inventory report.")
 }
 
 // applyConfig applies the given template configuration.
