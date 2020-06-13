@@ -1,3 +1,16 @@
+# v0.1.5 (June 13, 2020)
+
+Features:
+
+* Added inventory report generation support.
+* Added accountAlias flag in accountRegionMapping.
+* Added documentation for cli use.
+* Updated documentation for quick-start.
+
+Bugfix:
+
+* Fixed ami copy process in aws-copyami resource
+
 # v0.1.4 (May 30, 2020)
 
 Features:
