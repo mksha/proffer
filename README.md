@@ -24,6 +24,7 @@ Some features of proffer:
 * In build validation for yml config file.
 * It allows to use dynamic and default variables in template file.
 * It has lots of advanced features, like copy the tags across regions and accounts, share different kins of ami permission for target accounts, adding extra tags.
+* It generates proffer inventory report on successful execution.
 
 ## Supported Cloud Providers:
 
@@ -68,6 +69,19 @@ Proffer also allows us to define the dynamic variables in a separate variable fi
 template file. Similarly define default variables and use them in template file. To resolve their values in template file we need to pass this variable file in proffer `validate` and `apply` commands using `--var-file` argument.
 
 For more details take a look at [How to use variables in template file](quickstart-guide/variables/main.md)
+
+## Inventory Report:
+
+Proffer generates an inventory report on the successful execution. This report contains all information about image
+distribution like where is the source image located ,where are target images created and with which accounts and regions source image was shared.
+
+If we want to change the name of the inventory file generated, we can use `--inventory` option in `proffer apply command` to pass the custom name for inventory being generated. By default report name is `inventory.yml`.
+
+Inventory report sample can be found at [sample-inventory-report](output-samples/example-inventory.yml)
+
+## Command-line documentation:
+
+To check what are the options are available in each proffer command and sub-command, visit [cli-doc](doc/proffer.md) page.
 
 ## License:
 

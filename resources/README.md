@@ -9,7 +9,7 @@ Available Resource Types:
     - Use case: This resource type can be used to copy AMI in different regions of an AWS Account.
     - [Allowed Properties](aws/copyami/README.md)
 
-* [aws-share-cmi](aws/shareami/README.md)
+* [aws-shareami](aws/shareami/README.md)
     - Provider: AWS
     - Use case: This resource type can be used to share the AMI with different AWS Accounts and regions.
     - [Allowed Properties](aws/shareami/README.md)

@@ -120,7 +120,7 @@ linters:
 # all available settings of specific linters
 linters-settings:
   funlen:
-    lines: 105
+    lines: 116
     statements: 66
 
   lll:

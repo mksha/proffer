@@ -30,6 +30,7 @@ resources:
     target:
       accountRegionMappingList:
         - accountId: {{ var `target1AcctId` }}
+          accountAlias: demo-1
           profile: demo-1
           regions:
             - ap-northeast-1
@@ -40,6 +41,7 @@ resources:
             home: {{ env `HOME` | default `default value` }}
 
         - accountId: {{ var `target2AcctId` }}
+          accountAlias: platform-aws
           profile: platform-aws
           # roleArn: arn:aws::iam:123456789012:role/test
           regions:

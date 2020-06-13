@@ -6,6 +6,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/ec2"
 	clog "github.com/proffer/common/clogger"
+	awscommon "github.com/proffer/resources/aws/common"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -23,13 +25,17 @@ type RawSrcAmiInfo struct {
 type SrcAmiInfo struct {
 	CredsInfo       map[string]string
 	AccountID       *string
+	AccountAlias    *string
 	Filters         []*ec2.Filter
 	RegionAmiErrMap RegionAmiErrMap
+	RegionalRecord  map[*string]awscommon.AmiMeta
+	AccountRecord   map[*string]AccountImage
 }
 
 // RawAccountRegionMapping represents raw mapping of accounts and regions.
 type RawAccountRegionMapping struct {
 	AccountID                 int                 `mapstructure:"accountId" required:"true" chain:"config.target.accountRegionMappingList.N.accountId"`
+	AccountAlias              *string             `mapstructure:"accountAlias" required:"false" chain:"config.target.accountRegionMappingList.N.accountAlias"`
 	Profile                   *string             `mapstructure:"profile" required:"false" chain:"config.target.accountRegionMappingList.N.profile"`
 	RoleArn                   *string             `mapstructure:"roleArn" required:"false" chain:"config.target.accountRegionMappingList.N.roleArn"`
 	Regions                   []*string           `mapstructure:"regions" required:"true" chain:"config.target.accountRegionMappingList.N.regions"`
@@ -40,13 +46,14 @@ type RawAccountRegionMapping struct {
 
 // AccountRegionMapping represents mapping of accounts and regions.
 type AccountRegionMapping struct {
-	CopyTags  bool
-	AddCVP    bool
-	Tags      []*ec2.Tag
-	CredsInfo map[string]string
-	AccountID *string
-	Image     *ec2.Image
-	Regions   []*string
+	CopyTags     bool
+	AddCVP       bool
+	Tags         []*ec2.Tag
+	CredsInfo    map[string]string
+	AccountID    *string
+	AccountAlias *string
+	Image        *ec2.Image
+	Regions      []*string
 }
 
 // Target represents target configuration for aws-shareami resource.
@@ -65,11 +72,30 @@ type Config struct {
 	SrcAmiInfo SrcAmiInfo    `mapstructure:"-"`
 }
 
+// SrcImage represent the source ami information used for inventory generation.
+type SrcImage struct {
+	AmiFilters map[*string]*string   `yaml:"identifiers"`
+	Account    awscommon.AccountMeta `yaml:"account"`
+}
+
+// AccountImage represents the data of images at account level.
+type AccountImage struct {
+	AccountAlias *string                       `yaml:"accountAlias"`
+	Regions      map[*string]awscommon.AmiMeta `yaml:"regions"`
+}
+
+// Record represents the inventory record for aws-shareami resource.
+type Record struct {
+	SrcImage             SrcImage                 `yaml:"sourceImage"`
+	TargetAccountsImages map[*string]AccountImage `yaml:"targetAccountsImages"`
+}
+
 // Resource represents aws-shareami resource type.
 type Resource struct {
 	Name   *string `required:"true"`
 	Type   *string `required:"true"`
 	Config Config  `mapstructure:"config" required:"true"`
+	Record Record  `mapstructure:"-"`
 }
 
 type (
@@ -94,6 +120,17 @@ func (r *Resource) Run() error {
 		return err
 	}
 
+	r.Record.SrcImage.AmiFilters = r.Config.Source.AmiFilters
+	r.Record.SrcImage.Account = awscommon.AccountMeta{
+		ID:    r.Config.SrcAmiInfo.AccountID,
+		Alias: r.Config.SrcAmiInfo.AccountAlias,
+	}
+
+	r.Record.TargetAccountsImages = make(map[*string]AccountImage)
+	for account, accountImage := range r.Config.SrcAmiInfo.AccountRecord {
+		r.Record.TargetAccountsImages[account] = accountImage
+	}
+
 	return nil
 }
 
@@ -107,4 +144,25 @@ func (t Target) getTargetRegions() []*string {
 	regions = append(regions, t.CommonRegions...)
 
 	return regions
+}
+
+// GenerateInventory generates the distribution inventory for aws-shareami resource.
+func (r *Resource) GenerateInventory() ([]byte, error) {
+	type inventoryRecord struct {
+		ResourceName *string `yaml:"resourceName"`
+		Output       Record  `yaml:"output"`
+	}
+
+	ir := inventoryRecord{
+		ResourceName: r.Name,
+		Output:       r.Record,
+	}
+
+	bs, err := yaml.Marshal([]inventoryRecord{ir})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
 }

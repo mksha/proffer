@@ -29,6 +29,9 @@ import (
 )
 
 var (
+	// Used for flags.
+	inventoryPath string
+
 	applyLong = dedent.Dedent(`
 		Apply command is used to apply the proffer configuration and distribute the cloud image
 		in between multiple regions and with multiple accounts.`)
@@ -56,6 +59,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(applyCmd)
+	applyCmd.Flags().StringVarP(&inventoryPath, "inventory", "i", "inventory.yml", "yml file path to store proffer inventory report.")
 }
 
 // applyConfig applies the given template configuration.
@@ -96,6 +100,9 @@ func executeResources(dsc string) {
 	}
 
 	resources := command.Resources
+	inventory := make([]byte, 0)
+	header := []byte("---\n")
+	inventory = append(inventory, header...)
 
 	// apply resources defined in template one by one
 	for _, rawResource := range c.RawResources {
@@ -118,8 +125,26 @@ func executeResources(dsc string) {
 			clogger.Fatalf("Resource : %s  Status: Failed", rawResource.Name)
 		}
 
+		bs, err := resource.GenerateInventory()
+		if err != nil {
+			clogger.Fatal(err)
+		}
+
+		inventory = append(inventory, bs...)
+
 		clogger.Info("")
 		clogger.Successf("Resource : %s  Status: Succeeded", rawResource.Name)
 		fmt.Println("")
+	}
+
+	// Generate inventory report
+	file, err := os.Create(inventoryPath)
+	if err != nil {
+		clogger.Fatal(err)
+	}
+
+	_, err = file.Write(inventory)
+	if err != nil {
+		clogger.Fatal(err)
 	}
 }

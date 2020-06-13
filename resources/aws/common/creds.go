@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go/service/iam/iamiface"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	clog "github.com/proffer/common/clogger"
@@ -17,6 +19,18 @@ import (
 var (
 	clogger = clog.New(os.Stdout, "common | ", log.Lmsgprefix)
 )
+
+// AccountMeta represents the AWS Account metadata like id, alias, etc.
+type AccountMeta struct {
+	ID    *string
+	Alias *string
+}
+
+// AmiMeta represent the AWS AMI metadata used for inventory generation.
+type AmiMeta struct {
+	ID   *string `yaml:"id"`
+	Name *string `yaml:"name"`
+}
 
 // createSession is used to create aws session with given configuration.
 func createSession(sessOpts session.Options) (sessPtr *session.Session) {
@@ -36,12 +50,12 @@ func GetAwsSessWithAssumeRole(roleArn string) (*session.Session, error) {
 
 	svc := sts.New(sessPtr)
 
-	callerAccountInfo, err := GetAccountInfo(svc)
+	callerInfo, err := GetCallerInfo(svc)
 	if err != nil {
 		return nil, err
 	}
 
-	clogger.Debugf("Will Assume IAM Role Using Creds Of Identity: %s", *callerAccountInfo.Arn)
+	clogger.Debugf("Will Assume IAM Role Using Creds Of Identity: %s", *callerInfo.Arn)
 
 	creds := stscreds.NewCredentials(sessPtr, roleArn)
 	config := aws.Config{Credentials: creds}
@@ -110,9 +124,9 @@ func IsCredsExpired(svc stsiface.STSAPI) bool {
 	return false
 }
 
-// GetAccountInfo returns the caller identity from the given session.
+// GetCallerInfo returns the caller identity from the given service client session.
 // It also returns an error if there was any.
-func GetAccountInfo(svc stsiface.STSAPI) (*sts.GetCallerIdentityOutput, error) {
+func GetCallerInfo(svc stsiface.STSAPI) (*sts.GetCallerIdentityOutput, error) {
 	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 	if err != nil {
@@ -120,6 +134,19 @@ func GetAccountInfo(svc stsiface.STSAPI) (*sts.GetCallerIdentityOutput, error) {
 	}
 
 	return result, nil
+}
+
+// GetAccountAlias returns the AWS Account Alias for the given service client session.
+// It also returns an error if there was any.
+func GetAccountAlias(svc iamiface.IAMAPI) (*string, error) {
+	input := &iam.ListAccountAliasesInput{}
+	result, err := svc.ListAccountAliases(input)
+
+	if ok, err := IsError(err); ok {
+		return nil, err
+	}
+
+	return result.AccountAliases[0], nil
 }
 
 // GetAwsSession returns a session pointer based on given credential provider.

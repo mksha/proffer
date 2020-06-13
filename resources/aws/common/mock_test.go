@@ -6,6 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
+	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go/service/iam/iamiface"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 )
@@ -18,6 +20,12 @@ type mockEC2Client struct {
 // Define a mock struct for sts to use in unit tests.
 type mockSTSClient struct {
 	stsiface.STSAPI
+	Error error
+}
+
+// Define a mock struct for iam to use in unit tests.
+type mockIAMClient struct {
+	iamiface.IAMAPI
 	Error error
 }
 
@@ -72,6 +80,17 @@ func (m *mockSTSClient) GetCallerIdentity(input *sts.GetCallerIdentityInput) (*s
 		Account: aws.String("123456789012"),
 		Arn:     aws.String("arn:aws::iam:123456789012:role/test"),
 		UserId:  aws.String("123@testuser"),
+	}
+
+	return resp, m.Error
+}
+
+func (m *mockIAMClient) ListAccountAliases(input *iam.ListAccountAliasesInput) (*iam.ListAccountAliasesOutput, error) {
+	resp := &iam.ListAccountAliasesOutput{
+		AccountAliases: []*string{
+			aws.String("test-account"),
+		},
+		IsTruncated: aws.Bool(false),
 	}
 
 	return resp, m.Error

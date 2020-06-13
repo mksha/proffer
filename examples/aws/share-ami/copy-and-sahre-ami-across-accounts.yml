@@ -36,6 +36,7 @@ resources:
       accountRegionMappingList:
         - accountId: 768678291012
           profile: demo-1
+          accountAlias: demo-1
           regions:
             - ap-northeast-1
             # - us-east-2
@@ -45,7 +46,8 @@ resources:
             Type: AMITesting
             home: {{ env "HOME" | default "default value" }}
         - accountId: 123847789012
-          profile: platform-aws
+          accountAlias: demo-3
+          profile: demo-3
           # roleArn: arn:aws::iam:123456789012:role/test
           regions:
             - ap-northeast-2

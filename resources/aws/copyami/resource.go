@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	clog "github.com/proffer/common/clogger"
 	awscommon "github.com/proffer/resources/aws/common"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -44,11 +45,26 @@ type Config struct {
 	SrcAmiInfo SrcAmiInfo    `mapstructure:"-"`
 }
 
+// SrcImage represent the source ami information used for inventory generation.
+type SrcImage struct {
+	ID     *string `yaml:"id"`
+	Name   *string `yaml:"name"`
+	Region *string `yaml:"region"`
+}
+
+// Record represents the inventory record for aws-copyami resource.
+type Record struct {
+	AccountMeta  awscommon.AccountMeta         `yaml:"account"`
+	SrcImage     SrcImage                      `yaml:"sourceImage"`
+	TargetImages map[*string]awscommon.AmiMeta `yaml:"targetImages"`
+}
+
 // Resource represents the aws-copyami resource.
 type Resource struct {
 	Name   *string `required:"true"`
 	Type   *string `required:"true"`
 	Config Config  `mapstructure:"config" required:"true"`
+	Record Record  `mapstructure:"-"`
 }
 
 // Run applies the resource specific configuration.
@@ -61,9 +77,32 @@ func (r *Resource) Run() error {
 		Tags:     awscommon.FormEc2Tags(target.AddExtraTags),
 	}
 
-	if err := apply(r.Config.SrcAmiInfo, targetInfo); err != nil {
+	if err := r.apply(r.Config.SrcAmiInfo, targetInfo); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// GenerateInventory generates the distribution inventory for aws-copyami resource.
+func (r *Resource) GenerateInventory() ([]byte, error) {
+	type inventoryRecord struct {
+		ResourceName *string `yaml:"resourceName"`
+		Output       Record  `yaml:"output"`
+	}
+
+	ir := inventoryRecord{
+		ResourceName: r.Name,
+		Output:       r.Record,
+	}
+
+	inventory := []inventoryRecord{ir}
+
+	bs, err := yaml.Marshal(inventory)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
 }
