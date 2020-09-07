@@ -49,7 +49,6 @@ func IsAmiExist(svc ec2iface.EC2API, filters []*ec2.Filter) (bool, error) {
 	if len(images) == 0 {
 		return false, nil
 	}
-
 	return true, nil
 }
 
