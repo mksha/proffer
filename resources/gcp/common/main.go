@@ -1,11 +1,5 @@
-package main
+package common
 
-import "fmt"
-
-func dummyFunction() {
-	fmt.Println("Dummy function")
-}
-
-func main() {
-	dummyFunction()
+func dummyFunction() string {
+	return "Dummy function"
 }
