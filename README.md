@@ -1,5 +1,6 @@
 # Proffer
 
+[![release](https://img.shields.io/github/v/release/mohit-kumar-sharma/proffer?include_prereleases&sort=semver)](https://github.com/mohit-kumar-sharma/proffer/releases)
 [![codecov](https://codecov.io/gh/mohit-kumar-sharma/proffer/branch/master/graph/badge.svg?token=YFU0AS3HEJ)](https://codecov.io/gh/mohit-kumar-sharma/proffer)
 ![Tests](https://github.com/mohit-kumar-sharma/proffer/workflows/Tests/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache--2.0-brightgreen.svg)
@@ -29,6 +30,7 @@ Some features of proffer:
 ## Supported Cloud Providers:
 
 * AWS
+* Azure(coming soon)
 
 Support for the other cloud providers can be added via resource plugin.
 
