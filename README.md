@@ -30,6 +30,7 @@ Some features of proffer:
 ## Supported Cloud Providers:
 
 * AWS
+* Azure(coming soon)
 
 Support for the other cloud providers can be added via resource plugin.
 
