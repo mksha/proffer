@@ -228,6 +228,10 @@ type EC2API interface {
 	CreateCapacityReservationWithContext(aws.Context, *ec2.CreateCapacityReservationInput, ...request.Option) (*ec2.CreateCapacityReservationOutput, error)
 	CreateCapacityReservationRequest(*ec2.CreateCapacityReservationInput) (*request.Request, *ec2.CreateCapacityReservationOutput)
 
+	CreateCarrierGateway(*ec2.CreateCarrierGatewayInput) (*ec2.CreateCarrierGatewayOutput, error)
+	CreateCarrierGatewayWithContext(aws.Context, *ec2.CreateCarrierGatewayInput, ...request.Option) (*ec2.CreateCarrierGatewayOutput, error)
+	CreateCarrierGatewayRequest(*ec2.CreateCarrierGatewayInput) (*request.Request, *ec2.CreateCarrierGatewayOutput)
+
 	CreateClientVpnEndpoint(*ec2.CreateClientVpnEndpointInput) (*ec2.CreateClientVpnEndpointOutput, error)
 	CreateClientVpnEndpointWithContext(aws.Context, *ec2.CreateClientVpnEndpointInput, ...request.Option) (*ec2.CreateClientVpnEndpointOutput, error)
 	CreateClientVpnEndpointRequest(*ec2.CreateClientVpnEndpointInput) (*request.Request, *ec2.CreateClientVpnEndpointOutput)
@@ -299,6 +303,10 @@ type EC2API interface {
 	CreateLocalGatewayRouteTableVpcAssociation(*ec2.CreateLocalGatewayRouteTableVpcAssociationInput) (*ec2.CreateLocalGatewayRouteTableVpcAssociationOutput, error)
 	CreateLocalGatewayRouteTableVpcAssociationWithContext(aws.Context, *ec2.CreateLocalGatewayRouteTableVpcAssociationInput, ...request.Option) (*ec2.CreateLocalGatewayRouteTableVpcAssociationOutput, error)
 	CreateLocalGatewayRouteTableVpcAssociationRequest(*ec2.CreateLocalGatewayRouteTableVpcAssociationInput) (*request.Request, *ec2.CreateLocalGatewayRouteTableVpcAssociationOutput)
+
+	CreateManagedPrefixList(*ec2.CreateManagedPrefixListInput) (*ec2.CreateManagedPrefixListOutput, error)
+	CreateManagedPrefixListWithContext(aws.Context, *ec2.CreateManagedPrefixListInput, ...request.Option) (*ec2.CreateManagedPrefixListOutput, error)
+	CreateManagedPrefixListRequest(*ec2.CreateManagedPrefixListInput) (*request.Request, *ec2.CreateManagedPrefixListOutput)
 
 	CreateNatGateway(*ec2.CreateNatGatewayInput) (*ec2.CreateNatGatewayOutput, error)
 	CreateNatGatewayWithContext(aws.Context, *ec2.CreateNatGatewayInput, ...request.Option) (*ec2.CreateNatGatewayOutput, error)
@@ -436,6 +444,10 @@ type EC2API interface {
 	CreateVpnGatewayWithContext(aws.Context, *ec2.CreateVpnGatewayInput, ...request.Option) (*ec2.CreateVpnGatewayOutput, error)
 	CreateVpnGatewayRequest(*ec2.CreateVpnGatewayInput) (*request.Request, *ec2.CreateVpnGatewayOutput)
 
+	DeleteCarrierGateway(*ec2.DeleteCarrierGatewayInput) (*ec2.DeleteCarrierGatewayOutput, error)
+	DeleteCarrierGatewayWithContext(aws.Context, *ec2.DeleteCarrierGatewayInput, ...request.Option) (*ec2.DeleteCarrierGatewayOutput, error)
+	DeleteCarrierGatewayRequest(*ec2.DeleteCarrierGatewayInput) (*request.Request, *ec2.DeleteCarrierGatewayOutput)
+
 	DeleteClientVpnEndpoint(*ec2.DeleteClientVpnEndpointInput) (*ec2.DeleteClientVpnEndpointOutput, error)
 	DeleteClientVpnEndpointWithContext(aws.Context, *ec2.DeleteClientVpnEndpointInput, ...request.Option) (*ec2.DeleteClientVpnEndpointOutput, error)
 	DeleteClientVpnEndpointRequest(*ec2.DeleteClientVpnEndpointInput) (*request.Request, *ec2.DeleteClientVpnEndpointOutput)
@@ -491,6 +503,10 @@ type EC2API interface {
 	DeleteLocalGatewayRouteTableVpcAssociation(*ec2.DeleteLocalGatewayRouteTableVpcAssociationInput) (*ec2.DeleteLocalGatewayRouteTableVpcAssociationOutput, error)
 	DeleteLocalGatewayRouteTableVpcAssociationWithContext(aws.Context, *ec2.DeleteLocalGatewayRouteTableVpcAssociationInput, ...request.Option) (*ec2.DeleteLocalGatewayRouteTableVpcAssociationOutput, error)
 	DeleteLocalGatewayRouteTableVpcAssociationRequest(*ec2.DeleteLocalGatewayRouteTableVpcAssociationInput) (*request.Request, *ec2.DeleteLocalGatewayRouteTableVpcAssociationOutput)
+
+	DeleteManagedPrefixList(*ec2.DeleteManagedPrefixListInput) (*ec2.DeleteManagedPrefixListOutput, error)
+	DeleteManagedPrefixListWithContext(aws.Context, *ec2.DeleteManagedPrefixListInput, ...request.Option) (*ec2.DeleteManagedPrefixListOutput, error)
+	DeleteManagedPrefixListRequest(*ec2.DeleteManagedPrefixListInput) (*request.Request, *ec2.DeleteManagedPrefixListOutput)
 
 	DeleteNatGateway(*ec2.DeleteNatGatewayInput) (*ec2.DeleteNatGatewayOutput, error)
 	DeleteNatGatewayWithContext(aws.Context, *ec2.DeleteNatGatewayInput, ...request.Option) (*ec2.DeleteNatGatewayOutput, error)
@@ -677,6 +693,13 @@ type EC2API interface {
 
 	DescribeCapacityReservationsPages(*ec2.DescribeCapacityReservationsInput, func(*ec2.DescribeCapacityReservationsOutput, bool) bool) error
 	DescribeCapacityReservationsPagesWithContext(aws.Context, *ec2.DescribeCapacityReservationsInput, func(*ec2.DescribeCapacityReservationsOutput, bool) bool, ...request.Option) error
+
+	DescribeCarrierGateways(*ec2.DescribeCarrierGatewaysInput) (*ec2.DescribeCarrierGatewaysOutput, error)
+	DescribeCarrierGatewaysWithContext(aws.Context, *ec2.DescribeCarrierGatewaysInput, ...request.Option) (*ec2.DescribeCarrierGatewaysOutput, error)
+	DescribeCarrierGatewaysRequest(*ec2.DescribeCarrierGatewaysInput) (*request.Request, *ec2.DescribeCarrierGatewaysOutput)
+
+	DescribeCarrierGatewaysPages(*ec2.DescribeCarrierGatewaysInput, func(*ec2.DescribeCarrierGatewaysOutput, bool) bool) error
+	DescribeCarrierGatewaysPagesWithContext(aws.Context, *ec2.DescribeCarrierGatewaysInput, func(*ec2.DescribeCarrierGatewaysOutput, bool) bool, ...request.Option) error
 
 	DescribeClassicLinkInstances(*ec2.DescribeClassicLinkInstancesInput) (*ec2.DescribeClassicLinkInstancesOutput, error)
 	DescribeClassicLinkInstancesWithContext(aws.Context, *ec2.DescribeClassicLinkInstancesInput, ...request.Option) (*ec2.DescribeClassicLinkInstancesOutput, error)
@@ -978,6 +1001,13 @@ type EC2API interface {
 
 	DescribeLocalGatewaysPages(*ec2.DescribeLocalGatewaysInput, func(*ec2.DescribeLocalGatewaysOutput, bool) bool) error
 	DescribeLocalGatewaysPagesWithContext(aws.Context, *ec2.DescribeLocalGatewaysInput, func(*ec2.DescribeLocalGatewaysOutput, bool) bool, ...request.Option) error
+
+	DescribeManagedPrefixLists(*ec2.DescribeManagedPrefixListsInput) (*ec2.DescribeManagedPrefixListsOutput, error)
+	DescribeManagedPrefixListsWithContext(aws.Context, *ec2.DescribeManagedPrefixListsInput, ...request.Option) (*ec2.DescribeManagedPrefixListsOutput, error)
+	DescribeManagedPrefixListsRequest(*ec2.DescribeManagedPrefixListsInput) (*request.Request, *ec2.DescribeManagedPrefixListsOutput)
+
+	DescribeManagedPrefixListsPages(*ec2.DescribeManagedPrefixListsInput, func(*ec2.DescribeManagedPrefixListsOutput, bool) bool) error
+	DescribeManagedPrefixListsPagesWithContext(aws.Context, *ec2.DescribeManagedPrefixListsInput, func(*ec2.DescribeManagedPrefixListsOutput, bool) bool, ...request.Option) error
 
 	DescribeMovingAddresses(*ec2.DescribeMovingAddressesInput) (*ec2.DescribeMovingAddressesOutput, error)
 	DescribeMovingAddressesWithContext(aws.Context, *ec2.DescribeMovingAddressesInput, ...request.Option) (*ec2.DescribeMovingAddressesOutput, error)
@@ -1485,6 +1515,13 @@ type EC2API interface {
 	GetEbsEncryptionByDefaultWithContext(aws.Context, *ec2.GetEbsEncryptionByDefaultInput, ...request.Option) (*ec2.GetEbsEncryptionByDefaultOutput, error)
 	GetEbsEncryptionByDefaultRequest(*ec2.GetEbsEncryptionByDefaultInput) (*request.Request, *ec2.GetEbsEncryptionByDefaultOutput)
 
+	GetGroupsForCapacityReservation(*ec2.GetGroupsForCapacityReservationInput) (*ec2.GetGroupsForCapacityReservationOutput, error)
+	GetGroupsForCapacityReservationWithContext(aws.Context, *ec2.GetGroupsForCapacityReservationInput, ...request.Option) (*ec2.GetGroupsForCapacityReservationOutput, error)
+	GetGroupsForCapacityReservationRequest(*ec2.GetGroupsForCapacityReservationInput) (*request.Request, *ec2.GetGroupsForCapacityReservationOutput)
+
+	GetGroupsForCapacityReservationPages(*ec2.GetGroupsForCapacityReservationInput, func(*ec2.GetGroupsForCapacityReservationOutput, bool) bool) error
+	GetGroupsForCapacityReservationPagesWithContext(aws.Context, *ec2.GetGroupsForCapacityReservationInput, func(*ec2.GetGroupsForCapacityReservationOutput, bool) bool, ...request.Option) error
+
 	GetHostReservationPurchasePreview(*ec2.GetHostReservationPurchasePreviewInput) (*ec2.GetHostReservationPurchasePreviewOutput, error)
 	GetHostReservationPurchasePreviewWithContext(aws.Context, *ec2.GetHostReservationPurchasePreviewInput, ...request.Option) (*ec2.GetHostReservationPurchasePreviewOutput, error)
 	GetHostReservationPurchasePreviewRequest(*ec2.GetHostReservationPurchasePreviewInput) (*request.Request, *ec2.GetHostReservationPurchasePreviewOutput)
@@ -1492,6 +1529,20 @@ type EC2API interface {
 	GetLaunchTemplateData(*ec2.GetLaunchTemplateDataInput) (*ec2.GetLaunchTemplateDataOutput, error)
 	GetLaunchTemplateDataWithContext(aws.Context, *ec2.GetLaunchTemplateDataInput, ...request.Option) (*ec2.GetLaunchTemplateDataOutput, error)
 	GetLaunchTemplateDataRequest(*ec2.GetLaunchTemplateDataInput) (*request.Request, *ec2.GetLaunchTemplateDataOutput)
+
+	GetManagedPrefixListAssociations(*ec2.GetManagedPrefixListAssociationsInput) (*ec2.GetManagedPrefixListAssociationsOutput, error)
+	GetManagedPrefixListAssociationsWithContext(aws.Context, *ec2.GetManagedPrefixListAssociationsInput, ...request.Option) (*ec2.GetManagedPrefixListAssociationsOutput, error)
+	GetManagedPrefixListAssociationsRequest(*ec2.GetManagedPrefixListAssociationsInput) (*request.Request, *ec2.GetManagedPrefixListAssociationsOutput)
+
+	GetManagedPrefixListAssociationsPages(*ec2.GetManagedPrefixListAssociationsInput, func(*ec2.GetManagedPrefixListAssociationsOutput, bool) bool) error
+	GetManagedPrefixListAssociationsPagesWithContext(aws.Context, *ec2.GetManagedPrefixListAssociationsInput, func(*ec2.GetManagedPrefixListAssociationsOutput, bool) bool, ...request.Option) error
+
+	GetManagedPrefixListEntries(*ec2.GetManagedPrefixListEntriesInput) (*ec2.GetManagedPrefixListEntriesOutput, error)
+	GetManagedPrefixListEntriesWithContext(aws.Context, *ec2.GetManagedPrefixListEntriesInput, ...request.Option) (*ec2.GetManagedPrefixListEntriesOutput, error)
+	GetManagedPrefixListEntriesRequest(*ec2.GetManagedPrefixListEntriesInput) (*request.Request, *ec2.GetManagedPrefixListEntriesOutput)
+
+	GetManagedPrefixListEntriesPages(*ec2.GetManagedPrefixListEntriesInput, func(*ec2.GetManagedPrefixListEntriesOutput, bool) bool) error
+	GetManagedPrefixListEntriesPagesWithContext(aws.Context, *ec2.GetManagedPrefixListEntriesInput, func(*ec2.GetManagedPrefixListEntriesOutput, bool) bool, ...request.Option) error
 
 	GetPasswordData(*ec2.GetPasswordDataInput) (*ec2.GetPasswordDataOutput, error)
 	GetPasswordDataWithContext(aws.Context, *ec2.GetPasswordDataInput, ...request.Option) (*ec2.GetPasswordDataOutput, error)
@@ -1624,6 +1675,10 @@ type EC2API interface {
 	ModifyLaunchTemplate(*ec2.ModifyLaunchTemplateInput) (*ec2.ModifyLaunchTemplateOutput, error)
 	ModifyLaunchTemplateWithContext(aws.Context, *ec2.ModifyLaunchTemplateInput, ...request.Option) (*ec2.ModifyLaunchTemplateOutput, error)
 	ModifyLaunchTemplateRequest(*ec2.ModifyLaunchTemplateInput) (*request.Request, *ec2.ModifyLaunchTemplateOutput)
+
+	ModifyManagedPrefixList(*ec2.ModifyManagedPrefixListInput) (*ec2.ModifyManagedPrefixListOutput, error)
+	ModifyManagedPrefixListWithContext(aws.Context, *ec2.ModifyManagedPrefixListInput, ...request.Option) (*ec2.ModifyManagedPrefixListOutput, error)
+	ModifyManagedPrefixListRequest(*ec2.ModifyManagedPrefixListInput) (*request.Request, *ec2.ModifyManagedPrefixListOutput)
 
 	ModifyNetworkInterfaceAttribute(*ec2.ModifyNetworkInterfaceAttributeInput) (*ec2.ModifyNetworkInterfaceAttributeOutput, error)
 	ModifyNetworkInterfaceAttributeWithContext(aws.Context, *ec2.ModifyNetworkInterfaceAttributeInput, ...request.Option) (*ec2.ModifyNetworkInterfaceAttributeOutput, error)
@@ -1840,6 +1895,10 @@ type EC2API interface {
 	RestoreAddressToClassic(*ec2.RestoreAddressToClassicInput) (*ec2.RestoreAddressToClassicOutput, error)
 	RestoreAddressToClassicWithContext(aws.Context, *ec2.RestoreAddressToClassicInput, ...request.Option) (*ec2.RestoreAddressToClassicOutput, error)
 	RestoreAddressToClassicRequest(*ec2.RestoreAddressToClassicInput) (*request.Request, *ec2.RestoreAddressToClassicOutput)
+
+	RestoreManagedPrefixListVersion(*ec2.RestoreManagedPrefixListVersionInput) (*ec2.RestoreManagedPrefixListVersionOutput, error)
+	RestoreManagedPrefixListVersionWithContext(aws.Context, *ec2.RestoreManagedPrefixListVersionInput, ...request.Option) (*ec2.RestoreManagedPrefixListVersionOutput, error)
+	RestoreManagedPrefixListVersionRequest(*ec2.RestoreManagedPrefixListVersionInput) (*request.Request, *ec2.RestoreManagedPrefixListVersionOutput)
 
 	RevokeClientVpnIngress(*ec2.RevokeClientVpnIngressInput) (*ec2.RevokeClientVpnIngressOutput, error)
 	RevokeClientVpnIngressWithContext(aws.Context, *ec2.RevokeClientVpnIngressInput, ...request.Option) (*ec2.RevokeClientVpnIngressOutput, error)
